@@ -24,15 +24,33 @@ repositories {
 }
 
 dependencies {
-//	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.postgresql:postgresql'
+
+	// Hibernate
+	implementation 'org.hibernate:hibernate-core:6.2.13.Final'
+	implementation 'org.hibernate:hibernate-spatial:6.2.13.Final'
+
+	implementation 'net.postgis:postgis-jdbc:2.5.0'
+
 	compileOnly 'org.projectlombok:lombok'
-	runtimeOnly 'org.postgresql:postgresql'
 	annotationProcessor 'org.projectlombok:lombok'
+
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+tasks.register('copyConfig', Copy) {
+	from './submodule-config/backend'
+	include "*.yml"
+	into './src/main/resources'
+}
+
+tasks.named('processResources') {
+	dependsOn 'copyConfig'
 }
