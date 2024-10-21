@@ -1,5 +1,7 @@
 package com.follow_me.running_mate.config.security.jwt;
 
+import static com.follow_me.running_mate.config.security.jwt.JwtConstant.REFRESH_TOKEN_HEADER;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.follow_me.running_mate.config.security.auth.PrincipalDetails;
 import com.follow_me.running_mate.domain.token.dto.response.TokenResponse;
@@ -10,7 +12,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Map;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 public class RefreshTokenFilter extends OncePerRequestFilter {
@@ -26,7 +27,7 @@ public class RefreshTokenFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
         throws ServletException, IOException {
-        String refreshToken = request.getHeader("RefreshToken");
+        String refreshToken = request.getHeader(REFRESH_TOKEN_HEADER);
 
         if (refreshToken != null && jwtTokenProvider.validateToken(refreshToken)) {
             String email = jwtTokenProvider.getEmailFromToken(refreshToken);
@@ -42,12 +43,7 @@ public class RefreshTokenFilter extends OncePerRequestFilter {
 
                     response.setContentType("application/json");
                     response.setCharacterEncoding("UTF-8");
-                    response.getWriter().write(
-                        new ObjectMapper().writeValueAsString(Map.of(
-                            "accessToken", tokenResponse.accessToken(),
-                            "refreshToken", tokenResponse.refreshToken()
-                        ))
-                    );
+                    response.getWriter().write(new ObjectMapper().writeValueAsString(tokenResponse));
                     return;
                 } else {
                     // 토큰이 일치하지 않는 경우 로그 찍기 (디버깅용)
