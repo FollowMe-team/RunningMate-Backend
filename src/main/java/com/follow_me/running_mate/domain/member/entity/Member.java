@@ -2,6 +2,8 @@ package com.follow_me.running_mate.domain.member.entity;
 
 import com.follow_me.running_mate.domain.enums.Gender;
 import com.follow_me.running_mate.domain.enums.Ranking;
+import com.follow_me.running_mate.domain.enums.Role;
+import com.follow_me.running_mate.domain.enums.RunningCareer;
 import com.follow_me.running_mate.domain.enums.RunningGoal;
 import com.follow_me.running_mate.global.common.BaseEntity;
 import jakarta.persistence.Column;
@@ -17,6 +19,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.SQLRestriction;
 import org.locationtech.jts.geom.Point;
 
@@ -25,6 +28,7 @@ import org.locationtech.jts.geom.Point;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@DynamicInsert
 @SQLRestriction("deleted_at is null")
 public class Member extends BaseEntity {
 
@@ -32,11 +36,14 @@ public class Member extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String email;
 
     @Column(nullable = false)
     private String password;
+
+    @Column(nullable = false)
+    private Role role;
 
     @Column(nullable = false)
     private String name;
@@ -64,6 +71,9 @@ public class Member extends BaseEntity {
     private RunningGoal runningGoal;
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private RunningCareer runningCareer;
+
     @Enumerated(EnumType.STRING)
     private Ranking ranking;
 
