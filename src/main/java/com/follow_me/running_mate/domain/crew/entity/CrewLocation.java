@@ -1,6 +1,5 @@
 package com.follow_me.running_mate.domain.crew.entity;
 
-import com.follow_me.running_mate.domain.course.entity.Course;
 import com.follow_me.running_mate.global.common.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
