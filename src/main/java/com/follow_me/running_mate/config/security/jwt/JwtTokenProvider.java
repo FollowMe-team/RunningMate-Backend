@@ -1,6 +1,8 @@
 package com.follow_me.running_mate.config.security.jwt;
 
 import static com.follow_me.running_mate.config.security.jwt.JwtConstant.ACCESS_TOKEN_EXPIRE_TIME;
+import static com.follow_me.running_mate.config.security.jwt.JwtConstant.AUTHORIZATION_HEADER;
+import static com.follow_me.running_mate.config.security.jwt.JwtConstant.BEARER_PREFIX;
 import static com.follow_me.running_mate.config.security.jwt.JwtConstant.REFRESH_TOKEN_EXPIRE_TIME;
 
 import com.follow_me.running_mate.config.security.auth.PrincipalDetailsService;
@@ -112,8 +114,8 @@ public class JwtTokenProvider {
 
     // 헤더에서 토큰 추출
     public String resolveToken(HttpServletRequest request) {
-        String bearerToken = request.getHeader("Authorization");
-        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+        String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
+        if (bearerToken != null && bearerToken.startsWith(BEARER_PREFIX)) {
             return bearerToken.substring(7);
         }
         return null;
