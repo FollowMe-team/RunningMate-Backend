@@ -6,9 +6,11 @@ import static com.follow_me.running_mate.config.security.jwt.JwtConstant.BEARER_
 import static com.follow_me.running_mate.config.security.jwt.JwtConstant.REFRESH_TOKEN_EXPIRE_TIME;
 
 import com.follow_me.running_mate.config.security.auth.PrincipalDetailsService;
+import com.follow_me.running_mate.domain.member.exception.AuthErrorCode;
 import com.follow_me.running_mate.domain.token.dto.response.TokenResponse;
 import com.follow_me.running_mate.domain.token.entity.Token;
 import com.follow_me.running_mate.domain.token.repository.TokenRepository;
+import com.follow_me.running_mate.global.error.exception.CustomException;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
@@ -99,17 +101,14 @@ public class JwtTokenProvider {
             Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token);
             return true;
         } catch (SecurityException | MalformedJwtException e) {
-            log.info("잘못된 JWT 서명입니다.");
+            throw new CustomException(AuthErrorCode.INVALID_TOKEN);
         } catch (UnsupportedJwtException e) {
-            log.info("지원되지 않는 JWT 토큰입니다.");
+            throw new CustomException(AuthErrorCode.UNSUPPORTED_TOKEN);
         } catch (IllegalArgumentException e) {
-            log.info("JWT 토큰이 잘못되었습니다.");
+            throw new CustomException(AuthErrorCode.INVALID_TOKEN_FORMAT);
         } catch (ExpiredJwtException e) {
-            log.info("만료된 JWT 토큰입니다.");
-            //todo : 만료일 때, Action ?
+            throw new CustomException(AuthErrorCode.EXPIRED_TOKEN);
         }
-
-        return false;
     }
 
     // 헤더에서 토큰 추출
