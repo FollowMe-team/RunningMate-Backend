@@ -2,16 +2,23 @@ package com.follow_me.running_mate.config.security.jwt;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.follow_me.running_mate.config.security.auth.PrincipalDetails;
 import com.follow_me.running_mate.domain.member.dto.request.MemberRequest;
+import com.follow_me.running_mate.domain.member.exception.AuthErrorCode;
 import com.follow_me.running_mate.domain.token.dto.response.TokenResponse;
+import com.follow_me.running_mate.global.common.ApiResponse;
+import com.follow_me.running_mate.global.error.exception.CustomException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Map;
+import java.text.SimpleDateFormat;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -21,10 +28,15 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider jwtTokenProvider;
+    private final ObjectMapper objectMapper;
 
     public JwtAuthenticationFilter(AuthenticationManager authenticationManager, JwtTokenProvider jwtTokenProvider) {
         this.authenticationManager = authenticationManager;
         this.jwtTokenProvider = jwtTokenProvider;
+        this.objectMapper = new ObjectMapper()
+            .registerModule(new JavaTimeModule())
+            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+            .setDateFormat(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX"));
         setFilterProcessesUrl("/api/auth/login");
     }
 
@@ -62,17 +74,34 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-        response.getWriter().write(new ObjectMapper().writeValueAsString(tokenResponse));
+        response.getWriter().write(objectMapper.writeValueAsString(
+            ApiResponse.success("로그인에 성공했습니다.", tokenResponse)
+        ));
     }
 
-    // TODO: 로그인 실패 시 처리
     @Override
     protected void unsuccessfulAuthentication(
         HttpServletRequest request, HttpServletResponse response,
         AuthenticationException failed
     ) throws IOException, ServletException {
+
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        response.getWriter().write("Authentication failed");
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+
+        ApiResponse<Void> errorResponse;
+
+
+        if (failed instanceof InternalAuthenticationServiceException &&
+            failed.getCause() instanceof CustomException customException) {
+            errorResponse = ApiResponse.error(customException.getResultCode());
+        } else if (failed instanceof BadCredentialsException) {
+            errorResponse = ApiResponse.error(AuthErrorCode.INVALID_PASSWORD);
+        } else {
+            errorResponse = ApiResponse.error(AuthErrorCode.AUTHENTICATION_FAILED);
+        }
+
+        response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
     }
 }
 
