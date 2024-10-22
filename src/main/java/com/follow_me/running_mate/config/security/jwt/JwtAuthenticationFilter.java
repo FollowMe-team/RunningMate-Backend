@@ -62,12 +62,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-        response.getWriter().write(
-            new ObjectMapper().writeValueAsString(Map.of(
-                "accessToken", tokenResponse.accessToken(),
-                "refreshToken", tokenResponse.refreshToken()
-            ))
-        );
+        response.getWriter().write(new ObjectMapper().writeValueAsString(tokenResponse));
     }
 
     // TODO: 로그인 실패 시 처리

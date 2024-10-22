@@ -27,7 +27,8 @@ public class WebConfig {
         protected RequestMappingInfo getMappingForMethod(Method method, Class<?> handlerType) {
             RequestMappingInfo info = super.getMappingForMethod(method, handlerType);
             if(info != null) {
-                if(AnnotatedElementUtils.hasAnnotation(handlerType, RestController.class)) {
+                if(AnnotatedElementUtils.hasAnnotation(handlerType, RestController.class)
+                    && !handlerType.getPackageName().contains("springdoc")) {
                     info = RequestMappingInfo.paths("/api")
                         .build()
                         .combine(info);
