@@ -3,15 +3,21 @@ package com.follow_me.running_mate.config.security.jwt;
 import static com.follow_me.running_mate.config.security.jwt.JwtConstant.REFRESH_TOKEN_HEADER;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.follow_me.running_mate.config.security.auth.PrincipalDetails;
+import com.follow_me.running_mate.domain.member.exception.AuthErrorCode;
 import com.follow_me.running_mate.domain.token.dto.response.TokenResponse;
 import com.follow_me.running_mate.domain.token.entity.Token;
 import com.follow_me.running_mate.domain.token.repository.TokenRepository;
+import com.follow_me.running_mate.global.common.ApiResponse;
+import com.follow_me.running_mate.global.error.exception.CustomException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 public class RefreshTokenFilter extends OncePerRequestFilter {
@@ -29,29 +35,45 @@ public class RefreshTokenFilter extends OncePerRequestFilter {
         throws ServletException, IOException {
         String refreshToken = request.getHeader(REFRESH_TOKEN_HEADER);
 
-        if (refreshToken != null && jwtTokenProvider.validateToken(refreshToken)) {
-            String email = jwtTokenProvider.getEmailFromToken(refreshToken);
-            Token storedToken = tokenRepository.findById(email).orElse(null);
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        objectMapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX"));
 
-            if (storedToken != null) {
-                if (storedToken.getTokenValue().trim().equals(refreshToken.trim())) {
-                    PrincipalDetails principalDetails
-                        = (PrincipalDetails) jwtTokenProvider.getAuthentication(refreshToken).getPrincipal();
-                    TokenResponse tokenResponse = jwtTokenProvider.createToken(
-                        principalDetails.getUsername(), principalDetails.member().getRole().name()
-                    );
-
-                    response.setContentType("application/json");
-                    response.setCharacterEncoding("UTF-8");
-                    response.getWriter().write(new ObjectMapper().writeValueAsString(tokenResponse));
-                    return;
-                } else {
-                    // 토큰이 일치하지 않는 경우 로그 찍기 (디버깅용)
-                    System.out.println("Stored token: " + storedToken.getTokenValue());
-                    System.out.println("Provided token: " + refreshToken);
+        try {
+            if (refreshToken != null) {
+                if (!jwtTokenProvider.validateToken(refreshToken)) {
+                    throw new CustomException(AuthErrorCode.INVALID_TOKEN);
                 }
+
+                String email = jwtTokenProvider.getEmailFromToken(refreshToken);
+                Token storedToken = tokenRepository.findById(email)
+                    .orElseThrow(() -> new CustomException(AuthErrorCode.REFRESH_TOKEN_NOT_FOUND));
+
+                if (!storedToken.getTokenValue().trim().equals(refreshToken.trim())) {
+                    throw new CustomException(AuthErrorCode.REFRESH_TOKEN_MISMATCH);
+                }
+
+                PrincipalDetails principalDetails = (PrincipalDetails) jwtTokenProvider.getAuthentication(refreshToken).getPrincipal();
+                TokenResponse tokenResponse = jwtTokenProvider.createToken(
+                    principalDetails.getUsername(), principalDetails.member().getRole().name()
+                );
+
+                response.setContentType("application/json");
+                response.setCharacterEncoding("UTF-8");
+                response.getWriter().write(objectMapper.writeValueAsString(
+                    ApiResponse.success("토큰이 갱신되었습니다.", tokenResponse)
+                ));
+                return;
             }
-            // TODO: 재로그인 요청
+        } catch (CustomException e) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            response.getWriter().write(objectMapper.writeValueAsString(
+                ApiResponse.error(e.getResultCode(), e.getMessage())
+            ));
+            return;
         }
 
         filterChain.doFilter(request, response);
