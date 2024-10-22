@@ -5,9 +5,11 @@ import static com.follow_me.running_mate.config.security.jwt.JwtConstant.REFRESH
 import com.follow_me.running_mate.config.security.auth.PrincipalDetails;
 import com.follow_me.running_mate.domain.member.dto.request.MemberRequest;
 import com.follow_me.running_mate.domain.member.service.MemberService;
+import com.follow_me.running_mate.global.common.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -44,22 +46,23 @@ public class AuthController {
     @PostMapping("/signup")
     @Operation(summary = "회원 가입 API")
 
-    public ResponseEntity<String> signup(@RequestBody MemberRequest.SignUpRequest request) {
+    public ApiResponse<Void> signup(@RequestBody @Valid MemberRequest.SignUpRequest request) {
         // TODO: 프로필 이미지도 추가
-        return ResponseEntity.ok(memberService.signup(request));
+        memberService.signup(request);
+        return ApiResponse.success("회원 가입에 성공했습니다.", null);
     }
 
     @PostMapping("/logout")
     @Operation(summary = "로그아웃 API")
-    public ResponseEntity<Void> logout(@AuthenticationPrincipal PrincipalDetails principalDetails) {
+    public ApiResponse<Void> logout(@AuthenticationPrincipal PrincipalDetails principalDetails) {
         memberService.logout(principalDetails.getUsername());
-        return ResponseEntity.ok().build();
+        return ApiResponse.success("로그아웃에 성공했습니다.", null);
     }
 
     @DeleteMapping("/withdraw")
     @Operation(summary = "회원 탈퇴 API")
-    public ResponseEntity<Void> withdraw(@AuthenticationPrincipal PrincipalDetails principalDetails) {
+    public ApiResponse<Void> withdraw(@AuthenticationPrincipal PrincipalDetails principalDetails) {
         memberService.withdraw(principalDetails.member());
-        return ResponseEntity.ok().build();
+        return ApiResponse.success("회원 탈퇴에 성공했습니다.", null);
     }
 }
