@@ -22,7 +22,6 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public String signup(MemberRequest.SignUpRequest request) {
 
-        // TODO: 이메일, 닉네임 중복 체크
         Member member = memberMapper.toEntity(request, passwordEncoder.encode(request.getPassword()));
         return memberRepository.save(member).getEmail();
     }
