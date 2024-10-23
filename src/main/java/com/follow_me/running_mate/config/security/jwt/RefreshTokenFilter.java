@@ -10,7 +10,7 @@ import com.follow_me.running_mate.domain.member.exception.AuthErrorCode;
 import com.follow_me.running_mate.domain.token.dto.response.TokenResponse;
 import com.follow_me.running_mate.domain.token.entity.Token;
 import com.follow_me.running_mate.domain.token.repository.TokenRepository;
-import com.follow_me.running_mate.global.common.ApiResponse;
+import com.follow_me.running_mate.global.common.BaseResponse;
 import com.follow_me.running_mate.global.error.code.CommonErrorCode;
 import com.follow_me.running_mate.global.error.exception.CustomException;
 import jakarta.servlet.FilterChain;
@@ -63,7 +63,7 @@ public class RefreshTokenFilter extends OncePerRequestFilter {
                 response.setContentType("application/json");
                 response.setCharacterEncoding("UTF-8");
                 response.getWriter().write(objectMapper.writeValueAsString(
-                    ApiResponse.success("토큰이 갱신되었습니다.", tokenResponse)
+                    BaseResponse.success("토큰이 갱신되었습니다.", tokenResponse)
                 ));
                 return;
             }
@@ -72,7 +72,7 @@ public class RefreshTokenFilter extends OncePerRequestFilter {
             response.setContentType("application/json");
             response.setCharacterEncoding("UTF-8");
             response.getWriter().write(objectMapper.writeValueAsString(
-                ApiResponse.error(e.getResultCode(), e.getMessage())
+                BaseResponse.error(e.getResultCode(), e.getMessage())
             ));
             return;
         } catch (Exception e) {
@@ -80,7 +80,7 @@ public class RefreshTokenFilter extends OncePerRequestFilter {
             response.setContentType("application/json");
             response.setCharacterEncoding("UTF-8");
             response.getWriter().write(objectMapper.writeValueAsString(
-                ApiResponse.error(CommonErrorCode.INTERNAL_SERVER_ERROR, e.getMessage())
+                BaseResponse.error(CommonErrorCode.INTERNAL_SERVER_ERROR, e.getMessage())
             ));
             return;
         }

@@ -8,7 +8,7 @@ import com.follow_me.running_mate.config.security.auth.PrincipalDetails;
 import com.follow_me.running_mate.domain.member.dto.request.MemberRequest;
 import com.follow_me.running_mate.domain.member.exception.AuthErrorCode;
 import com.follow_me.running_mate.domain.token.dto.response.TokenResponse;
-import com.follow_me.running_mate.global.common.ApiResponse;
+import com.follow_me.running_mate.global.common.BaseResponse;
 import com.follow_me.running_mate.global.error.exception.CustomException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -75,7 +75,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         response.getWriter().write(objectMapper.writeValueAsString(
-            ApiResponse.success("로그인에 성공했습니다.", tokenResponse)
+            BaseResponse.success("로그인에 성공했습니다.", tokenResponse)
         ));
     }
 
@@ -89,16 +89,16 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
-        ApiResponse<Void> errorResponse;
+        BaseResponse<Void> errorResponse;
 
 
         if (failed instanceof InternalAuthenticationServiceException &&
             failed.getCause() instanceof CustomException customException) {
-            errorResponse = ApiResponse.error(customException.getResultCode());
+            errorResponse = BaseResponse.error(customException.getResultCode());
         } else if (failed instanceof BadCredentialsException) {
-            errorResponse = ApiResponse.error(AuthErrorCode.INVALID_PASSWORD);
+            errorResponse = BaseResponse.error(AuthErrorCode.INVALID_PASSWORD);
         } else {
-            errorResponse = ApiResponse.error(AuthErrorCode.AUTHENTICATION_FAILED);
+            errorResponse = BaseResponse.error(AuthErrorCode.AUTHENTICATION_FAILED);
         }
 
         response.getWriter().write(objectMapper.writeValueAsString(errorResponse));

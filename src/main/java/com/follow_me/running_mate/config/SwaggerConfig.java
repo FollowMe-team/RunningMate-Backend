@@ -5,6 +5,7 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import org.springdoc.core.customizers.OperationCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -36,4 +37,16 @@ public class SwaggerConfig {
             .description("RunningMate 프로젝트 API 문서")
             .version("v1.0.0");
     }
+
+    @Bean
+    public OperationCustomizer customizeApiResponses() {
+        return (operation, handlerMethod) -> {
+            operation.getResponses().remove("400");
+            operation.getResponses().remove("405");
+            operation.getResponses().remove("415");
+            operation.getResponses().remove("500");
+            return operation;
+        };
+    }
+
 }

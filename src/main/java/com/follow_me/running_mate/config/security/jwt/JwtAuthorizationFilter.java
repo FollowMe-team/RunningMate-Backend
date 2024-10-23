@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.follow_me.running_mate.config.security.SecurityConstant;
 import com.follow_me.running_mate.domain.member.exception.AuthErrorCode;
-import com.follow_me.running_mate.global.common.ApiResponse;
+import com.follow_me.running_mate.global.common.BaseResponse;
 import com.follow_me.running_mate.global.error.code.CommonErrorCode;
 import com.follow_me.running_mate.global.error.exception.CustomException;
 import jakarta.servlet.FilterChain;
@@ -51,7 +51,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             response.setContentType("application/json;charset=UTF-8");
             response.getWriter().write(
                 objectMapper.writeValueAsString(
-                    ApiResponse.error(e.getResultCode())
+                    BaseResponse.error(e.getResultCode())
                 )
             );
         } catch (Exception e) {
@@ -60,7 +60,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             response.setContentType("application/json;charset=UTF-8");
             response.getWriter().write(
                 objectMapper.writeValueAsString(
-                    ApiResponse.error(CommonErrorCode.INTERNAL_SERVER_ERROR)
+                    BaseResponse.error(CommonErrorCode.INTERNAL_SERVER_ERROR)
                 )
             );
         }
