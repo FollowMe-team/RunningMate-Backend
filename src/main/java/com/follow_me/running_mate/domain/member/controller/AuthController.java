@@ -11,7 +11,6 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -47,7 +46,6 @@ public class AuthController {
     @Operation(summary = "회원 가입 API")
 
     public ApiResponse<Void> signup(@RequestBody @Valid MemberRequest.SignUpRequest request) {
-        // TODO: 프로필 이미지도 추가
         memberService.signup(request);
         return ApiResponse.success("회원 가입에 성공했습니다.", null);
     }

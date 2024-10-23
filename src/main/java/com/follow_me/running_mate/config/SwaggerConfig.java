@@ -1,7 +1,5 @@
 package com.follow_me.running_mate.config;
 
-import static com.follow_me.running_mate.config.security.jwt.JwtConstant.AUTHORIZATION_HEADER;
-
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;

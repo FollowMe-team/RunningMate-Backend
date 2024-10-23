@@ -11,6 +11,7 @@ import com.follow_me.running_mate.domain.token.dto.response.TokenResponse;
 import com.follow_me.running_mate.domain.token.entity.Token;
 import com.follow_me.running_mate.domain.token.repository.TokenRepository;
 import com.follow_me.running_mate.global.common.ApiResponse;
+import com.follow_me.running_mate.global.error.code.CommonErrorCode;
 import com.follow_me.running_mate.global.error.exception.CustomException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -72,6 +73,14 @@ public class RefreshTokenFilter extends OncePerRequestFilter {
             response.setCharacterEncoding("UTF-8");
             response.getWriter().write(objectMapper.writeValueAsString(
                 ApiResponse.error(e.getResultCode(), e.getMessage())
+            ));
+            return;
+        } catch (Exception e) {
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            response.getWriter().write(objectMapper.writeValueAsString(
+                ApiResponse.error(CommonErrorCode.INTERNAL_SERVER_ERROR, e.getMessage())
             ));
             return;
         }

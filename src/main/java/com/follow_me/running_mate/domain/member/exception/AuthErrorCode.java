@@ -17,11 +17,6 @@ public enum AuthErrorCode implements ResultCode {
     ACCOUNT_LOCKED("AUTH011", "계정이 잠겼습니다."),
     ACCOUNT_DISABLED("AUTH012", "비활성화된 계정입니다."),
 
-    // 회원가입 관련 (020-029)
-    DUPLICATE_EMAIL("AUTH020", "이미 존재하는 이메일입니다."),
-    INVALID_EMAIL_FORMAT("AUTH021", "잘못된 이메일 형식입니다."),
-    INVALID_PASSWORD_FORMAT("AUTH022", "비밀번호는 8자 이상이어야 합니다."),
-
     // 토큰 관련 (030-039)
     INVALID_TOKEN("AUTH030", "유효하지 않은 토큰입니다."),
     EXPIRED_TOKEN("AUTH031", "만료된 토큰입니다."),
