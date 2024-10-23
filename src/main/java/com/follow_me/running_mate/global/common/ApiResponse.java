@@ -47,4 +47,13 @@ public record ApiResponse<T>(
             null
         );
     }
+
+    public static <T> ApiResponse<T> error(ResultCode resultCode, T errors) {
+        return new ApiResponse<>(
+            resultCode.getCode(),
+            resultCode.getMessage(),
+            LocalDateTime.now(),
+            errors
+        );
+    }
 }
