@@ -10,7 +10,8 @@ public class SecurityConstant {
     public static final String[] PUBLIC_AUTH_URLS = {
         "/api/auth/signup",
         "/api/auth/login",
-        "/api/auth/refresh"
+        "/api/auth/refresh",
+            "/api/upload"
     };
 
     // Swagger UI 관련 공개 경로
