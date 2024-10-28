@@ -11,7 +11,7 @@ public class SecurityConstant {
         "/api/auth/signup",
         "/api/auth/login",
         "/api/auth/refresh",
-            "/api/upload"
+            "/api/images"
     };
 
     // Swagger UI 관련 공개 경로
