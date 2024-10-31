@@ -8,10 +8,12 @@ import org.springframework.context.annotation.Configuration;
 public class SecurityConstant {
     // Auth 관련 공개 API 경로
     public static final String[] PUBLIC_AUTH_URLS = {
-        "/api/auth/signup",
-        "/api/auth/login",
-        "/api/auth/refresh",
-            "/api/images"
+            "/api/auth/signup",
+            "/api/auth/login",
+            "/api/auth/refresh",
+            "/api/images",
+            "/api/images/delete",
+
     };
 
     // Swagger UI 관련 공개 경로

@@ -27,7 +27,6 @@ public class S3Config {
 
     @Bean
     public AmazonS3 amazonS3Client() {
-        // 자격 증명 출력
         BasicAWSCredentials awsCredentials = new BasicAWSCredentials(accessKey, secretKey);
         return AmazonS3ClientBuilder.standard()
                 .withRegion(region)

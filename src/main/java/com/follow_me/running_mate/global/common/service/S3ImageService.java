@@ -1,4 +1,4 @@
-package com.follow_me.running_mate.global.common;
+package com.follow_me.running_mate.global.common.service;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
@@ -53,14 +53,14 @@ public class S3ImageService {
     private void validateImageFileExtention(String filename) {
         int lastDotIndex = filename.lastIndexOf(".");
         if (lastDotIndex == -1) {
-            throw new CustomException(CommonErrorCode.INVALID_TYPE_VALUE);
+            throw new CustomException(CommonErrorCode.INVALID_TYPE_VALUE , "파일 확장자가 존재하지 않습니다.");
         }
 
         String extention = filename.substring(lastDotIndex + 1).toLowerCase();
         List<String> allowedExtentionList = Arrays.asList("jpg", "jpeg", "png", "gif");
 
         if (!allowedExtentionList.contains(extention)) {
-            throw new CustomException(CommonErrorCode.INVALID_FILE_TYPE);
+            throw new CustomException(CommonErrorCode.INVALID_FILE_TYPE , "지원하지 않는 파일 형식입니다.");
         }
     }
 
@@ -106,7 +106,7 @@ public class S3ImageService {
         try{
             URL url = new URL(imageAddress);
             String decodingKey = URLDecoder.decode(url.getPath(), "UTF-8");
-            return decodingKey.substring(1); // 맨 앞의 '/' 제거
+            return decodingKey.substring(1);
         }catch (MalformedURLException | UnsupportedEncodingException e){
             throw new CustomException(CommonErrorCode.INVALID_INPUT_VALUE, "이미지 주소 파싱 중 오류 발생");
         }
