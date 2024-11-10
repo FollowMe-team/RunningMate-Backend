@@ -13,6 +13,7 @@ public class SecurityConstant {
             "/api/auth/refresh",
             "/api/images",
             "/api/images/delete",
+            "/api/members"
 
     };
 
