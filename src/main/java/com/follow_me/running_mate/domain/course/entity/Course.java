@@ -57,6 +57,12 @@ public class Course extends BaseEntity {
 
     private Double distance;
 
+    @Column(nullable = false)
+    private String city;
+
+    @Column(nullable = false)
+    private String district;
+
     @Enumerated(EnumType.STRING)
     private Status status;
 

@@ -39,13 +39,13 @@ public class CourseResponse {
         private Long id;
         private String name;
         private String description;
-        private String location; // 시 구 형태
+        private String location;
         private Double distance;
-        private Integer duration;
+        private String duration;
         private Difficulty difficulty;
         private Double rating;
         private Integer runningCount;
-        private boolean isBookmarked; // 즐겨찾기 여부
+        private boolean isBookmarked;
         private List<CourseOptionType> courseOptionTypes;
         private List<CoursePointInfo> coursePointInfos;
     }
@@ -58,14 +58,14 @@ public class CourseResponse {
         private Long id;
         private String name;
         private String description;
-        private String location; // 시 구 형태
+        private String location;
         private Double distance;
         private Integer duration;
         private Difficulty difficulty;
         private Status status;
         private Double rating;
         private Integer runningCount;
-        private boolean isBookmarked; // 즐겨찾기 여부
+        private boolean isBookmarked;
         private List<CourseOptionType> courseOptionTypes;
         private List<CoursePointInfo> coursePointInfos;
     }
@@ -78,13 +78,13 @@ public class CourseResponse {
         private Long id;
         private String name;
         private String description;
-        private String location; // 시 구 형태
+        private String location;
         private Double distance;
         private Integer duration;
         private Difficulty difficulty;
         private Double rating;
         private Integer runningCount;
-        private boolean isBookmarked; // 즐겨찾기 여부
+        private boolean isBookmarked;
         private List<CourseOptionType> courseOptionTypes;
         private List<CoursePointInfo> coursePointInfos;
         private List<String> images;
