@@ -36,6 +36,31 @@ public class CourseMapper {
             .build();
     }
 
+    public CourseResponse.MyCourseInfo toMyCourseInfo(
+        Course course,
+        Double rating,
+        Integer runningCount,
+        Boolean isBookmarked,
+        List<CourseOption> courseOptions,
+        List<CoursePoint> coursePointInfos
+    ) {
+        return CourseResponse.MyCourseInfo.builder()
+            .id(course.getId())
+            .name(course.getName())
+            .description(course.getDescription())
+            .location(FormatterUtil.formatLocation(course.getCity(), course.getDistrict()))
+            .distance(course.getDistance())
+            .duration(FormatterUtil.formatDuration(course.getDuration()))
+            .difficulty(course.getDifficulty())
+            .status(course.getStatus())
+            .rating(FormatterUtil.formatRating(rating))
+            .runningCount(runningCount)
+            .isBookmarked(isBookmarked)
+            .courseOptionTypes(toCourseOptionTypes(courseOptions))
+            .coursePointInfos(toCoursePointInfos(coursePointInfos))
+            .build();
+    }
+
     private List<CourseOptionType> toCourseOptionTypes(List<CourseOption> options) {
         return options.stream()
             .map(CourseOption::getType)

@@ -69,11 +69,23 @@ public class CourseServiceImpl implements CourseService {
         return new CourseResponse.CourseListResponse(courses);
     }
 
-
-
     @Override
     public CourseResponse.MyCourseListResponse getMyCourses(Member member) {
-        return null;
+
+        List<Course> myCourses = courseRepository.findAllByWriterOrderByCreatedAtDesc(member);
+
+        List<CourseResponse.MyCourseInfo> courses = myCourses.stream().map(course ->
+            courseMapper.toMyCourseInfo(
+                course,
+                courseReviewRepository.findAverageRatingByCourse(course),
+                course.getRunningCount(),
+                isBookmarkedCourse(member, course),
+                courseOptionRepository.findAllByCourse(course),
+                coursePointRepository.findAllByCourseOrderBySequenceNumberAsc(course)
+
+            )).toList();
+
+        return new CourseResponse.MyCourseListResponse(courses);
     }
 
     @Override
