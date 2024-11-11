@@ -14,7 +14,6 @@ import com.follow_me.running_mate.domain.enums.Difficulty;
 import com.follow_me.running_mate.domain.enums.ReviewSortType;
 import com.follow_me.running_mate.domain.enums.RunningGoal;
 import com.follow_me.running_mate.domain.member.entity.Member;
-import com.follow_me.running_mate.domain.record.entity.RunningRecord;
 import com.follow_me.running_mate.domain.record.service.RunningRecordService;
 import java.util.List;
 import java.util.Optional;
@@ -37,16 +36,16 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public CourseResponse.CourseListResponse getRecentCourses(Member member) {
 
-        List<RunningRecord> recentCourses = runningRecordService.getRecentCourses(member);
+        List<Course> recentCourses = runningRecordService.getRecentCourses(member);
 
-        List<CourseResponse.SummaryInfo> courses = recentCourses.stream().map(runningRecord ->
+        List<CourseResponse.SummaryInfo> courses = recentCourses.stream().map(course ->
             courseMapper.toSummaryInfo(
-                runningRecord.getCourse(),
-                courseReviewRepository.findAverageRatingByCourse(runningRecord.getCourse()),
-                runningRecord.getRunningCount(),
-                isBookmarkedCourse(member, runningRecord.getCourse()),
-                courseOptionRepository.findAllByCourse(runningRecord.getCourse()),
-                coursePointRepository.findAllByCourseOrderBySequenceNumberAsc(runningRecord.getCourse())
+                course,
+                courseReviewRepository.findAverageRatingByCourse(course),
+                course.getRunningCount(),
+                isBookmarkedCourse(member, course),
+                courseOptionRepository.findAllByCourse(course),
+                coursePointRepository.findAllByCourseOrderBySequenceNumberAsc(course)
             )).toList();
 
         return new CourseResponse.CourseListResponse(courses);
@@ -54,8 +53,23 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public CourseResponse.CourseListResponse getBookmarkedCourses(Member member) {
-        return null;
+
+        List<Course> bookmarkedCourses = getBookmarkedCourseByMember(member);
+
+        List<CourseResponse.SummaryInfo> courses = bookmarkedCourses.stream().map(course ->
+            courseMapper.toSummaryInfo(
+                course,
+                courseReviewRepository.findAverageRatingByCourse(course),
+                course.getRunningCount(),
+                isBookmarkedCourse(member, course),
+                courseOptionRepository.findAllByCourse(course),
+                coursePointRepository.findAllByCourseOrderBySequenceNumberAsc(course)
+            )).toList();
+
+        return new CourseResponse.CourseListResponse(courses);
     }
+
+
 
     @Override
     public CourseResponse.MyCourseListResponse getMyCourses(Member member) {
@@ -91,6 +105,12 @@ public class CourseServiceImpl implements CourseService {
 
     private boolean isBookmarkedCourse(Member member, Course course) {
         Optional<CourseBookmark> courseBookmark = courseBookmarkRepository.findByMemberAndCourse(member, course);
-        return courseBookmark.map(CourseBookmark::isBookmarked).orElse(false);
+        return courseBookmark.map(CourseBookmark::getIsBookmarked).orElse(false);
+    }
+
+    private List<Course> getBookmarkedCourseByMember(Member member) {
+        return courseBookmarkRepository.findAllByMemberAndIsBookmarkedTrue(member).stream()
+            .map(CourseBookmark::getCourse)
+            .toList();
     }
 }

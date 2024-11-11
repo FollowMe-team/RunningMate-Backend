@@ -68,4 +68,11 @@ public class Course extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private Difficulty difficulty;
+
+    @Builder.Default
+    private Integer runningCount = 0;
+
+    public void updateRunningCount() {
+        this.runningCount++;
+    }
 }

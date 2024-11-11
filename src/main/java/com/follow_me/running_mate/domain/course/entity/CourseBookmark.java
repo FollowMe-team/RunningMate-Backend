@@ -36,5 +36,5 @@ public class CourseBookmark extends BaseEntity {
     @JoinColumn(nullable = false)
     private Course course;
 
-    private boolean isBookmarked;
+    private Boolean isBookmarked;
 }

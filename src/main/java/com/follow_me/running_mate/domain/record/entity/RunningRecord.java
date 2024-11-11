@@ -50,13 +50,7 @@ public class RunningRecord extends BaseEntity {
 
     private Integer caloriesBurned;
 
-    @Builder.Default
-    private Integer runningCount = 0;
-
     @Column(columnDefinition = "geography(LineString, 4326)")
     private LineString path;
 
-    public void updateRunningCount() {
-        this.runningCount++;
-    }
 }
