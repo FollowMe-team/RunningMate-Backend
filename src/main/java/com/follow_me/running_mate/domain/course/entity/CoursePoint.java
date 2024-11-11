@@ -1,8 +1,11 @@
 package com.follow_me.running_mate.domain.course.entity;
 
+import com.follow_me.running_mate.domain.enums.CoursePointVoice;
 import com.follow_me.running_mate.global.common.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -38,4 +41,7 @@ public class CoursePoint extends BaseEntity {
     private Double elevation;
 
     private Integer sequenceNumber;
+
+    @Enumerated(EnumType.STRING)
+    private CoursePointVoice voice;
 }

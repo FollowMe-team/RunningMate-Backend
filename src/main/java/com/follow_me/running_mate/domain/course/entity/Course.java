@@ -1,5 +1,6 @@
 package com.follow_me.running_mate.domain.course.entity;
 
+import com.follow_me.running_mate.domain.enums.Difficulty;
 import com.follow_me.running_mate.domain.enums.Status;
 import com.follow_me.running_mate.domain.member.entity.Member;
 import com.follow_me.running_mate.global.common.BaseEntity;
@@ -58,4 +59,7 @@ public class Course extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private Status status;
+
+    @Enumerated(EnumType.STRING)
+    private Difficulty difficulty;
 }

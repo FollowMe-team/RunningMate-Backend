@@ -40,6 +40,9 @@ public class Crew extends BaseEntity {
     private String openChatUrl;
 
     @Column(nullable = false)
+    private String profileImageUrl;
+
+    @Column(nullable = false)
     private String detailDescription;
 
     @Column(nullable = false)
