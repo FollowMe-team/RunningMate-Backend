@@ -13,8 +13,6 @@ public class MemberResponse {
     @Getter
     @AllArgsConstructor
     public static class MyProfileResponse {
-        private Long id;
-        private String email;
         private String name;
         private String nickname;
         private Gender gender; // Gender enum

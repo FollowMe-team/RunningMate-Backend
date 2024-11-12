@@ -37,7 +37,7 @@ public class MemberServiceImpl implements MemberService {
     @Override
     @Transactional
     public void withdraw(Member member) {
-        tokenRepository.deleteById(member.getEmail());
+        tokenRepository.deleteById(member.getEmail()); //토큰 삭제
         member.delete();
         memberRepository.save(member);
     }

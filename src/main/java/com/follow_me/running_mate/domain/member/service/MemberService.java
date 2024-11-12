@@ -9,5 +9,5 @@ public interface MemberService {
     String signup(MemberRequest.SignUpRequest request);
     void logout(String email);
     void withdraw(Member member);
-    MemberResponse.MyProfileResponse getMyProfile(String userIdx);
+    MemberResponse.MyProfileResponse getMyProfile(String email);
 }

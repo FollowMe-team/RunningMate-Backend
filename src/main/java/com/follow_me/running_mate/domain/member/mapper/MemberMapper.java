@@ -26,8 +26,6 @@ public class MemberMapper {
     // 마이 프로필 조회 시 사용: Entity -> Response DTO 변환
     public MemberResponse.MyProfileResponse toMyProfileResponse(Member member) {
         return new MemberResponse.MyProfileResponse(
-                member.getId(),
-                member.getEmail(),
                 member.getName(),
                 member.getNickname(),
                 member.getGender(), // Gender enum 반환
