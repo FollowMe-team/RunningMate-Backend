@@ -3,6 +3,7 @@ package com.follow_me.running_mate.domain.course.service;
 import com.follow_me.running_mate.domain.course.dto.response.CourseResponse;
 import com.follow_me.running_mate.domain.course.entity.Course;
 import com.follow_me.running_mate.domain.course.entity.CourseBookmark;
+import com.follow_me.running_mate.domain.course.entity.CoursePoint;
 import com.follow_me.running_mate.domain.course.mapper.CourseMapper;
 import com.follow_me.running_mate.domain.course.repository.CourseBookmarkRepository;
 import com.follow_me.running_mate.domain.course.repository.CourseOptionRepository;
@@ -96,7 +97,9 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public CourseResponse.CourseListResponse searchCourses(String keyword, Double latitude, Double longitude, Difficulty difficulty, List<CourseOptionType> options) {
+    public CourseResponse.CourseListResponse searchCourses(
+        String keyword, Double latitude, Double longitude, Difficulty difficulty, List<CourseOptionType> options
+    ) {
         return null;
     }
 
@@ -112,7 +115,14 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public CourseResponse.CoursePathResponse getCoursePath(Long courseId) {
-        return null;
+        Course course = courseRepository.getCourse(courseId);
+
+        List<CoursePoint> coursePoints = coursePointRepository.findAllByCourseOrderBySequenceNumberAsc(course);
+
+        return new CourseResponse.CoursePathResponse(
+            coursePoints.stream()
+                .map(courseMapper::toCoursePointDetail)
+                .toList());
     }
 
     private boolean isBookmarkedCourse(Member member, Course course) {

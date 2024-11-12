@@ -61,6 +61,14 @@ public class CourseMapper {
             .build();
     }
 
+    public CourseResponse.CoursePointDetail toCoursePointDetail(CoursePoint coursePoint) {
+        return CourseResponse.CoursePointDetail.builder()
+            .latitude(coursePoint.getLocation().getY())
+            .longitude(coursePoint.getLocation().getX())
+            .voice(coursePoint.getVoice())
+            .build();
+    }
+
     private List<CourseOptionType> toCourseOptionTypes(List<CourseOption> options) {
         return options.stream()
             .map(CourseOption::getType)
