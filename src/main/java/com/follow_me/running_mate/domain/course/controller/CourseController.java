@@ -78,12 +78,12 @@ public class CourseController {
         @AuthenticationPrincipal PrincipalDetails principalDetails,
         @Parameter(description = "위도") @RequestParam(value = "latitude", required = false) Double latitude,
         @Parameter(description = "경도") @RequestParam(value = "longitude", required = false) Double longitude,
-        @Parameter(description = "난이도") @RequestParam(value = "difficulty", required = false) Difficulty difficulty,
-        @Parameter(description = "러닝 목표") @RequestParam(value = "runningGoal", required = false)RunningGoal runningGoal
+        @Parameter(description = "난이도") @RequestParam(value = "difficulties") List<Difficulty> difficulties,
+        @Parameter(description = "러닝 목표") @RequestParam(value = "runningGoals") List<RunningGoal> runningGoals
     ) {
         return BaseResponse.success(
             "코스 추천에 성공했습니다.", courseService.recommendedCourses(
-                principalDetails.member(), latitude, longitude, difficulty, runningGoal
+                principalDetails.member(), latitude, longitude, difficulties, runningGoals
             )
         );
     }
@@ -94,16 +94,17 @@ public class CourseController {
         @ApiResponse(responseCode = "200", description = "코스 검색에 성공했습니다."),
     })
     public BaseResponse<CourseResponse.CourseListResponse> searchCourses(
+        @AuthenticationPrincipal PrincipalDetails principalDetails,
         @Parameter(description = "검색어") @RequestParam(value = "keyword") String keyword,
         @Parameter(description = "위도") @RequestParam(value = "latitude", required = false) Double latitude,
         @Parameter(description = "경도") @RequestParam(value = "longitude", required = false) Double longitude,
-        @Parameter(description = "난이도") @RequestParam(value = "difficulty", required = false) Difficulty difficulty,
+        @Parameter(description = "난이도") @RequestParam(value = "difficulties") List<Difficulty> difficulties,
         @Parameter(description = "코스 옵션") @RequestParam(value = "options") List<CourseOptionType> options
         ) {
         return BaseResponse.success(
             "코스 검색에 성공했습니다.",
             courseService.searchCourses(
-                keyword, latitude, longitude, difficulty, options
+                principalDetails.member(), keyword, latitude, longitude, difficulties, options
             )
         );
     }

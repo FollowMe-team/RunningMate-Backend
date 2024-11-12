@@ -13,10 +13,11 @@ public interface CourseService {
     CourseResponse.CourseListResponse getBookmarkedCourses(Member member);
     CourseResponse.MyCourseListResponse getMyCourses(Member member);
     CourseResponse.CourseListResponse recommendedCourses(
-        Member member, Double latitude, Double longitude, Difficulty difficulty, RunningGoal runningGoal
+        Member member, Double latitude, Double longitude, List<Difficulty> difficulties, List<RunningGoal> runningGoals
     );
     CourseResponse.CourseListResponse searchCourses(
-        String keyword, Double latitude, Double longitude, Difficulty difficulty, List<CourseOptionType> options
+        Member member, String keyword, Double latitude,
+        Double longitude, List<Difficulty> difficulties, List<CourseOptionType> options
     );
     CourseResponse.CourseDetailResponse getCourseDetail(Member member, Long courseId);
     CourseResponse.CourseReviewListResponse getCourseReviews(Member member, Long courseId, ReviewSortType sortType);

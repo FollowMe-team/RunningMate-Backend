@@ -103,16 +103,34 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public CourseResponse.CourseListResponse recommendedCourses(
-        Member member, Double latitude, Double longitude, Difficulty difficulty, RunningGoal runningGoal
+        Member member, Double latitude, Double longitude, List<Difficulty> difficulties, List<RunningGoal> runningGoals
     ) {
         return null;
     }
 
     @Override
     public CourseResponse.CourseListResponse searchCourses(
-        String keyword, Double latitude, Double longitude, Difficulty difficulty, List<CourseOptionType> options
+        Member member, String keyword, Double latitude,
+        Double longitude, List<Difficulty> difficulties, List<CourseOptionType> options
     ) {
-        return null;
+        // 위치 반경 기본값 (단위: 미터) 예시로 5000m 설정
+        double radius = 5000.0;
+
+        List<Course> searchCourses = courseRepository.searchCourses(
+            keyword, latitude, longitude, radius, difficulties, options
+        );
+
+        List<CourseResponse.SummaryInfo> courses = searchCourses.stream().map(course ->
+            courseMapper.toSummaryInfo(
+                course,
+                courseReviewRepository.findAverageRatingByCourse(course),
+                course.getRunningCount(),
+                isBookmarkedCourse(member, course),
+                courseOptionRepository.findAllByCourse(course),
+                coursePointRepository.findAllByCourseOrderBySequenceNumberAsc(course)
+            )).toList();
+
+        return new CourseResponse.CourseListResponse(courses);
     }
 
     @Override

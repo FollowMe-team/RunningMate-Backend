@@ -9,7 +9,6 @@ public enum Difficulty {
     EASY("쉬움"),
     NORMAL("보통"),
     HARD("어려움"),
-    NONE("없음")
     ;
     private final String toKorean;
 }
