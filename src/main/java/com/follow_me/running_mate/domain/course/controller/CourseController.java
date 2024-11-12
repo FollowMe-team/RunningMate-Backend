@@ -10,6 +10,7 @@ import com.follow_me.running_mate.domain.enums.RunningGoal;
 import com.follow_me.running_mate.global.common.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -95,12 +96,28 @@ public class CourseController {
     })
     public BaseResponse<CourseResponse.CourseListResponse> searchCourses(
         @AuthenticationPrincipal PrincipalDetails principalDetails,
-        @Parameter(description = "검색어") @RequestParam(value = "keyword") String keyword,
-        @Parameter(description = "위도") @RequestParam(value = "latitude", required = false) Double latitude,
-        @Parameter(description = "경도") @RequestParam(value = "longitude", required = false) Double longitude,
-        @Parameter(description = "난이도") @RequestParam(value = "difficulties") List<Difficulty> difficulties,
-        @Parameter(description = "코스 옵션") @RequestParam(value = "options") List<CourseOptionType> options
-        ) {
+        @Parameter(description = "검색어")
+        @RequestParam(value = "keyword") String keyword,
+
+        @Parameter(description = "위도")
+        @RequestParam(value = "latitude", required = false) Double latitude,
+
+        @Parameter(description = "경도")
+        @RequestParam(value = "longitude", required = false) Double longitude,
+
+        @Parameter(description = "난이도", example = "EASY,NORMAL",
+            schema = @Schema(implementation = String.class, allowableValues = {"EASY", "NORMAL", "HARD"}))
+        @RequestParam(value = "difficulties", required = false) List<Difficulty> difficulties,
+
+        @Parameter(description = "코스 옵션", example = "FOREST,RIVERSIDE",
+            schema = @Schema(implementation = String.class, allowableValues = {
+                "FOREST", "RIVERSIDE", "LAKESIDE", "MOUNTAIN", "SEASIDE",
+                "CITYSCAPE", "PARK", "TRAIL", "CAMPUS", "TRACK",
+                "GRADIENT_HIGH", "GRADIENT_MIDDLE", "GRADIENT_LOW",
+                "GRADIENT_NONE", "DOG_WALKABLE", "BICYCLE_WALKABLE", "BABY_WALKABLE"
+            }))
+        @RequestParam(value = "options", required = false) List<CourseOptionType> options
+    ) {
         return BaseResponse.success(
             "코스 검색에 성공했습니다.",
             courseService.searchCourses(

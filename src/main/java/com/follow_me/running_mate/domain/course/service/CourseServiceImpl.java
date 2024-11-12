@@ -115,13 +115,17 @@ public class CourseServiceImpl implements CourseService {
         double radius = 5000.0;
 
         // 사용자 ranking을 기준으로 기본 난이도 설정
-        Difficulty effectiveDifficulty = (difficulty != null) ? difficulty : getDefaultDifficultyByRanking(member.getRanking());
+        Difficulty effectiveDifficulty =
+            (difficulty != null) ? difficulty : getDefaultDifficultyByRanking(member.getRanking());
 
         // 러닝 목표에 맞는 옵션 필터링
-        List<CourseOptionType> goalOptions = getOptionsByRunningGoal(runningGoal);
+        List<String> goalOptions = (runningGoal != null) ?
+            getOptionsByRunningGoal(runningGoal).stream()
+                .map(CourseOptionType::name)
+                .toList() : List.of();
 
         List<Course> recommendedCourses = courseRepository.recommendCourses(
-            latitude, longitude, radius, effectiveDifficulty, goalOptions);
+            latitude, longitude, radius, effectiveDifficulty.name(), goalOptions);
 
         List<CourseResponse.SummaryInfo> courses = recommendedCourses.stream().map(course ->
             courseMapper.toSummaryInfo(
@@ -145,8 +149,16 @@ public class CourseServiceImpl implements CourseService {
         // 위치 반경 기본값 (단위: 미터)
         double radius = 5000.0;
 
+        List<String> difficultyList = (difficulties != null) ? difficulties.stream()
+            .map(Difficulty::name)
+            .toList() : List.of();
+
+        List<String> optionsList = (options != null) ? options.stream()
+            .map(CourseOptionType::name)
+            .toList() : List.of();
+
         List<Course> searchCourses = courseRepository.searchCourses(
-            keyword, latitude, longitude, radius, difficulties, options
+            keyword, latitude, longitude, radius, difficultyList, optionsList
         );
 
         List<CourseResponse.SummaryInfo> courses = searchCourses.stream().map(course ->

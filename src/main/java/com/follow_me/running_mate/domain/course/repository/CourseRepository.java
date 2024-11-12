@@ -20,29 +20,33 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
 
     List<Course> findAllByWriterOrderByCreatedAtDesc(Member writer);
 
-    @Query("SELECT DISTINCT c FROM Course c " +
-        "JOIN c.options o " +
-        "WHERE (:latitude IS NULL OR ST_DWithin(c.startPoint, ST_MakePoint(:longitude, :latitude), :radius)) " +
+    @Query(value = "SELECT DISTINCT c.* FROM course c " +
+        "JOIN course_option o ON c.id = o.course_id " +
+        "WHERE (:latitude IS NULL OR ST_DWithin(c.start_point, ST_MakePoint(:longitude, :latitude)::geography, :radius)) " +
         "AND c.difficulty = :difficulty " +
-        "AND (:optionsList IS EMPTY OR o.type IN :optionsList)")
+        "AND (:optionsList IS NULL OR o.type = ANY(:optionsList))",
+        nativeQuery = true)
     List<Course> recommendCourses(
         @Param("latitude") Double latitude,
         @Param("longitude") Double longitude,
         @Param("radius") Double radius,
-        @Param("difficulty") Difficulty difficulty,
-        @Param("optionsList") List<CourseOptionType> optionsList);
+        @Param("difficulty") String difficulty,
+        @Param("optionsList") List<String> optionsList);
 
-    @Query("SELECT DISTINCT c FROM Course c " +
-        "JOIN c.options o " +
+    @Query(value = "SELECT DISTINCT c.* FROM course c " +
+        "JOIN course_option o ON c.id = o.course_id " +
         "WHERE (:keyword IS NULL OR c.name LIKE %:keyword% OR c.description LIKE %:keyword% OR c.city LIKE %:keyword% OR c.district LIKE %:keyword%) " +
-        "AND (:latitude IS NULL OR ST_DWithin(c.startPoint, ST_MakePoint(:longitude, :latitude), :radius)) " +
-        "AND (:difficulties IS EMPTY OR c.difficulty IN :difficulties) " +
-        "AND (:options IS EMPTY OR o.type IN :options)")
+        "AND (:latitude IS NULL OR ST_DWithin(c.start_point, ST_MakePoint(:longitude, :latitude)::geography, :radius)) " +
+        "AND (COALESCE(array_length(array[:difficulties]::varchar[], 1), 0) = 0 OR c.difficulty = ANY(array[:difficulties]::varchar[])) " +
+        "AND (COALESCE(array_length(array[:options]::varchar[], 1), 0) = 0 OR o.type = ANY(array[:options]::varchar[]))",
+        nativeQuery = true)
     List<Course> searchCourses(
         @Param("keyword") String keyword,
         @Param("latitude") Double latitude,
         @Param("longitude") Double longitude,
         @Param("radius") Double radius,
-        @Param("difficulties") List<Difficulty> difficulties,
-        @Param("options") List<CourseOptionType> options);
+        @Param("difficulties") List<String> difficulties,
+        @Param("options") List<String> options);
+
+
 }
