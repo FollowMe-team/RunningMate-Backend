@@ -78,12 +78,12 @@ public class CourseController {
         @AuthenticationPrincipal PrincipalDetails principalDetails,
         @Parameter(description = "위도") @RequestParam(value = "latitude", required = false) Double latitude,
         @Parameter(description = "경도") @RequestParam(value = "longitude", required = false) Double longitude,
-        @Parameter(description = "난이도") @RequestParam(value = "difficulties") List<Difficulty> difficulties,
-        @Parameter(description = "러닝 목표") @RequestParam(value = "runningGoals") List<RunningGoal> runningGoals
+        @Parameter(description = "난이도") @RequestParam(value = "difficulty", required = false) Difficulty difficulty,
+        @Parameter(description = "러닝 목표") @RequestParam(value = "runningGoal", required = false) RunningGoal runningGoal
     ) {
         return BaseResponse.success(
             "코스 추천에 성공했습니다.", courseService.recommendedCourses(
-                principalDetails.member(), latitude, longitude, difficulties, runningGoals
+                principalDetails.member(), latitude, longitude, difficulty, runningGoal
             )
         );
     }

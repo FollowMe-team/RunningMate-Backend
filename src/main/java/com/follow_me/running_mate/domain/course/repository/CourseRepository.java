@@ -22,6 +22,18 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
 
     @Query("SELECT DISTINCT c FROM Course c " +
         "JOIN c.options o " +
+        "WHERE (:latitude IS NULL OR ST_DWithin(c.startPoint, ST_MakePoint(:longitude, :latitude), :radius)) " +
+        "AND c.difficulty = :difficulty " +
+        "AND (:optionsList IS EMPTY OR o.type IN :optionsList)")
+    List<Course> recommendCourses(
+        @Param("latitude") Double latitude,
+        @Param("longitude") Double longitude,
+        @Param("radius") Double radius,
+        @Param("difficulty") Difficulty difficulty,
+        @Param("optionsList") List<CourseOptionType> optionsList);
+
+    @Query("SELECT DISTINCT c FROM Course c " +
+        "JOIN c.options o " +
         "WHERE (:keyword IS NULL OR c.name LIKE %:keyword% OR c.description LIKE %:keyword% OR c.city LIKE %:keyword% OR c.district LIKE %:keyword%) " +
         "AND (:latitude IS NULL OR ST_DWithin(c.startPoint, ST_MakePoint(:longitude, :latitude), :radius)) " +
         "AND (:difficulties IS EMPTY OR c.difficulty IN :difficulties) " +

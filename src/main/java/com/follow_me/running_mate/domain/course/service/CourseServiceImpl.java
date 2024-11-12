@@ -16,6 +16,7 @@ import com.follow_me.running_mate.domain.course.repository.CourseReviewRepositor
 import com.follow_me.running_mate.domain.crew.service.CrewService;
 import com.follow_me.running_mate.domain.enums.CourseOptionType;
 import com.follow_me.running_mate.domain.enums.Difficulty;
+import com.follow_me.running_mate.domain.enums.Ranking;
 import com.follow_me.running_mate.domain.enums.ReviewSortType;
 import com.follow_me.running_mate.domain.enums.RunningGoal;
 import com.follow_me.running_mate.domain.member.entity.Member;
@@ -28,6 +29,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -48,6 +50,7 @@ public class CourseServiceImpl implements CourseService {
 
 
     @Override
+    @Transactional(readOnly = true)
     public CourseResponse.CourseListResponse getRecentCourses(Member member) {
 
         List<Course> recentCourses = runningRecordService.getRecentCourses(member);
@@ -66,6 +69,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public CourseResponse.CourseListResponse getBookmarkedCourses(Member member) {
 
         List<Course> bookmarkedCourses = getBookmarkedCourseByMember(member);
@@ -84,6 +88,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public CourseResponse.MyCourseListResponse getMyCourses(Member member) {
 
         List<Course> myCourses = courseRepository.findAllByWriterOrderByCreatedAtDesc(member);
@@ -102,18 +107,42 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public CourseResponse.CourseListResponse recommendedCourses(
-        Member member, Double latitude, Double longitude, List<Difficulty> difficulties, List<RunningGoal> runningGoals
-    ) {
-        return null;
+        Member member, Double latitude, Double longitude, Difficulty difficulty, RunningGoal runningGoal) {
+
+        // 위치 반경 기본값 (단위: 미터)
+        double radius = 5000.0;
+
+        // 사용자 ranking을 기준으로 기본 난이도 설정
+        Difficulty effectiveDifficulty = (difficulty != null) ? difficulty : getDefaultDifficultyByRanking(member.getRanking());
+
+        // 러닝 목표에 맞는 옵션 필터링
+        List<CourseOptionType> goalOptions = getOptionsByRunningGoal(runningGoal);
+
+        List<Course> recommendedCourses = courseRepository.recommendCourses(
+            latitude, longitude, radius, effectiveDifficulty, goalOptions);
+
+        List<CourseResponse.SummaryInfo> courses = recommendedCourses.stream().map(course ->
+            courseMapper.toSummaryInfo(
+                course,
+                courseReviewRepository.findAverageRatingByCourse(course),
+                course.getRunningCount(),
+                isBookmarkedCourse(member, course),
+                courseOptionRepository.findAllByCourse(course),
+                coursePointRepository.findAllByCourseOrderBySequenceNumberAsc(course)
+            )).toList();
+
+        return new CourseResponse.CourseListResponse(courses);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public CourseResponse.CourseListResponse searchCourses(
         Member member, String keyword, Double latitude,
         Double longitude, List<Difficulty> difficulties, List<CourseOptionType> options
     ) {
-        // 위치 반경 기본값 (단위: 미터) 예시로 5000m 설정
+        // 위치 반경 기본값 (단위: 미터)
         double radius = 5000.0;
 
         List<Course> searchCourses = courseRepository.searchCourses(
@@ -134,6 +163,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public CourseResponse.CourseDetailResponse getCourseDetail(Member member, Long courseId) {
 
         Course course = courseRepository.getCourse(courseId);
@@ -154,6 +184,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public CourseResponse.CourseReviewListResponse getCourseReviews(
         Member member, Long courseId, ReviewSortType sortType
     ) {
@@ -171,6 +202,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public CourseResponse.CoursePathResponse getCoursePath(Long courseId) {
         Course course = courseRepository.getCourse(courseId);
 
@@ -180,6 +212,27 @@ public class CourseServiceImpl implements CourseService {
             coursePoints.stream()
                 .map(courseMapper::toCoursePointDetail)
                 .toList());
+    }
+
+    // 사용자 ranking에 따른 기본 난이도 설정
+    private Difficulty getDefaultDifficultyByRanking(Ranking ranking) {
+        return switch (ranking) {
+            case JOGGER, RUNNER -> Difficulty.EASY;
+            case RACER, SPRINTER -> Difficulty.NORMAL;
+            case MARATHONER, ULTRA_RUNNER, IRON_LEGS, SPEED_DEMON -> Difficulty.HARD;
+        };
+    }
+
+    // 러닝 목표에 따른 추천 옵션 필터링
+    private List<CourseOptionType> getOptionsByRunningGoal(RunningGoal runningGoal) {
+        return switch (runningGoal) {
+            case WEIGHT_LOSS ->
+                List.of(CourseOptionType.GRADIENT_MIDDLE, CourseOptionType.PARK, CourseOptionType.TRAIL);
+            case ENDURANCE ->
+                List.of(CourseOptionType.MOUNTAIN, CourseOptionType.FOREST, CourseOptionType.GRADIENT_HIGH);
+            case SPEED -> List.of(CourseOptionType.TRACK, CourseOptionType.GRADIENT_NONE, CourseOptionType.CITYSCAPE);
+            default -> List.of(); // 목표가 없으면 모든 코스 허용
+        };
     }
 
     private boolean isBookmarkedCourse(Member member, Course course) {

@@ -13,7 +13,7 @@ public interface CourseService {
     CourseResponse.CourseListResponse getBookmarkedCourses(Member member);
     CourseResponse.MyCourseListResponse getMyCourses(Member member);
     CourseResponse.CourseListResponse recommendedCourses(
-        Member member, Double latitude, Double longitude, List<Difficulty> difficulties, List<RunningGoal> runningGoals
+        Member member, Double latitude, Double longitude, Difficulty difficulty, RunningGoal runningGoal
     );
     CourseResponse.CourseListResponse searchCourses(
         Member member, String keyword, Double latitude,

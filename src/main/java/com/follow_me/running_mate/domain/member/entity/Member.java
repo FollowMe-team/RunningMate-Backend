@@ -4,7 +4,6 @@ import com.follow_me.running_mate.domain.enums.Gender;
 import com.follow_me.running_mate.domain.enums.Ranking;
 import com.follow_me.running_mate.domain.enums.Role;
 import com.follow_me.running_mate.domain.enums.RunningCareer;
-import com.follow_me.running_mate.domain.enums.RunningGoal;
 import com.follow_me.running_mate.global.common.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -65,10 +64,6 @@ public class Member extends BaseEntity {
     @Column(nullable = false)
     @Builder.Default()
     private Integer averageSpeed = 0;
-
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private RunningGoal runningGoal;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
