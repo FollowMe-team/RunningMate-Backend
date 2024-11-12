@@ -4,6 +4,8 @@ import com.follow_me.running_mate.domain.course.dto.response.CourseResponse;
 import com.follow_me.running_mate.domain.course.entity.Course;
 import com.follow_me.running_mate.domain.course.entity.CourseBookmark;
 import com.follow_me.running_mate.domain.course.entity.CoursePoint;
+import com.follow_me.running_mate.domain.course.entity.CourseReview;
+import com.follow_me.running_mate.domain.course.entity.CourseReviewImage;
 import com.follow_me.running_mate.domain.course.mapper.CourseMapper;
 import com.follow_me.running_mate.domain.course.repository.CourseBookmarkRepository;
 import com.follow_me.running_mate.domain.course.repository.CourseOptionRepository;
@@ -16,8 +18,12 @@ import com.follow_me.running_mate.domain.enums.ReviewSortType;
 import com.follow_me.running_mate.domain.enums.RunningGoal;
 import com.follow_me.running_mate.domain.member.entity.Member;
 import com.follow_me.running_mate.domain.record.service.RunningRecordService;
+import com.follow_me.running_mate.global.common.util.CourseReviewImageRepository;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -32,6 +38,7 @@ public class CourseServiceImpl implements CourseService {
     private final CourseOptionRepository courseOptionRepository;
     private final CoursePointRepository coursePointRepository;
     private final RunningRecordService runningRecordService;
+    private final CourseReviewImageRepository courseReviewImageRepository;
 
 
     @Override
@@ -109,8 +116,26 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public CourseResponse.CourseReviewListResponse getCourseReviews(Member member, Long courseId, ReviewSortType sortType) {
-        return null;
+    public CourseResponse.CourseReviewListResponse getCourseReviews(
+        Member member, Long courseId, ReviewSortType sortType
+    ) {
+        Course course = courseRepository.getCourse(courseId);
+
+        List<CourseResponse.ReviewInfo> reviews = sortType.sort(course, courseReviewRepository).stream()
+            .map(courseReview -> courseMapper.toReviewInfo(
+                courseReview,
+                courseReviewImageRepository.findAllByReview(courseReview).stream()
+                    .map(CourseReviewImage::getUrl)
+                    .toList(),
+                member
+            )).toList();
+
+
+        return courseMapper.toCourseReviewListResponse(
+            reviews,
+            courseReviewRepository.findAverageRatingByCourse(course),
+            getRatingCounts(reviews)
+        );
     }
 
     @Override
@@ -134,5 +159,21 @@ public class CourseServiceImpl implements CourseService {
         return courseBookmarkRepository.findAllByMemberAndIsBookmarkedTrue(member).stream()
             .map(CourseBookmark::getCourse)
             .toList();
+    }
+
+    private List<Integer> getRatingCounts(List<CourseResponse.ReviewInfo> reviews) {
+        // 리뷰 리스트를 평점별로 그룹화하여 개수를 세기
+        Map<Integer, Long> ratingCountMap = reviews.stream()
+            .collect(Collectors.groupingBy(
+                review -> review.getRating().intValue(),
+                Collectors.counting()
+            ));
+
+        // 각 평점(5점 ~ 1점)별 개수를 순서대로 List에 추가
+        List<Integer> ratingCounts = new ArrayList<>();
+        for (int i = 5; i >= 1; i--) {
+            ratingCounts.add(ratingCountMap.getOrDefault(i, 0L).intValue());
+        }
+        return ratingCounts;
     }
 }

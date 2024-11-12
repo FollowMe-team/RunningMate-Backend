@@ -4,7 +4,9 @@ import com.follow_me.running_mate.domain.course.dto.response.CourseResponse;
 import com.follow_me.running_mate.domain.course.entity.Course;
 import com.follow_me.running_mate.domain.course.entity.CourseOption;
 import com.follow_me.running_mate.domain.course.entity.CoursePoint;
+import com.follow_me.running_mate.domain.course.entity.CourseReview;
 import com.follow_me.running_mate.domain.enums.CourseOptionType;
+import com.follow_me.running_mate.domain.member.entity.Member;
 import com.follow_me.running_mate.global.common.util.FormatterUtil;
 import java.util.List;
 import org.springframework.stereotype.Component;
@@ -69,6 +71,31 @@ public class CourseMapper {
             .build();
     }
 
+    public CourseResponse.CourseReviewListResponse toCourseReviewListResponse(
+        List<CourseResponse.ReviewInfo> reviews, Double rating, List<Integer> ratingCounts
+    ) {
+        return CourseResponse.CourseReviewListResponse.builder()
+            .rating(rating)
+            .ratingCounts(ratingCounts)
+            .reviews(reviews)
+            .reviewCount(reviews.size())
+            .build();
+    }
+
+    public CourseResponse.ReviewInfo toReviewInfo(
+        CourseReview review, List<String> reviewImages,  Member member
+    ) {
+        return CourseResponse.ReviewInfo.builder()
+            .id(review.getId())
+            .writer(toMemberInfo(review.getWriter()))
+            .content(review.getContent())
+            .rating(review.getRating())
+            .images(reviewImages)
+            .createdAt(FormatterUtil.formatTime(review.getCreatedAt()))
+            .isMine(review.getWriter().equals(member)) // TODO: 되는지 테스트
+            .build();
+    }
+
     private List<CourseOptionType> toCourseOptionTypes(List<CourseOption> options) {
         return options.stream()
             .map(CourseOption::getType)
@@ -83,5 +110,14 @@ public class CourseMapper {
                     .longitude(coursePoint.getLocation().getX())
                     .build()
             ).toList();
+    }
+
+    private CourseResponse.MemberInfo toMemberInfo(Member member) {
+        return CourseResponse.MemberInfo.builder()
+            .id(member.getId())
+            .nickname(member.getNickname())
+            .profileImageUrl(member.getProfileImageUrl())
+            .ranking(member.getRanking())
+            .build();
     }
 }

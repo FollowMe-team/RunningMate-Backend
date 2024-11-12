@@ -1,6 +1,8 @@
 package com.follow_me.running_mate.global.common.util;
 
 import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -39,5 +41,24 @@ public class FormatterUtil {
     // Rating 포맷팅
     public static Double formatRating(Double rating) {
         return rating != null ? Math.round(rating * 10) / 10.0 : 0.0;
+    }
+
+    // 시간 포맷팅
+    public static String formatTime(LocalDateTime createdAt) {
+        LocalDateTime now = LocalDateTime.now();
+        Duration duration = Duration.between(createdAt, now);
+
+        if (duration.getSeconds() < 60) {
+            return duration.getSeconds() + "초 전";
+        } else if (duration.toMinutes() < 60) {
+            return duration.toMinutes() + "분 전";
+        } else if (duration.toHours() < 24) {
+            return duration.toHours() + "시간 전";
+        } else if (duration.toDays() < 7) {
+            return duration.toDays() + "일 전";
+        } else {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            return createdAt.format(formatter);
+        }
     }
 }
