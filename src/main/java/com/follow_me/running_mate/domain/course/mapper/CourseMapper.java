@@ -5,6 +5,8 @@ import com.follow_me.running_mate.domain.course.entity.Course;
 import com.follow_me.running_mate.domain.course.entity.CourseOption;
 import com.follow_me.running_mate.domain.course.entity.CoursePoint;
 import com.follow_me.running_mate.domain.course.entity.CourseReview;
+import com.follow_me.running_mate.domain.course.entity.CourseReviewImage;
+import com.follow_me.running_mate.domain.crew.entity.Crew;
 import com.follow_me.running_mate.domain.enums.CourseOptionType;
 import com.follow_me.running_mate.domain.member.entity.Member;
 import com.follow_me.running_mate.global.common.util.FormatterUtil;
@@ -63,6 +65,32 @@ public class CourseMapper {
             .build();
     }
 
+    public CourseResponse.CourseDetailResponse toCourseDetailResponse(
+        Course course, Double rating, Boolean isBookmarked, List<String> images,
+        List<CourseOption> courseOptions, List<CoursePoint> coursePoints,
+        List<CourseResponse.CrewInfo> crews, List<CourseResponse.ReviewInfo> reviews, List<Integer> ratingCounts
+    ) {
+        return CourseResponse.CourseDetailResponse.builder()
+            .id(course.getId())
+            .name(course.getName())
+            .description(course.getDescription())
+            .location(FormatterUtil.formatLocation(course.getCity(), course.getDistrict()))
+            .distance(course.getDistance())
+            .duration(FormatterUtil.formatDuration(course.getDuration()))
+            .difficulty(course.getDifficulty())
+            .rating(FormatterUtil.formatRating(rating))
+            .runningCount(course.getRunningCount())
+            .isBookmarked(isBookmarked)
+            .courseOptionTypes(toCourseOptionTypes(courseOptions))
+            .coursePointInfos(toCoursePointInfos(coursePoints))
+            .images(images)
+            .crews(crews)
+            .crewCount(crews.size())
+            .reviews(reviews)
+            .reviewCount(reviews.size())
+            .build();
+    }
+
     public CourseResponse.CoursePointDetail toCoursePointDetail(CoursePoint coursePoint) {
         return CourseResponse.CoursePointDetail.builder()
             .latitude(coursePoint.getLocation().getY())
@@ -82,7 +110,26 @@ public class CourseMapper {
             .build();
     }
 
-    public CourseResponse.ReviewInfo toReviewInfo(
+    public List<CourseResponse.ReviewInfo> toReviewInfos(
+        List<CourseReview> reviews, Member member
+    ) {
+        return reviews.stream()
+            .map(review -> toReviewInfo(
+                review,
+                review.getImages().stream()
+                    .map(CourseReviewImage::getUrl)
+                    .toList(),
+                member
+            )).toList();
+    }
+
+    public List<CourseResponse.CrewInfo> toCrewInfos(List<Crew> crews) {
+        return crews.stream()
+            .map(this::toCrewInfo)
+            .toList();
+    }
+
+    private CourseResponse.ReviewInfo toReviewInfo(
         CourseReview review, List<String> reviewImages,  Member member
     ) {
         return CourseResponse.ReviewInfo.builder()
@@ -93,6 +140,16 @@ public class CourseMapper {
             .images(reviewImages)
             .createdAt(FormatterUtil.formatTime(review.getCreatedAt()))
             .isMine(review.getWriter().equals(member)) // TODO: 되는지 테스트
+            .build();
+    }
+
+    private CourseResponse.CrewInfo toCrewInfo(Crew crew) {
+        return CourseResponse.CrewInfo.builder()
+            .id(crew.getId())
+            .name(crew.getName())
+            .shortDescription(crew.getShortDescription())
+            .profileImageUrl(crew.getProfileImageUrl())
+            .memberCount(crew.getMemberCount())
             .build();
     }
 

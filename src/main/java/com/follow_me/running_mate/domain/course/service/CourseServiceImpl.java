@@ -3,22 +3,24 @@ package com.follow_me.running_mate.domain.course.service;
 import com.follow_me.running_mate.domain.course.dto.response.CourseResponse;
 import com.follow_me.running_mate.domain.course.entity.Course;
 import com.follow_me.running_mate.domain.course.entity.CourseBookmark;
+import com.follow_me.running_mate.domain.course.entity.CourseImage;
 import com.follow_me.running_mate.domain.course.entity.CoursePoint;
-import com.follow_me.running_mate.domain.course.entity.CourseReview;
 import com.follow_me.running_mate.domain.course.entity.CourseReviewImage;
 import com.follow_me.running_mate.domain.course.mapper.CourseMapper;
 import com.follow_me.running_mate.domain.course.repository.CourseBookmarkRepository;
+import com.follow_me.running_mate.domain.course.repository.CourseImageRepository;
 import com.follow_me.running_mate.domain.course.repository.CourseOptionRepository;
 import com.follow_me.running_mate.domain.course.repository.CoursePointRepository;
 import com.follow_me.running_mate.domain.course.repository.CourseRepository;
 import com.follow_me.running_mate.domain.course.repository.CourseReviewRepository;
+import com.follow_me.running_mate.domain.crew.service.CrewService;
 import com.follow_me.running_mate.domain.enums.CourseOptionType;
 import com.follow_me.running_mate.domain.enums.Difficulty;
 import com.follow_me.running_mate.domain.enums.ReviewSortType;
 import com.follow_me.running_mate.domain.enums.RunningGoal;
 import com.follow_me.running_mate.domain.member.entity.Member;
 import com.follow_me.running_mate.domain.record.service.RunningRecordService;
-import com.follow_me.running_mate.global.common.util.CourseReviewImageRepository;
+import com.follow_me.running_mate.domain.course.repository.CourseReviewImageRepository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -32,13 +34,17 @@ import org.springframework.stereotype.Service;
 public class CourseServiceImpl implements CourseService {
 
     private final CourseMapper courseMapper;
+
     private final CourseRepository courseRepository;
     private final CourseReviewRepository courseReviewRepository;
     private final CourseBookmarkRepository courseBookmarkRepository;
     private final CourseOptionRepository courseOptionRepository;
     private final CoursePointRepository coursePointRepository;
-    private final RunningRecordService runningRecordService;
+    private final CourseImageRepository courseImageRepository;
     private final CourseReviewImageRepository courseReviewImageRepository;
+
+    private final RunningRecordService runningRecordService;
+    private final CrewService crewService;
 
 
     @Override
@@ -90,7 +96,6 @@ public class CourseServiceImpl implements CourseService {
                 isBookmarkedCourse(member, course),
                 courseOptionRepository.findAllByCourse(course),
                 coursePointRepository.findAllByCourseOrderBySequenceNumberAsc(course)
-
             )).toList();
 
         return new CourseResponse.MyCourseListResponse(courses);
@@ -112,7 +117,22 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public CourseResponse.CourseDetailResponse getCourseDetail(Member member, Long courseId) {
-        return null;
+
+        Course course = courseRepository.getCourse(courseId);
+
+        return courseMapper.toCourseDetailResponse(
+            course,
+            courseReviewRepository.findAverageRatingByCourse(course),
+            isBookmarkedCourse(member, course),
+            courseImageRepository.findAllByCourse(course).stream()
+                .map(CourseImage::getUrl)
+                .toList(),
+            courseOptionRepository.findAllByCourse(course),
+            coursePointRepository.findAllByCourseOrderBySequenceNumberAsc(course),
+            courseMapper.toCrewInfos(crewService.getCrewByCourse(course)),
+            courseMapper.toReviewInfos(courseReviewRepository.findTop3ByCourseOrderByCreatedAtDesc(course), member),
+            getRatingCounts(courseMapper.toReviewInfos(courseReviewRepository.findAllByCourse(course), member))
+        );
     }
 
     @Override
@@ -121,15 +141,9 @@ public class CourseServiceImpl implements CourseService {
     ) {
         Course course = courseRepository.getCourse(courseId);
 
-        List<CourseResponse.ReviewInfo> reviews = sortType.sort(course, courseReviewRepository).stream()
-            .map(courseReview -> courseMapper.toReviewInfo(
-                courseReview,
-                courseReviewImageRepository.findAllByReview(courseReview).stream()
-                    .map(CourseReviewImage::getUrl)
-                    .toList(),
-                member
-            )).toList();
-
+        List<CourseResponse.ReviewInfo> reviews = courseMapper.toReviewInfos(
+            sortType.sort(course, courseReviewRepository), member
+        );
 
         return courseMapper.toCourseReviewListResponse(
             reviews,

@@ -1,4 +1,4 @@
-package com.follow_me.running_mate.global.common.util;
+package com.follow_me.running_mate.domain.course.repository;
 
 import com.follow_me.running_mate.domain.course.entity.CourseReview;
 import com.follow_me.running_mate.domain.course.entity.CourseReviewImage;

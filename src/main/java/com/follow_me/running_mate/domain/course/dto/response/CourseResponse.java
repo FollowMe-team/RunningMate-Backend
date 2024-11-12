@@ -80,7 +80,7 @@ public class CourseResponse {
         private String description;
         private String location;
         private Double distance;
-        private Integer duration;
+        private String duration;
         private Difficulty difficulty;
         private Double rating;
         private Integer runningCount;
