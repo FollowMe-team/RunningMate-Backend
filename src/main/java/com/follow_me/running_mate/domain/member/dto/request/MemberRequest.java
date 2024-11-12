@@ -2,7 +2,6 @@ package com.follow_me.running_mate.domain.member.dto.request;
 
 import com.follow_me.running_mate.domain.enums.Gender;
 import com.follow_me.running_mate.domain.enums.RunningCareer;
-import com.follow_me.running_mate.domain.enums.RunningGoal;
 import com.follow_me.running_mate.domain.member.validation.annotation.UniqueEmail;
 import com.follow_me.running_mate.domain.member.validation.annotation.UniqueNickname;
 import com.follow_me.running_mate.global.validation.annotation.Password;
@@ -44,9 +43,6 @@ public class MemberRequest {
         @NotNull(message = "생년월일은 필수입니다.")
         @Past(message = "생년월일은 과거 날짜여야 합니다.")
         private LocalDate birth;
-
-        private RunningGoal runningGoal;
-
 
         @NotBlank(message = "닉네임은 필수입니다.")
         @Size(min = 2, max = 10, message = "닉네임은 2자 이상 10자 이하여야 합니다.")

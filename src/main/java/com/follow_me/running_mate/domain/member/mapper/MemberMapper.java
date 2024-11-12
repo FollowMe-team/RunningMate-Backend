@@ -1,5 +1,6 @@
 package com.follow_me.running_mate.domain.member.mapper;
 
+import com.follow_me.running_mate.domain.enums.Ranking;
 import com.follow_me.running_mate.domain.enums.Role;
 import com.follow_me.running_mate.domain.member.dto.request.MemberRequest;
 import com.follow_me.running_mate.domain.member.entity.Member;
@@ -15,10 +16,10 @@ public class MemberMapper {
             .name(request.getName())
             .gender(request.getGender())
             .birth(request.getBirth())
-            .runningGoal(request.getRunningGoal())
             .nickname(request.getNickname())
             .runningCareer(request.getRunningCareer())
             .role(Role.USER)
+            .ranking(Ranking.JOGGER)
             .build();
     }
 }
