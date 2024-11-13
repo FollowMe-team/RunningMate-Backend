@@ -28,10 +28,19 @@ public class MemberMapper {
         return new MemberResponse.MyProfileResponse(
                 member.getName(),
                 member.getNickname(),
-                member.getGender(), // Gender enum 반환
-                member.getBirth(), // LocalDate 반환
-                member.getRunningGoal(), // RunningGoal enum 반환
-                member.getRunningCareer() // RunningCareer enum 반환
+                member.getGender(),
+                member.getBirth(),
+                member.getRunningGoal(),
+                member.getRunningCareer()//TODO: 발자취 추가하기
         );
     }
+    // MemberMapper 클래스에 추가
+    public MemberResponse.UpdateMyProfileResponse toUpdateMyProfileResponse(Member member) {
+        return new MemberResponse.UpdateMyProfileResponse(
+                member.getNickname(),
+                member.getGender(),
+                member.getBirth()
+        );
+    }
+
 }

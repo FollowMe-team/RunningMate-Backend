@@ -7,7 +7,9 @@ import com.follow_me.running_mate.domain.member.exception.MemberErrorCode;
 import com.follow_me.running_mate.domain.member.mapper.MemberMapper;
 import com.follow_me.running_mate.domain.member.repository.MemberRepository;
 import com.follow_me.running_mate.domain.token.repository.TokenRepository;
+import com.follow_me.running_mate.global.error.code.CommonErrorCode;
 import com.follow_me.running_mate.global.error.exception.CustomException;
+import com.follow_me.running_mate.global.error.exception.GlobalExceptionHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -51,6 +53,28 @@ public class MemberServiceImpl implements MemberService {
 
         // Member 엔티티를 MyProfileResponse DTO로 변환하여 반환
         return memberMapper.toMyProfileResponse(member);
+    }
+    @Override
+    @Transactional
+    public MemberResponse.UpdateMyProfileResponse updateProfile(MemberRequest.UpdateProfileRequest request , String email) {
+
+        if (request.getNickname() == null || request.getGender() == null || request.getBirth() == null) {
+            throw new CustomException(CommonErrorCode.INVALID_INPUT_VALUE, "닉네임, 성별, 생년월일은 필수 항목입니다.");
+        }
+        // 이메일로 회원 조회
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(MemberErrorCode.NOT_FOUND)); // 회원이 없으면 예외 처리
+
+        // 프로필 정보 업데이트
+        member.updateProfile(
+                request.getNickname(),
+                request.getGender(),
+                request.getBirth()
+        );
+        // 변경된 정보를 저장
+        memberRepository.save(member);
+
+        return memberMapper.toUpdateMyProfileResponse(member);
     }
 }
 

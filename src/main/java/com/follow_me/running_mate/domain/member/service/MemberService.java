@@ -10,4 +10,5 @@ public interface MemberService {
     void logout(String email);
     void withdraw(Member member);
     MemberResponse.MyProfileResponse getMyProfile(String email);
+    MemberResponse.UpdateMyProfileResponse updateProfile(MemberRequest.UpdateProfileRequest request , String email);
 }

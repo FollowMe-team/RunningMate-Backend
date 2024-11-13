@@ -19,6 +19,12 @@ public class MemberResponse {
         private LocalDate birth; // LocalDate for birth
         private RunningGoal runningGoal; // RunningGoal enum
         private RunningCareer runningCareer; // RunningCareer enum
-        // 필요에 따라 추가 필드들을 정의하세요
+    }
+    @Getter
+    @AllArgsConstructor
+    public static class UpdateMyProfileResponse {
+        private String nickname;
+        private Gender gender; // Gender enum
+        private LocalDate birth; // LocalDate for birth
     }
 }

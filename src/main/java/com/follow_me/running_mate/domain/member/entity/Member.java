@@ -108,4 +108,10 @@ public class Member extends BaseEntity {
             this.followingCount--;
         }
     }
+    // 프로필 변경
+    public void updateProfile(String nickname, Gender gender, LocalDate birth) {
+        this.nickname = nickname;
+        this.gender = gender;
+        this.birth = birth;
+    }
 }

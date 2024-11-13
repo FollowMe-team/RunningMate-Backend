@@ -2,6 +2,7 @@ package com.follow_me.running_mate.domain.member.controller;
 
 import com.follow_me.running_mate.config.security.auth.PrincipalDetails;
 import com.follow_me.running_mate.config.security.jwt.JwtTokenProvider;
+import com.follow_me.running_mate.domain.member.dto.request.MemberRequest;
 import com.follow_me.running_mate.domain.member.dto.response.MemberResponse;
 import com.follow_me.running_mate.domain.member.entity.Member;
 import com.follow_me.running_mate.domain.member.service.MemberService;
@@ -10,11 +11,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping
@@ -31,10 +31,22 @@ public class MemberController {
             @ApiResponse(responseCode = "200", description = "프로필 조회에 성공했습니다."),
             @ApiResponse(responseCode = "AUTH001", description = "인증되지 않은 사용자입니다."),
     })
-    public BaseResponse<MemberResponse.MyProfileResponse> getMyProfile(@AuthenticationPrincipal PrincipalDetails
-                                                                                   principalDetails) {
+    public BaseResponse<MemberResponse.MyProfileResponse> getMyProfile(@AuthenticationPrincipal PrincipalDetails principalDetails) {
         MemberResponse.MyProfileResponse memberProfile = memberService.getMyProfile(principalDetails.getUsername());
         // 이메일을 기반으로 사용자 프로필 조회
         return BaseResponse.success("마이 프로필 조회에 성공했습니다.", memberProfile);
+    }
+
+    @PatchMapping("/members")
+    @Operation(summary = "마이 프로필 수정 API" , description = "로그인한 사용자의 프로필을 수정합니다.")
+    @ApiResponses( value = {
+            @ApiResponse(responseCode = "200", description = "프로필 수정에 성공했습니다."),
+            @ApiResponse(responseCode = "AUTH001", description = "인증되지 않은 사용자입니다."),
+    })
+    public BaseResponse<MemberResponse.UpdateMyProfileResponse> updateMyProfile(@AuthenticationPrincipal PrincipalDetails principalDetails ,
+        @RequestBody @Valid MemberRequest.UpdateProfileRequest request) {
+        MemberResponse.UpdateMyProfileResponse memberProfile = memberService.updateProfile(request , principalDetails.getUsername());
+        // 이메일을 기반으로 사용자 프로필 조회
+        return BaseResponse.success("마이 프로필 수정에 성공했습니다.", memberProfile);
     }
 }
