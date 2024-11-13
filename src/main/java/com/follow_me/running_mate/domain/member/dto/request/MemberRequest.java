@@ -75,13 +75,12 @@ public class MemberRequest {
     @NoArgsConstructor
     public static class UpdateProfileRequest {
 
-        @NotBlank(message = "닉네임은 필수입니다.")
-        @Size(min = 2, max = 10, message = "닉네임은 2자 이상 10자 이하여야 합니다.")
-        @UniqueNickname
-        private String nickname;
-
         @NotNull(message = "성별은 필수입니다.")
         private Gender gender;
+
+        @NotBlank(message = "닉네임은 필수입니다.")
+        @Size(min = 2, max = 10, message = "닉네임은 2자 이상 10자 이하여야 합니다.")
+        private String nickname;
 
         @NotNull(message = "생년월일은 필수입니다.")
         @Past(message = "생년월일은 과거 날짜여야 합니다.")
@@ -89,5 +88,4 @@ public class MemberRequest {
         //TODO : 주소 데이터 추가하기
 
     }
-
 }

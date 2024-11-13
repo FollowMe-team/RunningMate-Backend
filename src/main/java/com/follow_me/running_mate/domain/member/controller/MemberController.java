@@ -8,6 +8,8 @@ import com.follow_me.running_mate.domain.member.entity.Member;
 import com.follow_me.running_mate.domain.member.service.MemberService;
 import com.follow_me.running_mate.global.common.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -28,8 +30,10 @@ public class MemberController {
     @GetMapping("/members")
     @Operation(summary = "마이 프로필 조회 API", description = "로그인한 사용자의 프로필 정보를 조회합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "프로필 조회에 성공했습니다."),
-            @ApiResponse(responseCode = "AUTH001", description = "인증되지 않은 사용자입니다."),
+            @ApiResponse(responseCode = "200", description = "프로필 조회에 성공했습니다.",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+            @ApiResponse(responseCode = "AUTH001", description = "인증되지 않은 사용자입니다.",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
     })
     public BaseResponse<MemberResponse.MyProfileResponse> getMyProfile(@AuthenticationPrincipal PrincipalDetails principalDetails) {
         MemberResponse.MyProfileResponse memberProfile = memberService.getMyProfile(principalDetails.getUsername());
@@ -39,9 +43,15 @@ public class MemberController {
 
     @PatchMapping("/members")
     @Operation(summary = "마이 프로필 수정 API" , description = "로그인한 사용자의 프로필을 수정합니다.")
-    @ApiResponses( value = {
-            @ApiResponse(responseCode = "200", description = "프로필 수정에 성공했습니다."),
-            @ApiResponse(responseCode = "AUTH001", description = "인증되지 않은 사용자입니다."),
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "프로필 수정에 성공했습니다.",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+            @ApiResponse(responseCode = "AUTH001", description = "인증되지 않은 사용자입니다.",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+            @ApiResponse(responseCode = "MEMBER001", description = "회원을 찾을 수 없습니다.",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+            @ApiResponse(responseCode = "MEMBER005", description = "변경할 프로필 정보가 없습니다.",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
     })
     public BaseResponse<MemberResponse.UpdateMyProfileResponse> updateMyProfile(@AuthenticationPrincipal PrincipalDetails principalDetails ,
         @RequestBody @Valid MemberRequest.UpdateProfileRequest request) {

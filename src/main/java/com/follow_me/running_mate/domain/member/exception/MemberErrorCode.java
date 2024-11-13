@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 public enum MemberErrorCode implements ResultCode {
     // Member 도메인 에러 코드 (MEMBER001 ~ MEMBER999)
     NOT_FOUND("MEMBER001", "회원을 찾을 수 없습니다."),
+    NO_CHANGES_DETECTED("MEMBER002", "변경할 프로필 정보가 없습니다.")
     ;
 
     private final String code;

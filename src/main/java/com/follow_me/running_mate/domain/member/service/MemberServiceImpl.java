@@ -57,14 +57,13 @@ public class MemberServiceImpl implements MemberService {
     @Override
     @Transactional
     public MemberResponse.UpdateMyProfileResponse updateProfile(MemberRequest.UpdateProfileRequest request , String email) {
-
-        if (request.getNickname() == null || request.getGender() == null || request.getBirth() == null) {
-            throw new CustomException(CommonErrorCode.INVALID_INPUT_VALUE, "닉네임, 성별, 생년월일은 필수 항목입니다.");
-        }
         // 이메일로 회원 조회
         Member member = memberRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException(MemberErrorCode.NOT_FOUND)); // 회원이 없으면 예외 처리
-
+        //이전과 동일해 바꿀필요가 없는경우
+        if (request.getNickname().equals(member.getNickname())|| request.getBirth() == member.getBirth() || request.getGender() == member.getGender()){
+            throw new CustomException(MemberErrorCode.NO_CHANGES_DETECTED);
+        }
         // 프로필 정보 업데이트
         member.updateProfile(
                 request.getNickname(),
