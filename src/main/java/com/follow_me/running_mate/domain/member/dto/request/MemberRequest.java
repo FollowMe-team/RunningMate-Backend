@@ -88,4 +88,20 @@ public class MemberRequest {
         //TODO : 주소 데이터 추가하기
 
     }
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class ChangePasswordRequest {
+        @NotBlank(message = "현재 비밀번호는 필수 입력 항목입니다.")
+        private String currentPassword;
+
+        @NotBlank(message = "새 비밀번호는 필수 입력 항목입니다.")
+        @Password // 비밀번호 유효성 검사를 위한 커스텀 어노테이션
+        private String newPassword;
+
+        @NotBlank(message = "확인용 비밀번호는 필수 입력 항목입니다.")
+        private String confirmPassword;
+
+    }
 }

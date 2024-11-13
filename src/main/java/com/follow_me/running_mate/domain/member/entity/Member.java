@@ -114,4 +114,9 @@ public class Member extends BaseEntity {
         this.gender = gender;
         this.birth = birth;
     }
+    //비밀번호 변경
+    public void changePassword(String encodedNewPassword) {
+        this.password = encodedNewPassword;
+    }
+
 }

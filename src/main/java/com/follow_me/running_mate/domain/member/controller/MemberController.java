@@ -18,16 +18,17 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
-@RequestMapping
+@RequestMapping("/members")
 @RequiredArgsConstructor
 @Tag(name = "Profile", description = "마이 프로필 조회 API")
 public class MemberController {
 
     private final MemberService memberService;
-    private final JwtTokenProvider jwtTokenProvider;
 
-    @GetMapping("/members")
+    @GetMapping
     @Operation(summary = "마이 프로필 조회 API", description = "로그인한 사용자의 프로필 정보를 조회합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "프로필 조회에 성공했습니다.",
@@ -40,8 +41,8 @@ public class MemberController {
         // 이메일을 기반으로 사용자 프로필 조회
         return BaseResponse.success("마이 프로필 조회에 성공했습니다.", memberProfile);
     }
-
-    @PatchMapping("/members")
+    //마이프로필 수정 api
+    @PatchMapping
     @Operation(summary = "마이 프로필 수정 API" , description = "로그인한 사용자의 프로필을 수정합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "프로필 수정에 성공했습니다.",
@@ -50,7 +51,7 @@ public class MemberController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
             @ApiResponse(responseCode = "MEMBER001", description = "회원을 찾을 수 없습니다.",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
-            @ApiResponse(responseCode = "MEMBER005", description = "변경할 프로필 정보가 없습니다.",
+            @ApiResponse(responseCode = "MEMBER002", description = "변경할 프로필 정보가 없습니다.",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
     })
     public BaseResponse<MemberResponse.UpdateMyProfileResponse> updateMyProfile(@AuthenticationPrincipal PrincipalDetails principalDetails ,
@@ -58,5 +59,25 @@ public class MemberController {
         MemberResponse.UpdateMyProfileResponse memberProfile = memberService.updateProfile(request , principalDetails.getUsername());
         // 이메일을 기반으로 사용자 프로필 조회
         return BaseResponse.success("마이 프로필 수정에 성공했습니다.", memberProfile);
+    }
+    //비밀번호 변경 api
+    @PatchMapping("/password")
+    @Operation(summary = "비밀번호 변경 API", description = "로그인한 사용자의 비밀번호를 변경합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "비밀번호 변경에 성공했습니다.",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+            @ApiResponse(responseCode = "AUTH001", description = "인증되지 않은 사용자입니다.",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+            @ApiResponse(responseCode = "MEMBER001", description = "회원을 찾을 수 없습니다.",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+            @ApiResponse(responseCode = "MEMBER003", description = "현재 비밀번호가 일치하지 않습니다.",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+            @ApiResponse(responseCode = "MEMBER004", description = "새 비밀번호가 현재 비밀번호와 동일합니다.",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
+    })
+    public BaseResponse<Void> changePassword(@AuthenticationPrincipal PrincipalDetails principalDetails,
+                                               @RequestBody @Valid MemberRequest.ChangePasswordRequest request) {
+        memberService.changePassword(request, principalDetails.getUsername());
+        return BaseResponse.success("비밀번호 변경에 성공했습니다.",null);
     }
 }
