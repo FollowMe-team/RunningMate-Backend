@@ -7,5 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface RunningRecordRepository extends JpaRepository<RunningRecord, Long> {
 
-    List<RunningRecord> findTop3ByMemberOrderByCreatedAtDesc(Member member);
+    List<RunningRecord> findTop3ByMemberOrderByStartTimeDesc(Member member);
 }

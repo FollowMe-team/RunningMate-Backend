@@ -97,7 +97,7 @@ public class CourseController {
     public BaseResponse<CourseResponse.CourseListResponse> searchCourses(
         @AuthenticationPrincipal PrincipalDetails principalDetails,
         @Parameter(description = "검색어")
-        @RequestParam(value = "keyword") String keyword,
+        @RequestParam(value = "keyword", required = false) String keyword,
 
         @Parameter(description = "위도")
         @RequestParam(value = "latitude", required = false) Double latitude,

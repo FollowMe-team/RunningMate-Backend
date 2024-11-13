@@ -10,7 +10,7 @@ public class FormatterUtil {
 
     // location 포맷팅
     public static String formatLocation(String city, String district) {
-        return String.format("(%s %s)", city, district);
+        return String.format("%s %s", city, district);
     }
 
     // Duration 포맷팅

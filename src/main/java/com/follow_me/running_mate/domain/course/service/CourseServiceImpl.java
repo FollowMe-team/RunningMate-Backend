@@ -112,7 +112,7 @@ public class CourseServiceImpl implements CourseService {
         Member member, Double latitude, Double longitude, Difficulty difficulty, RunningGoal runningGoal) {
 
         // 위치 반경 기본값 (단위: 미터)
-        double radius = 5000.0;
+        double radius = 50000.0;
 
         // 사용자 ranking을 기준으로 기본 난이도 설정
         Difficulty effectiveDifficulty =
@@ -147,7 +147,7 @@ public class CourseServiceImpl implements CourseService {
         Double longitude, List<Difficulty> difficulties, List<CourseOptionType> options
     ) {
         // 위치 반경 기본값 (단위: 미터)
-        double radius = 5000.0;
+        double radius = 50000.0;
 
         List<String> difficultyList = (difficulties != null) ? difficulties.stream()
             .map(Difficulty::name)

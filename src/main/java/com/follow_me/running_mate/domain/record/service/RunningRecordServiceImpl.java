@@ -16,7 +16,7 @@ public class RunningRecordServiceImpl implements RunningRecordService {
 
     @Override
     public List<Course> getRecentCourses(Member member) {
-        return runningRecordRepository.findTop3ByMemberOrderByCreatedAtDesc(member).stream()
+        return runningRecordRepository.findTop3ByMemberOrderByStartTimeDesc(member).stream()
             .map(RunningRecord::getCourse)
             .toList();
     }
