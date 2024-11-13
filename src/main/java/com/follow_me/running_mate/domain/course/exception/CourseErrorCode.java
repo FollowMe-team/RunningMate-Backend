@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum CourseErrorCode implements ResultCode {
     NOT_FOUND("COURSE001", "코스를 찾을 수 없습니다."),
+    NOT_APPROVED("COURSE002", "코스가 승인되지 않았습니다."),
     ;
 
     private final String code;
