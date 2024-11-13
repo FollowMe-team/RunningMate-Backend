@@ -139,7 +139,7 @@ public class CourseMapper {
             .rating(review.getRating())
             .images(reviewImages)
             .createdAt(FormatterUtil.formatTime(review.getCreatedAt()))
-            .isMine(review.getWriter().equals(member)) // TODO: 되는지 테스트
+            .isMine(review.getWriter().getId().equals(member.getId()))
             .build();
     }
 
