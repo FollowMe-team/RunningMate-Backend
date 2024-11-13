@@ -80,4 +80,20 @@ public class MemberController {
         memberService.changePassword(request, principalDetails.getUsername());
         return BaseResponse.success("비밀번호 변경에 성공했습니다.",null);
     }
+    // 배지 조회 API
+    @GetMapping("/badges")
+    @Operation(summary = "멤버 배지 조회 API", description = "로그인한 사용자의 배지 정보를 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "배지 조회에 성공했습니다.",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+            @ApiResponse(responseCode = "AUTH001", description = "인증되지 않은 사용자입니다.",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+            @ApiResponse(responseCode = "MEMBER001", description = "회원을 찾을 수 없습니다.",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
+    })
+    public BaseResponse<MemberResponse.BadgeListResponse> getMemberBadges(@AuthenticationPrincipal PrincipalDetails principalDetails) {
+        List<MemberResponse.BadgeResponse> badges = memberService.getMemberBadges(principalDetails.getUsername());
+        MemberResponse.BadgeListResponse badgeListResponse = new MemberResponse.BadgeListResponse(badges);  // List를 BadgeListResponse로 감싸기
+        return BaseResponse.success("배지 조회에 성공했습니다.", badgeListResponse);  // 성공 응답으로 감싼 객체 반환
+    }
 }

@@ -104,6 +104,18 @@ public class MemberServiceImpl implements MemberService {
         member.changePassword(passwordEncoder.encode(request.getNewPassword()));
         memberRepository.save(member);
     }
+
+    //배지 조회
+    @Override
+    @Transactional(readOnly = true)
+    public List<MemberResponse.BadgeResponse> getMemberBadges(String email) {
+        // 이메일로 회원 조회
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(MemberErrorCode.NOT_FOUND)); // 회원이 없으면 예외 처리
+
+        // 회원의 배지 목록 조회
+        List<MemberBadge> memberBadges = memberBadgeRepository.findByMember(member);
+        return memberMapper.toBadgeResponseList(memberBadges);
     }
 }
 
