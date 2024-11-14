@@ -57,20 +57,11 @@ public class CourseServiceImpl implements CourseService {
     public void bookmarkCourse(Member member, Long courseId) {
         Course course = courseRepository.getCourse(courseId);
 
-        // TODO: 즐겨찾기가 이미 3개 이상인 경우 예외 처리
-
-        courseBookmarkRepository.findByMemberAndCourse(member, course).ifPresentOrElse(
-            existingBookmark -> {
-                if (existingBookmark.getIsBookmarked()) {
-                    throw new CustomException(CourseErrorCode.ALREADY_BOOKMARKED);
-                }
-                existingBookmark.changeBookmark();
-            },
-            () -> {
-                CourseBookmark newBookmark = courseEntityMapper.toCourseBookmark(course, member);
-                courseBookmarkRepository.save(newBookmark);
-            }
-        );
+        courseBookmarkRepository.findByMemberAndCourse(member, course)
+            .ifPresentOrElse(
+                this::handleExistingBookmark,
+                () -> handleNewBookmark(member, course)
+            );
     }
 
     @Override
@@ -79,12 +70,7 @@ public class CourseServiceImpl implements CourseService {
         Course course = courseRepository.getCourse(courseId);
 
         courseBookmarkRepository.findByMemberAndCourse(member, course).ifPresentOrElse(
-            existingBookmark -> {
-                if (!existingBookmark.getIsBookmarked()) {
-                    throw new CustomException(CourseErrorCode.NOT_BOOKMARKED);
-                }
-                existingBookmark.changeBookmark();
-            },
+            this::handleExistingBookmarkCancellation,
             () -> {
                 throw new CustomException(CourseErrorCode.NOT_BOOKMARKED);
             }
@@ -266,6 +252,33 @@ public class CourseServiceImpl implements CourseService {
             coursePoints.stream()
                 .map(courseResponseMapper::toCoursePointDetail)
                 .toList());
+    }
+
+    private void handleExistingBookmark(CourseBookmark existingBookmark) {
+        if (existingBookmark.getIsBookmarked()) {
+            throw new CustomException(CourseErrorCode.ALREADY_BOOKMARKED);
+        }
+        existingBookmark.changeBookmark();
+    }
+
+    private void handleNewBookmark(Member member, Course course) {
+        if (hasReachedBookmarkLimit(member)) {
+            throw new CustomException(CourseErrorCode.OVER_MAX_BOOKMARK);
+        }
+        CourseBookmark newBookmark = courseEntityMapper.toCourseBookmark(course, member);
+        courseBookmarkRepository.save(newBookmark);
+    }
+
+    private boolean hasReachedBookmarkLimit(Member member) {
+        long bookmarkCount = courseBookmarkRepository.countByMemberAndIsBookmarkedTrue(member);
+        return bookmarkCount >= 3;
+    }
+
+    private void handleExistingBookmarkCancellation(CourseBookmark existingBookmark) {
+        if (!existingBookmark.getIsBookmarked()) {
+            throw new CustomException(CourseErrorCode.NOT_BOOKMARKED);
+        }
+        existingBookmark.changeBookmark();
     }
 
     // 사용자 ranking에 따른 기본 난이도 설정
