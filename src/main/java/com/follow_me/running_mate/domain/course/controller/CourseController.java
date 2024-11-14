@@ -42,8 +42,11 @@ public class CourseController {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "코스 생성 API", description = "코스를 생성합니다.")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "코스 생성에 성공했습니다."),
+        @ApiResponse(responseCode = "200", description = "코스 생성에 성공했습니다.",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
         @ApiResponse(responseCode = "VALID001", description = "잘못된 입력값입니다",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+        @ApiResponse(responseCode = "COURSE006", description = "이미 존재하는 코스 이름입니다.",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
     })
     public BaseResponse<CourseResponse.CreateCourseResponse> createCourse(
@@ -63,7 +66,8 @@ public class CourseController {
     @PostMapping("/{courseId}/bookmark")
     @Operation(summary = "코스 즐겨찾기 API", description = "코스를 즐겨찾기합니다.")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "코스 즐겨찾기에 성공했습니다."),
+        @ApiResponse(responseCode = "200", description = "코스 즐겨찾기에 성공했습니다.",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
         @ApiResponse(responseCode = "COURSE003", description = "이미 북마크한 코스입니다.",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
         @ApiResponse(responseCode = "COURSE005", description = "북마크한 코스가 최대 개수를 초과했습니다.",
@@ -80,7 +84,8 @@ public class CourseController {
     @DeleteMapping("/{courseId}/bookmark")
     @Operation(summary = "코스 즐겨찾기 취소 API", description = "코스 즐겨찾기를 취소합니다.")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "코스 즐겨찾기 취소에 성공했습니다."),
+        @ApiResponse(responseCode = "200", description = "코스 즐겨찾기 취소에 성공했습니다.",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
         @ApiResponse(responseCode = "COURSE004", description = "북마크한 코스가 아닙니다.",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
     })
@@ -95,7 +100,8 @@ public class CourseController {
     @PostMapping( value = "/{courseId}/reviews", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "코스 리뷰 작성 API", description = "코스 리뷰를 작성합니다.")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "코스 리뷰 작성에 성공했습니다."),
+        @ApiResponse(responseCode = "200", description = "코스 리뷰 작성에 성공했습니다.",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
         @ApiResponse(responseCode = "VALID001", description = "잘못된 입력값입니다",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
     })
@@ -114,7 +120,8 @@ public class CourseController {
     @GetMapping("/recent")
     @Operation(summary = "최근 코스 조회 API", description = "최근 생성된 코스를 조회합니다.")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "최근 코스 조회에 성공했습니다."),
+        @ApiResponse(responseCode = "200", description = "최근 코스 조회에 성공했습니다.",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
     })
     public BaseResponse<CourseResponse.CourseListResponse> getRecentCourses(
         @AuthenticationPrincipal PrincipalDetails principalDetails
@@ -127,7 +134,8 @@ public class CourseController {
     @GetMapping("/bookmark")
     @Operation(summary = "즐겨찾기한 코스 조회 API", description = "즐겨찾기한 코스를 조회합니다.")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "즐겨찾기한 코스 조회에 성공했습니다."),
+        @ApiResponse(responseCode = "200", description = "즐겨찾기한 코스 조회에 성공했습니다.",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
     })
     public BaseResponse<CourseResponse.CourseListResponse> getBookmarkedCourses(
         @AuthenticationPrincipal PrincipalDetails principalDetails
@@ -140,7 +148,8 @@ public class CourseController {
     @GetMapping("/my")
     @Operation(summary = "내 코스 조회 API", description = "내가 생성한 코스를 조회합니다.")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "내가 생성한 코스 조회에 성공했습니다."),
+        @ApiResponse(responseCode = "200", description = "내가 생성한 코스 조회에 성공했습니다.",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
     })
     public BaseResponse<CourseResponse.MyCourseListResponse> getMyCourses(
         @AuthenticationPrincipal PrincipalDetails principalDetails
@@ -153,7 +162,8 @@ public class CourseController {
     @GetMapping
     @Operation(summary = "코스 추천 API", description = "코스를 추천합니다.")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "코스 추천에 성공했습니다."),
+        @ApiResponse(responseCode = "200", description = "코스 추천에 성공했습니다.",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
     })
     public BaseResponse<CourseResponse.CourseListResponse> recommendedCourses(
         @AuthenticationPrincipal PrincipalDetails principalDetails,
@@ -172,7 +182,8 @@ public class CourseController {
     @GetMapping("/search")
     @Operation(summary = "코스 검색 API", description = "코스를 검색합니다.")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "코스 검색에 성공했습니다."),
+        @ApiResponse(responseCode = "200", description = "코스 검색에 성공했습니다.",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
     })
     public BaseResponse<CourseResponse.CourseListResponse> searchCourses(
         @AuthenticationPrincipal PrincipalDetails principalDetails,
@@ -209,7 +220,8 @@ public class CourseController {
     @GetMapping("/{courseId}/detail")
     @Operation(summary = "코스 상세 조회 API", description = "코스 상세 정보를 조회합니다.")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "코스 상세 조회에 성공했습니다."),
+        @ApiResponse(responseCode = "200", description = "코스 상세 조회에 성공했습니다.",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
     })
     public BaseResponse<CourseResponse.CourseDetailResponse> getCourseDetail(
         @AuthenticationPrincipal PrincipalDetails principalDetails,
@@ -223,7 +235,8 @@ public class CourseController {
     @GetMapping("/{courseId}/reviews")
     @Operation(summary = "코스 리뷰 조회 API", description = "코스 리뷰를 조회합니다.")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "코스 리뷰 조회에 성공했습니다."),
+        @ApiResponse(responseCode = "200", description = "코스 리뷰 조회에 성공했습니다.",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
     })
     public BaseResponse<CourseResponse.CourseReviewListResponse> getCourseReviews(
         @AuthenticationPrincipal PrincipalDetails principalDetails,
@@ -239,7 +252,8 @@ public class CourseController {
     @GetMapping("/{courseId}/path")
     @Operation(summary = "코스 경로 조회 API", description = "코스 경로를 조회합니다.")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "코스 경로 조회에 성공했습니다."),
+        @ApiResponse(responseCode = "200", description = "코스 경로 조회에 성공했습니다.",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
     })
     public BaseResponse<CourseResponse.CoursePathResponse> getCoursePath(
         @PathVariable(value = "courseId") Long courseId
