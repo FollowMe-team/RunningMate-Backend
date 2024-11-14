@@ -9,6 +9,8 @@ import com.follow_me.running_mate.domain.member.entity.Member;
 import java.util.List;
 
 public interface CourseService {
+    void bookmarkCourse(Member member, Long courseId);
+
     CourseResponse.CourseListResponse getRecentCourses(Member member);
     CourseResponse.CourseListResponse getBookmarkedCourses(Member member);
     CourseResponse.MyCourseListResponse getMyCourses(Member member);

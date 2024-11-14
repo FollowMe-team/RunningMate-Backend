@@ -5,8 +5,9 @@ import com.follow_me.running_mate.domain.course.entity.Course;
 import com.follow_me.running_mate.domain.course.entity.CourseBookmark;
 import com.follow_me.running_mate.domain.course.entity.CourseImage;
 import com.follow_me.running_mate.domain.course.entity.CoursePoint;
-import com.follow_me.running_mate.domain.course.entity.CourseReviewImage;
-import com.follow_me.running_mate.domain.course.mapper.CourseMapper;
+import com.follow_me.running_mate.domain.course.exception.CourseErrorCode;
+import com.follow_me.running_mate.domain.course.mapper.CourseEntityMapper;
+import com.follow_me.running_mate.domain.course.mapper.CourseResponseMapper;
 import com.follow_me.running_mate.domain.course.repository.CourseBookmarkRepository;
 import com.follow_me.running_mate.domain.course.repository.CourseImageRepository;
 import com.follow_me.running_mate.domain.course.repository.CourseOptionRepository;
@@ -22,6 +23,7 @@ import com.follow_me.running_mate.domain.enums.RunningGoal;
 import com.follow_me.running_mate.domain.member.entity.Member;
 import com.follow_me.running_mate.domain.record.service.RunningRecordService;
 import com.follow_me.running_mate.domain.course.repository.CourseReviewImageRepository;
+import com.follow_me.running_mate.global.error.exception.CustomException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +37,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class CourseServiceImpl implements CourseService {
 
-    private final CourseMapper courseMapper;
+    private final CourseResponseMapper courseResponseMapper;
+    private final CourseEntityMapper courseEntityMapper;
 
     private final CourseRepository courseRepository;
     private final CourseReviewRepository courseReviewRepository;
@@ -50,13 +53,33 @@ public class CourseServiceImpl implements CourseService {
 
 
     @Override
+    @Transactional
+    public void bookmarkCourse(Member member, Long courseId) {
+        Course course = courseRepository.getCourse(courseId);
+
+        courseBookmarkRepository.findByMemberAndCourse(member, course).ifPresentOrElse(
+            existingBookmark -> {
+                if (existingBookmark.getIsBookmarked()) {
+                    throw new CustomException(CourseErrorCode.ALREADY_BOOKMARKED);
+                }
+                existingBookmark.changeBookmark();
+            },
+            () -> {
+                CourseBookmark newBookmark = courseEntityMapper.toCourseBookmark(course, member);
+                courseBookmarkRepository.save(newBookmark);
+            }
+        );
+    }
+
+
+    @Override
     @Transactional(readOnly = true)
     public CourseResponse.CourseListResponse getRecentCourses(Member member) {
 
         List<Course> recentCourses = runningRecordService.getRecentCourses(member);
 
         List<CourseResponse.SummaryInfo> courses = recentCourses.stream().map(course ->
-            courseMapper.toSummaryInfo(
+            courseResponseMapper.toSummaryInfo(
                 course,
                 courseReviewRepository.findAverageRatingByCourse(course),
                 course.getRunningCount(),
@@ -75,7 +98,7 @@ public class CourseServiceImpl implements CourseService {
         List<Course> bookmarkedCourses = getBookmarkedCourseByMember(member);
 
         List<CourseResponse.SummaryInfo> courses = bookmarkedCourses.stream().map(course ->
-            courseMapper.toSummaryInfo(
+            courseResponseMapper.toSummaryInfo(
                 course,
                 courseReviewRepository.findAverageRatingByCourse(course),
                 course.getRunningCount(),
@@ -94,7 +117,7 @@ public class CourseServiceImpl implements CourseService {
         List<Course> myCourses = courseRepository.findAllByWriterOrderByCreatedAtDesc(member);
 
         List<CourseResponse.MyCourseInfo> courses = myCourses.stream().map(course ->
-            courseMapper.toMyCourseInfo(
+            courseResponseMapper.toMyCourseInfo(
                 course,
                 courseReviewRepository.findAverageRatingByCourse(course),
                 course.getRunningCount(),
@@ -128,7 +151,7 @@ public class CourseServiceImpl implements CourseService {
             latitude, longitude, radius, effectiveDifficulty.name(), goalOptions);
 
         List<CourseResponse.SummaryInfo> courses = recommendedCourses.stream().map(course ->
-            courseMapper.toSummaryInfo(
+            courseResponseMapper.toSummaryInfo(
                 course,
                 courseReviewRepository.findAverageRatingByCourse(course),
                 course.getRunningCount(),
@@ -162,7 +185,7 @@ public class CourseServiceImpl implements CourseService {
         );
 
         List<CourseResponse.SummaryInfo> courses = searchCourses.stream().map(course ->
-            courseMapper.toSummaryInfo(
+            courseResponseMapper.toSummaryInfo(
                 course,
                 courseReviewRepository.findAverageRatingByCourse(course),
                 course.getRunningCount(),
@@ -180,7 +203,7 @@ public class CourseServiceImpl implements CourseService {
 
         Course course = courseRepository.getCourse(courseId);
 
-        return courseMapper.toCourseDetailResponse(
+        return courseResponseMapper.toCourseDetailResponse(
             course,
             courseReviewRepository.findAverageRatingByCourse(course),
             isBookmarkedCourse(member, course),
@@ -189,9 +212,9 @@ public class CourseServiceImpl implements CourseService {
                 .toList(),
             courseOptionRepository.findAllByCourse(course),
             coursePointRepository.findAllByCourseOrderBySequenceNumberAsc(course),
-            courseMapper.toCrewInfos(crewService.getCrewByCourse(course)),
-            courseMapper.toReviewInfos(courseReviewRepository.findTop3ByCourseOrderByCreatedAtDesc(course), member),
-            getRatingCounts(courseMapper.toReviewInfos(courseReviewRepository.findAllByCourse(course), member))
+            courseResponseMapper.toCrewInfos(crewService.getCrewByCourse(course)),
+            courseResponseMapper.toReviewInfos(courseReviewRepository.findTop3ByCourseOrderByCreatedAtDesc(course), member),
+            getRatingCounts(courseResponseMapper.toReviewInfos(courseReviewRepository.findAllByCourse(course), member))
         );
     }
 
@@ -202,11 +225,11 @@ public class CourseServiceImpl implements CourseService {
     ) {
         Course course = courseRepository.getCourse(courseId);
 
-        List<CourseResponse.ReviewInfo> reviews = courseMapper.toReviewInfos(
+        List<CourseResponse.ReviewInfo> reviews = courseResponseMapper.toReviewInfos(
             sortType.sort(course, courseReviewRepository), member
         );
 
-        return courseMapper.toCourseReviewListResponse(
+        return courseResponseMapper.toCourseReviewListResponse(
             reviews,
             courseReviewRepository.findAverageRatingByCourse(course),
             getRatingCounts(reviews)
@@ -222,7 +245,7 @@ public class CourseServiceImpl implements CourseService {
 
         return new CourseResponse.CoursePathResponse(
             coursePoints.stream()
-                .map(courseMapper::toCoursePointDetail)
+                .map(courseResponseMapper::toCoursePointDetail)
                 .toList());
     }
 

@@ -14,7 +14,7 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 
 @Component
-public class CourseMapper {
+public class CourseResponseMapper {
 
     public CourseResponse.SummaryInfo toSummaryInfo(
         Course course,

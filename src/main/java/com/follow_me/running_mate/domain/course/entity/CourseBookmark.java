@@ -37,4 +37,8 @@ public class CourseBookmark extends BaseEntity {
     private Course course;
 
     private Boolean isBookmarked;
+
+    public void changeBookmark() {
+        this.isBookmarked = !this.isBookmarked;
+    }
 }
