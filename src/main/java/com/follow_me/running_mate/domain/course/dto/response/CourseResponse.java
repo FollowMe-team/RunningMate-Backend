@@ -15,6 +15,12 @@ public class CourseResponse {
 
     @Getter
     @AllArgsConstructor
+    public static class CreateCourseResponse {
+        private Long courseId;
+    }
+
+    @Getter
+    @AllArgsConstructor
     public static class CreateReviewResponse {
         private Long reviewId;
     }

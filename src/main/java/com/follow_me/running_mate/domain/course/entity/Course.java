@@ -74,6 +74,7 @@ public class Course extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Difficulty difficulty;
 
+    @Builder.Default
     @OneToMany(mappedBy = "course", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CourseOption> options = new ArrayList<>(); // CourseOption과의 양방향 매핑
 
@@ -82,5 +83,9 @@ public class Course extends BaseEntity {
 
     public void updateRunningCount() {
         this.runningCount++;
+    }
+
+    public void addOption(CourseOption option) {
+        this.options.add(option);
     }
 }

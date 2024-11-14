@@ -39,6 +39,27 @@ public class CourseController {
 
     private final CourseService courseService;
 
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "코스 생성 API", description = "코스를 생성합니다.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "코스 생성에 성공했습니다."),
+        @ApiResponse(responseCode = "VALID001", description = "잘못된 입력값입니다",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
+    })
+    public BaseResponse<CourseResponse.CreateCourseResponse> createCourse(
+        @AuthenticationPrincipal PrincipalDetails principalDetails,
+        @RequestPart(name = "request") @Valid CourseRequest.CreateCourseRequest request,
+        @RequestPart(value = "representativeImage", required = false) MultipartFile representativeImage,
+        @RequestPart(value = "startImage", required = false) MultipartFile startImage,
+        @RequestPart(value = "finishImage", required = false) MultipartFile finishImage
+    ) {
+        return BaseResponse.success(
+            "코스 생성에 성공했습니다.",
+            courseService.createCourse(
+                principalDetails.member(), request, representativeImage, startImage, finishImage
+            ));
+    }
+
     @PostMapping("/{courseId}/bookmark")
     @Operation(summary = "코스 즐겨찾기 API", description = "코스를 즐겨찾기합니다.")
     @ApiResponses(value = {

@@ -11,6 +11,10 @@ import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface CourseService {
+    CourseResponse.CreateCourseResponse createCourse(
+        Member member, CourseRequest.CreateCourseRequest request,
+        MultipartFile representativeImage, MultipartFile startImage, MultipartFile endImage
+    );
     void bookmarkCourse(Member member, Long courseId);
     void bookmarkCancelCourse(Member member, Long courseId);
     CourseResponse.CreateReviewResponse createCourseReview(

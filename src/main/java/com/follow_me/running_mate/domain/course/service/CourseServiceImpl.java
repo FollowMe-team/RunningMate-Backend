@@ -18,6 +18,7 @@ import com.follow_me.running_mate.domain.course.repository.CoursePointRepository
 import com.follow_me.running_mate.domain.course.repository.CourseRepository;
 import com.follow_me.running_mate.domain.course.repository.CourseReviewRepository;
 import com.follow_me.running_mate.domain.crew.service.CrewService;
+import com.follow_me.running_mate.domain.enums.CourseImageType;
 import com.follow_me.running_mate.domain.enums.CourseOptionType;
 import com.follow_me.running_mate.domain.enums.Difficulty;
 import com.follow_me.running_mate.domain.enums.Ranking;
@@ -56,7 +57,27 @@ public class CourseServiceImpl implements CourseService {
     private final RunningRecordService runningRecordService;
     private final CrewService crewService;
     private final S3ImageService s3ImageService;
+    private final LambdaService lambdaService;
 
+
+    @Override
+    @Transactional
+    public CourseResponse.CreateCourseResponse createCourse(
+        Member member, CourseRequest.CreateCourseRequest request,
+        MultipartFile representativeImage, MultipartFile startImage, MultipartFile endImage
+    ) {
+        Course course = courseRepository.save(courseEntityMapper.toCourse(request, member));
+
+        saveCourseImages(course, representativeImage, startImage, endImage);
+        saveCourseOptions(course, request.getOptions());
+        saveCoursePoints(course, request.getCoursePoints());
+
+        // 람다 호출: 난이도 및 기타 계산 (비동기)
+        // TODO: 람다 완성되면 주석 해제
+        // CompletableFuture.runAsync(() -> lambdaService.invokeCourseDifficultyLambda(course.getId()));
+
+        return new CourseResponse.CreateCourseResponse(course.getId());
+    }
 
     @Override
     @Transactional
@@ -287,6 +308,46 @@ public class CourseServiceImpl implements CourseService {
             coursePoints.stream()
                 .map(courseResponseMapper::toCoursePointDetail)
                 .toList());
+    }
+
+    // 코스 이미지 저장 메서드
+    private void saveCourseImages(
+        Course course, MultipartFile representativeImage, MultipartFile startImage, MultipartFile endImage
+    ) {
+        if (representativeImage != null) {
+            String repImageUrl = s3ImageService.upload(representativeImage);
+            courseImageRepository.save(
+                courseEntityMapper.toCourseImage(course, repImageUrl, CourseImageType.REPRESENTATIVE)
+            );
+        }
+        if (startImage != null) {
+            String startImageUrl = s3ImageService.upload(startImage);
+            courseImageRepository.save(
+                courseEntityMapper.toCourseImage(course, startImageUrl, CourseImageType.START)
+            );
+        }
+        if (endImage != null) {
+            String endImageUrl = s3ImageService.upload(endImage);
+            courseImageRepository.save(
+                courseEntityMapper.toCourseImage(course, endImageUrl, CourseImageType.FINISH)
+            );
+        }
+    }
+
+    // 코스 옵션 저장 메서드
+    private void saveCourseOptions(Course course, List<CourseOptionType> options) {
+        options.stream()
+            .map(type -> courseEntityMapper.toCourseOption(course, type))
+            .map(courseOptionRepository::save)
+            .forEach(course::addOption);
+    }
+
+    // 코스 포인트 저장 메서드
+    private void saveCoursePoints(Course course, List<CourseRequest.CoursePointInfo> coursePoints) {
+        for (int i = 0; i < coursePoints.size(); i++) {
+            CoursePoint coursePoint = courseEntityMapper.toCoursePoint(course, coursePoints.get(i), i + 1);
+            coursePointRepository.save(coursePoint);
+        }
     }
 
     private void handleExistingBookmark(CourseBookmark existingBookmark) {
