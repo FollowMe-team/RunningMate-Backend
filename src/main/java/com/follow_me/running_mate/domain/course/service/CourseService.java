@@ -33,4 +33,5 @@ public interface CourseService {
     CourseResponse.CourseDetailResponse getCourseDetail(Member member, Long courseId);
     CourseResponse.CourseReviewListResponse getCourseReviews(Member member, Long courseId, ReviewSortType sortType);
     CourseResponse.CoursePathResponse getCoursePath(Long courseId);
+    CourseResponse.CheckCourseNameResponse checkCourseName(String name);
 }

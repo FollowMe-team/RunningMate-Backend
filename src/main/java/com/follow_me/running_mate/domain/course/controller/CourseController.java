@@ -262,4 +262,18 @@ public class CourseController {
             "코스 경로 조회에 성공했습니다.", courseService.getCoursePath(courseId)
         );
     }
+
+    @GetMapping("/check")
+    @Operation(summary = "코스명 중복 체크 API", description = "코스명 중복을 체크합니다.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "코스명 중복 체크에 성공했습니다.",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+    })
+    public BaseResponse<CourseResponse.CheckCourseNameResponse> checkCourseName(
+        @Parameter(description = "코스명") @RequestParam(value = "name") String name
+    ) {
+        return BaseResponse.success(
+            "코스명 중복 체크에 성공했습니다.", courseService.checkCourseName(name)
+        );
+    }
 }

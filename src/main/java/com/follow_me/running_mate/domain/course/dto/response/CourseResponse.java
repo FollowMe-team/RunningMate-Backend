@@ -27,6 +27,12 @@ public class CourseResponse {
 
     @Getter
     @AllArgsConstructor
+    public static class CheckCourseNameResponse {
+        private boolean isAvailable;
+    }
+
+    @Getter
+    @AllArgsConstructor
     public static class CourseListResponse {
         private List<SummaryInfo> courses;
     }

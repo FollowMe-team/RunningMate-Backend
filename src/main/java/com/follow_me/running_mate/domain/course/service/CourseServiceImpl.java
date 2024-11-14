@@ -310,6 +310,14 @@ public class CourseServiceImpl implements CourseService {
                 .toList());
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public CourseResponse.CheckCourseNameResponse checkCourseName(String name) {
+        return new CourseResponse.CheckCourseNameResponse(
+            courseRepository.existsByName(name)
+        );
+    }
+
     // 코스 이미지 저장 메서드
     private void saveCourseImages(
         Course course, MultipartFile representativeImage, MultipartFile startImage, MultipartFile endImage
