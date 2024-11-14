@@ -1,10 +1,13 @@
 package com.follow_me.running_mate.domain.course.service;
 
+import com.follow_me.running_mate.domain.course.dto.request.CourseRequest;
 import com.follow_me.running_mate.domain.course.dto.response.CourseResponse;
 import com.follow_me.running_mate.domain.course.entity.Course;
 import com.follow_me.running_mate.domain.course.entity.CourseBookmark;
 import com.follow_me.running_mate.domain.course.entity.CourseImage;
 import com.follow_me.running_mate.domain.course.entity.CoursePoint;
+import com.follow_me.running_mate.domain.course.entity.CourseReview;
+import com.follow_me.running_mate.domain.course.entity.CourseReviewImage;
 import com.follow_me.running_mate.domain.course.exception.CourseErrorCode;
 import com.follow_me.running_mate.domain.course.mapper.CourseEntityMapper;
 import com.follow_me.running_mate.domain.course.mapper.CourseResponseMapper;
@@ -23,6 +26,7 @@ import com.follow_me.running_mate.domain.enums.RunningGoal;
 import com.follow_me.running_mate.domain.member.entity.Member;
 import com.follow_me.running_mate.domain.record.service.RunningRecordService;
 import com.follow_me.running_mate.domain.course.repository.CourseReviewImageRepository;
+import com.follow_me.running_mate.global.common.service.S3ImageService;
 import com.follow_me.running_mate.global.error.exception.CustomException;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +36,7 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -50,6 +55,7 @@ public class CourseServiceImpl implements CourseService {
 
     private final RunningRecordService runningRecordService;
     private final CrewService crewService;
+    private final S3ImageService s3ImageService;
 
 
     @Override
@@ -75,6 +81,35 @@ public class CourseServiceImpl implements CourseService {
                 throw new CustomException(CourseErrorCode.NOT_BOOKMARKED);
             }
         );
+    }
+
+    @Override
+    @Transactional
+    public CourseResponse.CreateReviewResponse createCourseReview(
+        Member member, Long courseId, CourseRequest.CreateReviewRequest request, List<MultipartFile> images
+    ) {
+        Course course = courseRepository.getCourse(courseId);
+
+        CourseReview courseReview = courseReviewRepository.save(
+            courseEntityMapper.toCourseReview(course, member, request)
+        );
+
+        if (images != null && !images.isEmpty()) {
+            List<CourseReviewImage> reviewImages = new ArrayList<>();
+
+            images.forEach(image -> {
+                String imageUrl = s3ImageService.upload(image);
+
+                CourseReviewImage reviewImage = courseEntityMapper.toCourseReviewImage(courseReview, imageUrl);
+
+                reviewImages.add(reviewImage);
+            });
+
+            List<CourseReviewImage> courseReviewImages = courseReviewImageRepository.saveAll(reviewImages);
+            courseReviewImages.forEach(courseReview::addImage);
+        }
+
+        return new CourseResponse.CreateReviewResponse(courseReview.getId());
     }
 
     @Override
@@ -317,7 +352,7 @@ public class CourseServiceImpl implements CourseService {
         // 리뷰 리스트를 평점별로 그룹화하여 개수를 세기
         Map<Integer, Long> ratingCountMap = reviews.stream()
             .collect(Collectors.groupingBy(
-                review -> review.getRating().intValue(),
+                CourseResponse.ReviewInfo::getRating,
                 Collectors.counting()
             ));
 

@@ -1,6 +1,7 @@
 package com.follow_me.running_mate.domain.course.controller;
 
 import com.follow_me.running_mate.config.security.auth.PrincipalDetails;
+import com.follow_me.running_mate.domain.course.dto.request.CourseRequest;
 import com.follow_me.running_mate.domain.course.dto.response.CourseResponse;
 import com.follow_me.running_mate.domain.course.service.CourseService;
 import com.follow_me.running_mate.domain.enums.CourseOptionType;
@@ -15,8 +16,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,7 +27,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/courses")
@@ -64,6 +69,25 @@ public class CourseController {
     ) {
         courseService.bookmarkCancelCourse(principalDetails.member(), courseId);
         return BaseResponse.success("코스 즐겨찾기 취소에 성공했습니다.", null);
+    }
+
+    @PostMapping( value = "/{courseId}/reviews", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "코스 리뷰 작성 API", description = "코스 리뷰를 작성합니다.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "코스 리뷰 작성에 성공했습니다."),
+        @ApiResponse(responseCode = "VALID001", description = "잘못된 입력값입니다",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
+    })
+    public BaseResponse<CourseResponse.CreateReviewResponse> createCourseReview(
+        @AuthenticationPrincipal PrincipalDetails principalDetails,
+        @PathVariable(value = "courseId") Long courseId,
+        @RequestPart(name = "request") @Valid CourseRequest.CreateReviewRequest request,
+        @RequestPart(name = "images", required = false) List<MultipartFile> images
+    ) {
+        return BaseResponse.success(
+            "코스 리뷰 작성에 성공했습니다.",
+            courseService.createCourseReview(principalDetails.member(), courseId, request, images)
+        );
     }
 
     @GetMapping("/recent")

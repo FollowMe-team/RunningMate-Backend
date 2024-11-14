@@ -40,7 +40,7 @@ public class FormatterUtil {
 
     // Rating 포맷팅
     public static Double formatRating(Double rating) {
-        return rating != null ? Math.round(rating * 10) / 10.0 : 0.0;
+        return rating != null ? Double.parseDouble(String.format("%.1f", rating)) : 0.0;
     }
 
     // 시간 포맷팅

@@ -15,6 +15,12 @@ public class CourseResponse {
 
     @Getter
     @AllArgsConstructor
+    public static class CreateReviewResponse {
+        private Long reviewId;
+    }
+
+    @Getter
+    @AllArgsConstructor
     public static class CourseListResponse {
         private List<SummaryInfo> courses;
     }
@@ -144,7 +150,7 @@ public class CourseResponse {
         private Long id;
         private MemberInfo writer;
         private String content;
-        private Double rating;
+        private Integer rating;
         private List<String> images;
         private String createdAt;
         private Boolean isMine;

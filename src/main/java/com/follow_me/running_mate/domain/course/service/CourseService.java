@@ -1,5 +1,6 @@
 package com.follow_me.running_mate.domain.course.service;
 
+import com.follow_me.running_mate.domain.course.dto.request.CourseRequest;
 import com.follow_me.running_mate.domain.course.dto.response.CourseResponse;
 import com.follow_me.running_mate.domain.enums.CourseOptionType;
 import com.follow_me.running_mate.domain.enums.Difficulty;
@@ -7,10 +8,13 @@ import com.follow_me.running_mate.domain.enums.ReviewSortType;
 import com.follow_me.running_mate.domain.enums.RunningGoal;
 import com.follow_me.running_mate.domain.member.entity.Member;
 import java.util.List;
+import org.springframework.web.multipart.MultipartFile;
 
 public interface CourseService {
     void bookmarkCourse(Member member, Long courseId);
     void bookmarkCancelCourse(Member member, Long courseId);
+    CourseResponse.CreateReviewResponse createCourseReview(
+        Member member, Long courseId, CourseRequest.CreateReviewRequest request, List<MultipartFile> images);
 
     CourseResponse.CourseListResponse getRecentCourses(Member member);
     CourseResponse.CourseListResponse getBookmarkedCourses(Member member);
