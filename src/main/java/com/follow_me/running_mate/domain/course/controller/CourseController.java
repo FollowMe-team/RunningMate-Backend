@@ -10,6 +10,7 @@ import com.follow_me.running_mate.domain.enums.RunningGoal;
 import com.follow_me.running_mate.global.common.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -17,6 +18,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -36,6 +38,10 @@ public class CourseController {
     @Operation(summary = "코스 즐겨찾기 API", description = "코스를 즐겨찾기합니다.")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "코스 즐겨찾기에 성공했습니다."),
+        @ApiResponse(responseCode = "COURSE003", description = "이미 북마크한 코스입니다.",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+        @ApiResponse(responseCode = "COURSE005", description = "북마크한 코스가 최대 개수를 초과했습니다.",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
     })
     public BaseResponse<Void> bookmarkCourse(
         @AuthenticationPrincipal PrincipalDetails principalDetails,
@@ -43,6 +49,21 @@ public class CourseController {
     ) {
         courseService.bookmarkCourse(principalDetails.member(), courseId);
         return BaseResponse.success("코스 즐겨찾기에 성공했습니다.", null);
+    }
+
+    @DeleteMapping("/{courseId}/bookmark")
+    @Operation(summary = "코스 즐겨찾기 취소 API", description = "코스 즐겨찾기를 취소합니다.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "코스 즐겨찾기 취소에 성공했습니다."),
+        @ApiResponse(responseCode = "COURSE004", description = "북마크한 코스가 아닙니다.",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+    })
+    public BaseResponse<Void> bookmarkCancelCourse(
+        @AuthenticationPrincipal PrincipalDetails principalDetails,
+        @PathVariable(value = "courseId") Long courseId
+    ) {
+        courseService.bookmarkCancelCourse(principalDetails.member(), courseId);
+        return BaseResponse.success("코스 즐겨찾기 취소에 성공했습니다.", null);
     }
 
     @GetMapping("/recent")

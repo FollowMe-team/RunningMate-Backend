@@ -57,6 +57,8 @@ public class CourseServiceImpl implements CourseService {
     public void bookmarkCourse(Member member, Long courseId) {
         Course course = courseRepository.getCourse(courseId);
 
+        // TODO: 즐겨찾기가 이미 3개 이상인 경우 예외 처리
+
         courseBookmarkRepository.findByMemberAndCourse(member, course).ifPresentOrElse(
             existingBookmark -> {
                 if (existingBookmark.getIsBookmarked()) {
@@ -71,6 +73,23 @@ public class CourseServiceImpl implements CourseService {
         );
     }
 
+    @Override
+    @Transactional
+    public void bookmarkCancelCourse(Member member, Long courseId) {
+        Course course = courseRepository.getCourse(courseId);
+
+        courseBookmarkRepository.findByMemberAndCourse(member, course).ifPresentOrElse(
+            existingBookmark -> {
+                if (!existingBookmark.getIsBookmarked()) {
+                    throw new CustomException(CourseErrorCode.NOT_BOOKMARKED);
+                }
+                existingBookmark.changeBookmark();
+            },
+            () -> {
+                throw new CustomException(CourseErrorCode.NOT_BOOKMARKED);
+            }
+        );
+    }
 
     @Override
     @Transactional(readOnly = true)
