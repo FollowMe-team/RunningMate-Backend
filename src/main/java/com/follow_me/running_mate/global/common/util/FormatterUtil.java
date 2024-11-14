@@ -70,14 +70,14 @@ public class FormatterUtil {
     }
 
     // Point 포맷팅
-    public static Point formatPoint(CourseRequest.CoursePointInfo coursePointInfo) {
+    public static Point formatPoint(CourseRequest.GeoPoint geoPoint) {
         return new GeometryFactory(new PrecisionModel(), 4326)
-            .createPoint(new Coordinate(coursePointInfo.getLongitude(), coursePointInfo.getLatitude()));
+            .createPoint(new Coordinate(geoPoint.getLongitude(), geoPoint.getLatitude()));
     }
 
     // LineString 포맷팅
-    public static LineString formatLineString(List<CourseRequest.CoursePointInfo> coursePoints) {
-        Coordinate[] coordinates = coursePoints.stream()
+    public static LineString formatLineString(List<? extends CourseRequest.GeoPoint> points) {
+        Coordinate[] coordinates = points.stream()
             .map(p -> new Coordinate(p.getLongitude(), p.getLatitude()))
             .toArray(Coordinate[]::new);
         return new GeometryFactory(new PrecisionModel(), 4326)

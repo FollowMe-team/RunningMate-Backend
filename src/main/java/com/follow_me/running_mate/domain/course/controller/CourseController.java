@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -61,6 +62,23 @@ public class CourseController {
             courseService.createCourse(
                 principalDetails.member(), request, representativeImage, startImage, finishImage
             ));
+    }
+
+    @PostMapping("/{courseId}/record")
+    @Operation(summary = "코스 기록 API", description = "코스를 기록합니다.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "코스 기록에 성공했습니다.",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+    })
+    public BaseResponse<CourseResponse.CreateCourseRecordResponse> createCourseRecord(
+        @AuthenticationPrincipal PrincipalDetails principalDetails,
+        @PathVariable(value = "courseId") Long courseId,
+        @RequestBody CourseRequest.CreateCourseRecordRequest request
+    ) {
+        return BaseResponse.success(
+            "코스 기록에 성공했습니다.",
+            courseService.createCourseRecord(principalDetails.member(), courseId, request)
+        );
     }
 
     @PostMapping("/{courseId}/bookmark")

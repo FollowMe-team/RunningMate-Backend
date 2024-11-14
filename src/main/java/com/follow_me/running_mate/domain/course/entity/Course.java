@@ -76,7 +76,7 @@ public class Course extends BaseEntity {
 
     @Builder.Default
     @OneToMany(mappedBy = "course", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<CourseOption> options = new ArrayList<>(); // CourseOption과의 양방향 매핑
+    private List<CourseOption> options = new ArrayList<>();
 
     @Builder.Default
     private Integer runningCount = 0;

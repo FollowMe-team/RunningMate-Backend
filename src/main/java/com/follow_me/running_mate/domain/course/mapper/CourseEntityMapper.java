@@ -6,6 +6,8 @@ import com.follow_me.running_mate.domain.course.entity.CourseBookmark;
 import com.follow_me.running_mate.domain.course.entity.CourseImage;
 import com.follow_me.running_mate.domain.course.entity.CourseOption;
 import com.follow_me.running_mate.domain.course.entity.CoursePoint;
+import com.follow_me.running_mate.domain.course.entity.CourseRecord;
+import com.follow_me.running_mate.domain.course.entity.CourseRecordPoint;
 import com.follow_me.running_mate.domain.course.entity.CourseReview;
 import com.follow_me.running_mate.domain.course.entity.CourseReviewImage;
 import com.follow_me.running_mate.domain.enums.CourseImageType;
@@ -13,6 +15,7 @@ import com.follow_me.running_mate.domain.enums.CourseOptionType;
 import com.follow_me.running_mate.domain.enums.Status;
 import com.follow_me.running_mate.domain.member.entity.Member;
 import com.follow_me.running_mate.global.common.util.FormatterUtil;
+import java.time.Duration;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -79,6 +82,28 @@ public class CourseEntityMapper {
         return CourseReviewImage.builder()
             .review(courseReview)
             .url(imageUrl)
+            .build();
+    }
+
+    public CourseRecord toCourseRecord(Course course, Member member, CourseRequest.CreateCourseRecordRequest request) {
+        return CourseRecord.builder()
+            .course(course)
+            .runner(member)
+            .startTime(request.getStartTime())
+            .endTime(request.getEndTime())
+            .duration(Duration.between(request.getStartTime(), request.getEndTime()))
+            .distance(request.getDistance())
+            .averagePace(request.getAveragePace())
+            .caloriesBurned(request.getCaloriesBurned())
+            .path(FormatterUtil.formatLineString(request.getRecordPoints()))
+            .build();
+    }
+
+    public CourseRecordPoint toCourseRecordPoint(CourseRecord courseRecord, CourseRequest.RecordPointRequest point) {
+        return CourseRecordPoint.builder()
+            .record(courseRecord)
+            .location(FormatterUtil.formatPoint(point))
+            .recordedTime(point.getRecordedTime())
             .build();
     }
 }

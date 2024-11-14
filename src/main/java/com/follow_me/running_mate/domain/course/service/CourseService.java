@@ -15,6 +15,9 @@ public interface CourseService {
         Member member, CourseRequest.CreateCourseRequest request,
         MultipartFile representativeImage, MultipartFile startImage, MultipartFile endImage
     );
+    CourseResponse.CreateCourseRecordResponse createCourseRecord(
+        Member member, Long courseId, CourseRequest.CreateCourseRecordRequest request
+    );
     void bookmarkCourse(Member member, Long courseId);
     void bookmarkCancelCourse(Member member, Long courseId);
     CourseResponse.CreateReviewResponse createCourseReview(

@@ -25,7 +25,6 @@ import com.follow_me.running_mate.domain.enums.Ranking;
 import com.follow_me.running_mate.domain.enums.ReviewSortType;
 import com.follow_me.running_mate.domain.enums.RunningGoal;
 import com.follow_me.running_mate.domain.member.entity.Member;
-import com.follow_me.running_mate.domain.record.service.RunningRecordService;
 import com.follow_me.running_mate.domain.course.repository.CourseReviewImageRepository;
 import com.follow_me.running_mate.global.common.service.S3ImageService;
 import com.follow_me.running_mate.global.error.exception.CustomException;
@@ -54,7 +53,7 @@ public class CourseServiceImpl implements CourseService {
     private final CourseImageRepository courseImageRepository;
     private final CourseReviewImageRepository courseReviewImageRepository;
 
-    private final RunningRecordService runningRecordService;
+    private final CourseRecordService courseRecordService;
     private final CrewService crewService;
     private final S3ImageService s3ImageService;
     private final LambdaService lambdaService;
@@ -77,6 +76,16 @@ public class CourseServiceImpl implements CourseService {
         // CompletableFuture.runAsync(() -> lambdaService.invokeCourseDifficultyLambda(course.getId()));
 
         return new CourseResponse.CreateCourseResponse(course.getId());
+    }
+
+    @Override
+    @Transactional
+    public CourseResponse.CreateCourseRecordResponse createCourseRecord(
+        Member member, Long courseId, CourseRequest.CreateCourseRecordRequest request
+    ) {
+        Course course = courseRepository.getCourse(courseId);
+
+        return courseRecordService.createCourseRecord(member, course, request);
     }
 
     @Override
@@ -137,7 +146,7 @@ public class CourseServiceImpl implements CourseService {
     @Transactional(readOnly = true)
     public CourseResponse.CourseListResponse getRecentCourses(Member member) {
 
-        List<Course> recentCourses = runningRecordService.getRecentCourses(member);
+        List<Course> recentCourses = courseRecordService.getRecentCourses(member);
 
         List<CourseResponse.SummaryInfo> courses = recentCourses.stream().map(course ->
             courseResponseMapper.toSummaryInfo(
