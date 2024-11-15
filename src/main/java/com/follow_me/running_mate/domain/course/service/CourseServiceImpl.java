@@ -46,14 +46,13 @@ public class CourseServiceImpl implements CourseService {
     private final CourseEntityMapper courseEntityMapper;
 
     private final CourseRepository courseRepository;
-    private final CourseReviewRepository courseReviewRepository;
     private final CourseBookmarkRepository courseBookmarkRepository;
     private final CourseOptionRepository courseOptionRepository;
     private final CoursePointRepository coursePointRepository;
     private final CourseImageRepository courseImageRepository;
-    private final CourseReviewImageRepository courseReviewImageRepository;
 
     private final CourseRecordService courseRecordService;
+    private final CourseReviewService courseReviewService;
     private final CrewService crewService;
     private final S3ImageService s3ImageService;
     private final LambdaService lambdaService;
@@ -120,23 +119,11 @@ public class CourseServiceImpl implements CourseService {
     ) {
         Course course = courseRepository.getCourse(courseId);
 
-        CourseReview courseReview = courseReviewRepository.save(
-            courseEntityMapper.toCourseReview(course, member, request)
-        );
+        CourseReview courseReview = courseReviewService.save(course, member, request);
 
         if (images != null && !images.isEmpty()) {
-            List<CourseReviewImage> reviewImages = new ArrayList<>();
-
-            images.forEach(image -> {
-                String imageUrl = s3ImageService.upload(image);
-
-                CourseReviewImage reviewImage = courseEntityMapper.toCourseReviewImage(courseReview, imageUrl);
-
-                reviewImages.add(reviewImage);
-            });
-
-            List<CourseReviewImage> courseReviewImages = courseReviewImageRepository.saveAll(reviewImages);
-            courseReviewImages.forEach(courseReview::addImage);
+            List<CourseReviewImage> reviewImages = courseReviewService.saveImages(courseReview, images);
+            reviewImages.forEach(courseReview::addImage);
         }
 
         return new CourseResponse.ReviewIdResponse(courseReview.getId());
@@ -145,18 +132,7 @@ public class CourseServiceImpl implements CourseService {
     @Override
     @Transactional
     public CourseResponse.ReviewIdResponse deleteCourseReview(Member member, Long reviewId) {
-        CourseReview courseReview = courseReviewRepository.getCourseReview(reviewId);
-
-        if (!courseReview.getWriter().getId().equals(member.getId())) {
-            throw new CustomException(CourseErrorCode.UNAUTHORIZED_REVIEW);
-        }
-
-        courseReview.getImages().forEach( image -> {
-            s3ImageService.deleteImageFromS3(image.getUrl());
-            courseReviewImageRepository.delete(image);
-        });
-
-        courseReview.delete();
+        CourseReview courseReview = courseReviewService.delete(reviewId, member);
         return new CourseResponse.ReviewIdResponse(courseReview.getId());
     }
 
@@ -169,7 +145,7 @@ public class CourseServiceImpl implements CourseService {
         List<CourseResponse.SummaryInfo> courses = recentCourses.stream().map(course ->
             courseResponseMapper.toSummaryInfo(
                 course,
-                courseReviewRepository.findAverageRatingByCourse(course),
+                courseReviewService.getAverageRating(course),
                 course.getRunningCount(),
                 isBookmarkedCourse(member, course),
                 courseOptionRepository.findAllByCourse(course),
@@ -188,7 +164,7 @@ public class CourseServiceImpl implements CourseService {
         List<CourseResponse.SummaryInfo> courses = bookmarkedCourses.stream().map(course ->
             courseResponseMapper.toSummaryInfo(
                 course,
-                courseReviewRepository.findAverageRatingByCourse(course),
+                courseReviewService.getAverageRating(course),
                 course.getRunningCount(),
                 isBookmarkedCourse(member, course),
                 courseOptionRepository.findAllByCourse(course),
@@ -207,7 +183,7 @@ public class CourseServiceImpl implements CourseService {
         List<CourseResponse.MyCourseInfo> courses = myCourses.stream().map(course ->
             courseResponseMapper.toMyCourseInfo(
                 course,
-                courseReviewRepository.findAverageRatingByCourse(course),
+                courseReviewService.getAverageRating(course),
                 course.getRunningCount(),
                 isBookmarkedCourse(member, course),
                 courseOptionRepository.findAllByCourse(course),
@@ -241,7 +217,7 @@ public class CourseServiceImpl implements CourseService {
         List<CourseResponse.SummaryInfo> courses = recommendedCourses.stream().map(course ->
             courseResponseMapper.toSummaryInfo(
                 course,
-                courseReviewRepository.findAverageRatingByCourse(course),
+                courseReviewService.getAverageRating(course),
                 course.getRunningCount(),
                 isBookmarkedCourse(member, course),
                 courseOptionRepository.findAllByCourse(course),
@@ -275,7 +251,7 @@ public class CourseServiceImpl implements CourseService {
         List<CourseResponse.SummaryInfo> courses = searchCourses.stream().map(course ->
             courseResponseMapper.toSummaryInfo(
                 course,
-                courseReviewRepository.findAverageRatingByCourse(course),
+                courseReviewService.getAverageRating(course),
                 course.getRunningCount(),
                 isBookmarkedCourse(member, course),
                 courseOptionRepository.findAllByCourse(course),
@@ -293,7 +269,7 @@ public class CourseServiceImpl implements CourseService {
 
         return courseResponseMapper.toCourseDetailResponse(
             course,
-            courseReviewRepository.findAverageRatingByCourse(course),
+            courseReviewService.getAverageRating(course),
             isBookmarkedCourse(member, course),
             courseImageRepository.findAllByCourse(course).stream()
                 .map(CourseImage::getUrl)
@@ -301,8 +277,7 @@ public class CourseServiceImpl implements CourseService {
             courseOptionRepository.findAllByCourse(course),
             coursePointRepository.findAllByCourseOrderBySequenceNumberAsc(course),
             courseResponseMapper.toCrewInfos(crewService.getCrewByCourse(course)),
-            courseResponseMapper.toReviewInfos(courseReviewRepository.findTop3ByCourseOrderByCreatedAtDesc(course), member),
-            getRatingCounts(courseResponseMapper.toReviewInfos(courseReviewRepository.findAllByCourse(course), member))
+            courseResponseMapper.toReviewInfos(courseReviewService.getRecentReviews(course), member)
         );
     }
 
@@ -314,12 +289,12 @@ public class CourseServiceImpl implements CourseService {
         Course course = courseRepository.getCourse(courseId);
 
         List<CourseResponse.ReviewInfo> reviews = courseResponseMapper.toReviewInfos(
-            sortType.sort(course, courseReviewRepository), member
+            courseReviewService.getReviews(course, sortType), member
         );
 
         return courseResponseMapper.toCourseReviewListResponse(
             reviews,
-            courseReviewRepository.findAverageRatingByCourse(course),
+            courseReviewService.getAverageRating(course),
             getRatingCounts(reviews)
         );
     }
