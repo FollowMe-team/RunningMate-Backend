@@ -17,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class CourseBookmarkServiceImpl implements CourseBookmarkService {
 
     private CourseEntityMapper courseEntityMapper;
-
     private CourseBookmarkRepository courseBookmarkRepository;
 
 

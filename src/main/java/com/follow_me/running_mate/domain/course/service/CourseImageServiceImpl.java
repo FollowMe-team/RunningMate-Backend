@@ -17,7 +17,6 @@ import org.springframework.web.multipart.MultipartFile;
 public class CourseImageServiceImpl implements CourseImageService {
 
     private final CourseEntityMapper courseEntityMapper;
-
     private final CourseImageRepository courseImageRepository;
 
     private final S3ImageService s3ImageService;

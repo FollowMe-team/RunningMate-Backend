@@ -46,13 +46,13 @@ public class CourseServiceImpl implements CourseService {
     private final CourseEntityMapper courseEntityMapper;
 
     private final CourseRepository courseRepository;
-    private final CoursePointRepository coursePointRepository;
 
     private final CourseRecordService courseRecordService;
     private final CourseReviewService courseReviewService;
     private final CourseBookmarkService courseBookmarkService;
     private final CourseOptionService courseOptionService;
     private final CourseImageService courseImageService;
+    private final CoursePointService coursePointService;
     private final CrewService crewService;
     private final S3ImageService s3ImageService;
     private final LambdaService lambdaService;
@@ -68,7 +68,7 @@ public class CourseServiceImpl implements CourseService {
 
         courseImageService.saveCourseImages(course, representativeImage, startImage, endImage);
         course.addOption(courseOptionService.getCourseOptions(course));
-        saveCoursePoints(course, request.getCoursePoints());
+        coursePointService.saveCoursePoints(course, request.getCoursePoints());
 
         // 람다 호출: 난이도 및 기타 계산 (비동기)
         // TODO: 람다 완성되면 주석 해제
@@ -140,7 +140,7 @@ public class CourseServiceImpl implements CourseService {
                 course.getRunningCount(),
                 courseBookmarkService.isBookmarked(member, course),
                 courseOptionService.getCourseOptions(course),
-                coursePointRepository.findAllByCourseOrderBySequenceNumberAsc(course)
+                coursePointService.getCoursePoints(course)
             )).toList();
 
         return new CourseResponse.CourseListResponse(courses);
@@ -159,7 +159,7 @@ public class CourseServiceImpl implements CourseService {
                 course.getRunningCount(),
                 courseBookmarkService.isBookmarked(member, course),
                 courseOptionService.getCourseOptions(course),
-                coursePointRepository.findAllByCourseOrderBySequenceNumberAsc(course)
+                coursePointService.getCoursePoints(course)
             )).toList();
 
         return new CourseResponse.CourseListResponse(courses);
@@ -178,7 +178,7 @@ public class CourseServiceImpl implements CourseService {
                 course.getRunningCount(),
                 courseBookmarkService.isBookmarked(member, course),
                 courseOptionService.getCourseOptions(course),
-                coursePointRepository.findAllByCourseOrderBySequenceNumberAsc(course)
+                coursePointService.getCoursePoints(course)
             )).toList();
 
         return new CourseResponse.MyCourseListResponse(courses);
@@ -210,7 +210,7 @@ public class CourseServiceImpl implements CourseService {
                 course.getRunningCount(),
                 courseBookmarkService.isBookmarked(member, course),
                 courseOptionService.getCourseOptions(course),
-                coursePointRepository.findAllByCourseOrderBySequenceNumberAsc(course)
+                coursePointService.getCoursePoints(course)
             )).toList();
 
         return new CourseResponse.CourseListResponse(courses);
@@ -244,7 +244,7 @@ public class CourseServiceImpl implements CourseService {
                 course.getRunningCount(),
                 courseBookmarkService.isBookmarked(member, course),
                 courseOptionService.getCourseOptions(course),
-                coursePointRepository.findAllByCourseOrderBySequenceNumberAsc(course)
+                coursePointService.getCoursePoints(course)
             )).toList();
 
         return new CourseResponse.CourseListResponse(courses);
@@ -262,7 +262,7 @@ public class CourseServiceImpl implements CourseService {
             courseBookmarkService.isBookmarked(member, course),
             courseImageService.getCourseImages(course),
             courseOptionService.getCourseOptions(course),
-            coursePointRepository.findAllByCourseOrderBySequenceNumberAsc(course),
+            coursePointService.getCoursePoints(course),
             courseResponseMapper.toCrewInfos(crewService.getCrewByCourse(course)),
             courseResponseMapper.toReviewInfos(courseReviewService.getRecentReviews(course), member)
         );
@@ -282,7 +282,7 @@ public class CourseServiceImpl implements CourseService {
         return courseResponseMapper.toCourseReviewListResponse(
             reviews,
             courseReviewService.getAverageRating(course),
-            getRatingCounts(reviews)
+            courseReviewService.getReviewCounts(reviews)
         );
     }
 
@@ -291,7 +291,7 @@ public class CourseServiceImpl implements CourseService {
     public CourseResponse.CoursePathResponse getCoursePath(Long courseId) {
         Course course = courseRepository.getCourse(courseId);
 
-        List<CoursePoint> coursePoints = coursePointRepository.findAllByCourseOrderBySequenceNumberAsc(course);
+        List<CoursePoint> coursePoints = coursePointService.getCoursePoints(course);
 
         return new CourseResponse.CoursePathResponse(
             coursePoints.stream()
@@ -307,14 +307,6 @@ public class CourseServiceImpl implements CourseService {
         );
     }
 
-    // 코스 포인트 저장 메서드
-    private void saveCoursePoints(Course course, List<CourseRequest.CoursePointInfo> coursePoints) {
-        for (int i = 0; i < coursePoints.size(); i++) {
-            CoursePoint coursePoint = courseEntityMapper.toCoursePoint(course, coursePoints.get(i), i + 1);
-            coursePointRepository.save(coursePoint);
-        }
-    }
-
     // 사용자 ranking에 따른 기본 난이도 설정
     private Difficulty getDefaultDifficultyByRanking(Ranking ranking) {
         return switch (ranking) {
@@ -322,21 +314,5 @@ public class CourseServiceImpl implements CourseService {
             case RACER, SPRINTER -> Difficulty.NORMAL;
             case MARATHONER, ULTRA_RUNNER, IRON_LEGS, SPEED_DEMON -> Difficulty.HARD;
         };
-    }
-
-    private List<Integer> getRatingCounts(List<CourseResponse.ReviewInfo> reviews) {
-        // 리뷰 리스트를 평점별로 그룹화하여 개수를 세기
-        Map<Integer, Long> ratingCountMap = reviews.stream()
-            .collect(Collectors.groupingBy(
-                CourseResponse.ReviewInfo::getRating,
-                Collectors.counting()
-            ));
-
-        // 각 평점(5점 ~ 1점)별 개수를 순서대로 List에 추가
-        List<Integer> ratingCounts = new ArrayList<>();
-        for (int i = 5; i >= 1; i--) {
-            ratingCounts.add(ratingCountMap.getOrDefault(i, 0L).intValue());
-        }
-        return ratingCounts;
     }
 }

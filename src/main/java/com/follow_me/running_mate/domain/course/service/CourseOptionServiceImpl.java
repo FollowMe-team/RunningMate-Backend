@@ -16,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class CourseOptionServiceImpl implements CourseOptionService {
 
     private final CourseEntityMapper courseEntityMapper;
-
     private final CourseOptionRepository courseOptionRepository;
 
 

@@ -1,6 +1,7 @@
 package com.follow_me.running_mate.domain.course.service;
 
 import com.follow_me.running_mate.domain.course.dto.request.CourseRequest;
+import com.follow_me.running_mate.domain.course.dto.response.CourseResponse;
 import com.follow_me.running_mate.domain.course.entity.Course;
 import com.follow_me.running_mate.domain.course.entity.CourseReview;
 import com.follow_me.running_mate.domain.course.entity.CourseReviewImage;
@@ -18,4 +19,5 @@ public interface CourseReviewService {
     Double getAverageRating(Course course);
     List<CourseReview> getRecentReviews(Course course);
     List<CourseReview> getReviews(Course course, ReviewSortType sortType);
+    List<Integer> getReviewCounts(List<CourseResponse.ReviewInfo> reviews);
 }

@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 public class CourseRecordServiceImpl implements CourseRecordService {
 
     private final CourseEntityMapper courseEntityMapper;
-
     private final CourseRecordRepository courseRecordRepository;
     private final CourseRecordPointRepository courseRecordPointRepository;
 
