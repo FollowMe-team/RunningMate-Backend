@@ -46,13 +46,13 @@ public class CourseServiceImpl implements CourseService {
     private final CourseEntityMapper courseEntityMapper;
 
     private final CourseRepository courseRepository;
-    private final CourseBookmarkRepository courseBookmarkRepository;
     private final CourseOptionRepository courseOptionRepository;
     private final CoursePointRepository coursePointRepository;
     private final CourseImageRepository courseImageRepository;
 
     private final CourseRecordService courseRecordService;
     private final CourseReviewService courseReviewService;
+    private final CourseBookmarkService courseBookmarkService;
     private final CrewService crewService;
     private final S3ImageService s3ImageService;
     private final LambdaService lambdaService;
@@ -92,11 +92,7 @@ public class CourseServiceImpl implements CourseService {
     public void bookmarkCourse(Member member, Long courseId) {
         Course course = courseRepository.getCourse(courseId);
 
-        courseBookmarkRepository.findByMemberAndCourse(member, course)
-            .ifPresentOrElse(
-                this::handleExistingBookmark,
-                () -> handleNewBookmark(member, course)
-            );
+        courseBookmarkService.bookmarkCourse(member, course);
     }
 
     @Override
@@ -104,12 +100,7 @@ public class CourseServiceImpl implements CourseService {
     public void bookmarkCancelCourse(Member member, Long courseId) {
         Course course = courseRepository.getCourse(courseId);
 
-        courseBookmarkRepository.findByMemberAndCourse(member, course).ifPresentOrElse(
-            this::handleExistingBookmarkCancellation,
-            () -> {
-                throw new CustomException(CourseErrorCode.NOT_BOOKMARKED);
-            }
-        );
+        courseBookmarkService.cancelBookmark(member, course);
     }
 
     @Override
@@ -147,7 +138,7 @@ public class CourseServiceImpl implements CourseService {
                 course,
                 courseReviewService.getAverageRating(course),
                 course.getRunningCount(),
-                isBookmarkedCourse(member, course),
+                courseBookmarkService.isBookmarked(member, course),
                 courseOptionRepository.findAllByCourse(course),
                 coursePointRepository.findAllByCourseOrderBySequenceNumberAsc(course)
             )).toList();
@@ -159,14 +150,14 @@ public class CourseServiceImpl implements CourseService {
     @Transactional(readOnly = true)
     public CourseResponse.CourseListResponse getBookmarkedCourses(Member member) {
 
-        List<Course> bookmarkedCourses = getBookmarkedCourseByMember(member);
+        List<Course> bookmarkedCourses = courseBookmarkService.getBookmarkedCourses(member);
 
         List<CourseResponse.SummaryInfo> courses = bookmarkedCourses.stream().map(course ->
             courseResponseMapper.toSummaryInfo(
                 course,
                 courseReviewService.getAverageRating(course),
                 course.getRunningCount(),
-                isBookmarkedCourse(member, course),
+                courseBookmarkService.isBookmarked(member, course),
                 courseOptionRepository.findAllByCourse(course),
                 coursePointRepository.findAllByCourseOrderBySequenceNumberAsc(course)
             )).toList();
@@ -185,7 +176,7 @@ public class CourseServiceImpl implements CourseService {
                 course,
                 courseReviewService.getAverageRating(course),
                 course.getRunningCount(),
-                isBookmarkedCourse(member, course),
+                courseBookmarkService.isBookmarked(member, course),
                 courseOptionRepository.findAllByCourse(course),
                 coursePointRepository.findAllByCourseOrderBySequenceNumberAsc(course)
             )).toList();
@@ -219,7 +210,7 @@ public class CourseServiceImpl implements CourseService {
                 course,
                 courseReviewService.getAverageRating(course),
                 course.getRunningCount(),
-                isBookmarkedCourse(member, course),
+                courseBookmarkService.isBookmarked(member, course),
                 courseOptionRepository.findAllByCourse(course),
                 coursePointRepository.findAllByCourseOrderBySequenceNumberAsc(course)
             )).toList();
@@ -253,7 +244,7 @@ public class CourseServiceImpl implements CourseService {
                 course,
                 courseReviewService.getAverageRating(course),
                 course.getRunningCount(),
-                isBookmarkedCourse(member, course),
+                courseBookmarkService.isBookmarked(member, course),
                 courseOptionRepository.findAllByCourse(course),
                 coursePointRepository.findAllByCourseOrderBySequenceNumberAsc(course)
             )).toList();
@@ -270,7 +261,7 @@ public class CourseServiceImpl implements CourseService {
         return courseResponseMapper.toCourseDetailResponse(
             course,
             courseReviewService.getAverageRating(course),
-            isBookmarkedCourse(member, course),
+            courseBookmarkService.isBookmarked(member, course),
             courseImageRepository.findAllByCourse(course).stream()
                 .map(CourseImage::getUrl)
                 .toList(),
@@ -360,33 +351,6 @@ public class CourseServiceImpl implements CourseService {
         }
     }
 
-    private void handleExistingBookmark(CourseBookmark existingBookmark) {
-        if (existingBookmark.getIsBookmarked()) {
-            throw new CustomException(CourseErrorCode.ALREADY_BOOKMARKED);
-        }
-        existingBookmark.changeBookmark();
-    }
-
-    private void handleNewBookmark(Member member, Course course) {
-        if (hasReachedBookmarkLimit(member)) {
-            throw new CustomException(CourseErrorCode.OVER_MAX_BOOKMARK);
-        }
-        CourseBookmark newBookmark = courseEntityMapper.toCourseBookmark(course, member);
-        courseBookmarkRepository.save(newBookmark);
-    }
-
-    private boolean hasReachedBookmarkLimit(Member member) {
-        long bookmarkCount = courseBookmarkRepository.countByMemberAndIsBookmarkedTrue(member);
-        return bookmarkCount >= 3;
-    }
-
-    private void handleExistingBookmarkCancellation(CourseBookmark existingBookmark) {
-        if (!existingBookmark.getIsBookmarked()) {
-            throw new CustomException(CourseErrorCode.NOT_BOOKMARKED);
-        }
-        existingBookmark.changeBookmark();
-    }
-
     // 사용자 ranking에 따른 기본 난이도 설정
     private Difficulty getDefaultDifficultyByRanking(Ranking ranking) {
         return switch (ranking) {
@@ -406,17 +370,6 @@ public class CourseServiceImpl implements CourseService {
             case SPEED -> List.of(CourseOptionType.TRACK, CourseOptionType.GRADIENT_NONE, CourseOptionType.CITYSCAPE);
             default -> List.of(); // 목표가 없으면 모든 코스 허용
         };
-    }
-
-    private boolean isBookmarkedCourse(Member member, Course course) {
-        Optional<CourseBookmark> courseBookmark = courseBookmarkRepository.findByMemberAndCourse(member, course);
-        return courseBookmark.map(CourseBookmark::getIsBookmarked).orElse(false);
-    }
-
-    private List<Course> getBookmarkedCourseByMember(Member member) {
-        return courseBookmarkRepository.findAllByMemberAndIsBookmarkedTrue(member).stream()
-            .map(CourseBookmark::getCourse)
-            .toList();
     }
 
     private List<Integer> getRatingCounts(List<CourseResponse.ReviewInfo> reviews) {
