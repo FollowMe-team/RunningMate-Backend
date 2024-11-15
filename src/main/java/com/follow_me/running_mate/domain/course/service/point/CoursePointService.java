@@ -1,4 +1,4 @@
-package com.follow_me.running_mate.domain.course.service;
+package com.follow_me.running_mate.domain.course.service.point;
 
 import com.follow_me.running_mate.domain.course.dto.request.CourseRequest;
 import com.follow_me.running_mate.domain.course.entity.Course;

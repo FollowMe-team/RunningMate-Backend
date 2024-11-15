@@ -1,7 +1,7 @@
 package com.follow_me.running_mate.domain.board.entity;
 
-import com.follow_me.running_mate.domain.member.entity.Member;
 import com.follow_me.running_mate.domain.course.entity.CourseRecord;
+import com.follow_me.running_mate.domain.member.entity.Member;
 import com.follow_me.running_mate.global.common.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

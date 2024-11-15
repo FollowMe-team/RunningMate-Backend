@@ -1,13 +1,13 @@
-package com.follow_me.running_mate.domain.course.service;
+package com.follow_me.running_mate.domain.course.service.record;
 
 import com.follow_me.running_mate.domain.course.dto.request.CourseRequest;
 import com.follow_me.running_mate.domain.course.dto.response.CourseResponse;
 import com.follow_me.running_mate.domain.course.entity.Course;
+import com.follow_me.running_mate.domain.course.entity.CourseRecord;
 import com.follow_me.running_mate.domain.course.mapper.CourseEntityMapper;
 import com.follow_me.running_mate.domain.course.repository.CourseRecordPointRepository;
-import com.follow_me.running_mate.domain.member.entity.Member;
-import com.follow_me.running_mate.domain.course.entity.CourseRecord;
 import com.follow_me.running_mate.domain.course.repository.CourseRecordRepository;
+import com.follow_me.running_mate.domain.member.entity.Member;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
