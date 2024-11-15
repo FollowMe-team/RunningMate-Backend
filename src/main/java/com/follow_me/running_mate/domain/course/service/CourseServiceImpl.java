@@ -143,6 +143,24 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    @Transactional
+    public CourseResponse.ReviewIdResponse deleteCourseReview(Member member, Long reviewId) {
+        CourseReview courseReview = courseReviewRepository.getCourseReview(reviewId);
+
+        if (!courseReview.getWriter().getId().equals(member.getId())) {
+            throw new CustomException(CourseErrorCode.UNAUTHORIZED_REVIEW);
+        }
+
+        courseReview.getImages().forEach( image -> {
+            s3ImageService.deleteImageFromS3(image.getUrl());
+            courseReviewImageRepository.delete(image);
+        });
+
+        courseReview.delete();
+        return new CourseResponse.ReviewIdResponse(courseReview.getId());
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public CourseResponse.CourseListResponse getRecentCourses(Member member) {
 

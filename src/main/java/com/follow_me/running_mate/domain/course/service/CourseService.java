@@ -22,6 +22,7 @@ public interface CourseService {
     void bookmarkCancelCourse(Member member, Long courseId);
     CourseResponse.ReviewIdResponse createCourseReview(
         Member member, Long courseId, CourseRequest.CreateReviewRequest request, List<MultipartFile> images);
+    CourseResponse.ReviewIdResponse deleteCourseReview(Member member, Long reviewId);
 
     CourseResponse.CourseListResponse getRecentCourses(Member member);
     CourseResponse.CourseListResponse getBookmarkedCourses(Member member);

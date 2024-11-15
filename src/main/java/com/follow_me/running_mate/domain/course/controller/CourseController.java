@@ -23,7 +23,6 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -133,6 +132,26 @@ public class CourseController {
         return BaseResponse.success(
             "코스 리뷰 작성에 성공했습니다.",
             courseService.createCourseReview(principalDetails.member(), courseId, request, images)
+        );
+    }
+
+    @DeleteMapping("/reviews/{reviewId}")
+    @Operation(summary = "코스 리뷰 삭제 API", description = "코스 리뷰를 삭제합니다.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "코스 리뷰 삭제에 성공했습니다.",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+        @ApiResponse(responseCode = "COURSE007", description = "리뷰를 찾을 수 없습니다.",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+        @ApiResponse(responseCode = "COURSE008", description = "리뷰를 삭제할 권한이 없습니다.",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
+    })
+    public BaseResponse<CourseResponse.ReviewIdResponse> deleteCourseReview(
+        @AuthenticationPrincipal PrincipalDetails principalDetails,
+        @PathVariable(value = "reviewId") Long reviewId
+    ) {
+        return BaseResponse.success(
+            "코스 리뷰 삭제에 성공했습니다.",
+            courseService.deleteCourseReview(principalDetails.member(), reviewId)
         );
     }
 
