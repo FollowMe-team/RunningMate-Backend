@@ -114,13 +114,8 @@ public class CourseResponseMapper {
         List<CourseReview> reviews, Member member
     ) {
         return reviews.stream()
-            .map(review -> toReviewInfo(
-                review,
-                review.getImages().stream()
-                    .map(CourseReviewImage::getUrl)
-                    .toList(),
-                member
-            )).toList();
+            .map(review -> toReviewInfo(review, member))
+            .toList();
     }
 
     public List<CourseResponse.CrewInfo> toCrewInfos(List<Crew> crews) {
@@ -130,16 +125,27 @@ public class CourseResponseMapper {
     }
 
     private CourseResponse.ReviewInfo toReviewInfo(
-        CourseReview review, List<String> reviewImages,  Member member
+        CourseReview review,  Member member
     ) {
         return CourseResponse.ReviewInfo.builder()
             .id(review.getId())
             .writer(toMemberInfo(review.getWriter()))
             .content(review.getContent())
             .rating(review.getRating())
-            .images(reviewImages)
+            .images(
+                review.getImages().stream()
+                    .map(this::toReviewImageInfo)
+                    .toList()
+            )
             .createdAt(FormatterUtil.formatTime(review.getCreatedAt()))
             .isMine(review.getWriter().getId().equals(member.getId()))
+            .build();
+    }
+
+    private CourseResponse.ReviewImageInfo toReviewImageInfo(CourseReviewImage reviewImage) {
+        return CourseResponse.ReviewImageInfo.builder()
+            .id(reviewImage.getId())
+            .imageUrl(reviewImage.getUrl())
             .build();
     }
 

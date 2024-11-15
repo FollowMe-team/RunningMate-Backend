@@ -15,19 +15,19 @@ public class CourseResponse {
 
     @Getter
     @AllArgsConstructor
-    public static class CreateCourseResponse {
+    public static class CourseIdResponse {
         private Long courseId;
     }
 
     @Getter
     @AllArgsConstructor
-    public static class CreateCourseRecordResponse {
+    public static class CourseRecordIdResponse {
         private Long recordId;
     }
 
     @Getter
     @AllArgsConstructor
-    public static class CreateReviewResponse {
+    public static class ReviewIdResponse {
         private Long reviewId;
     }
 
@@ -169,9 +169,18 @@ public class CourseResponse {
         private MemberInfo writer;
         private String content;
         private Integer rating;
-        private List<String> images;
+        private List<ReviewImageInfo> images;
         private String createdAt;
         private Boolean isMine;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class ReviewImageInfo {
+        private Long id;
+        private String imageUrl;
     }
 
     @Getter
