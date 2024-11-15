@@ -46,13 +46,13 @@ public class CourseServiceImpl implements CourseService {
     private final CourseEntityMapper courseEntityMapper;
 
     private final CourseRepository courseRepository;
-    private final CourseOptionRepository courseOptionRepository;
     private final CoursePointRepository coursePointRepository;
     private final CourseImageRepository courseImageRepository;
 
     private final CourseRecordService courseRecordService;
     private final CourseReviewService courseReviewService;
     private final CourseBookmarkService courseBookmarkService;
+    private final CourseOptionService courseOptionService;
     private final CrewService crewService;
     private final S3ImageService s3ImageService;
     private final LambdaService lambdaService;
@@ -67,7 +67,7 @@ public class CourseServiceImpl implements CourseService {
         Course course = courseRepository.save(courseEntityMapper.toCourse(request, member));
 
         saveCourseImages(course, representativeImage, startImage, endImage);
-        saveCourseOptions(course, request.getOptions());
+        course.addOption(courseOptionService.getCourseOptions(course));
         saveCoursePoints(course, request.getCoursePoints());
 
         // 람다 호출: 난이도 및 기타 계산 (비동기)
@@ -139,7 +139,7 @@ public class CourseServiceImpl implements CourseService {
                 courseReviewService.getAverageRating(course),
                 course.getRunningCount(),
                 courseBookmarkService.isBookmarked(member, course),
-                courseOptionRepository.findAllByCourse(course),
+                courseOptionService.getCourseOptions(course),
                 coursePointRepository.findAllByCourseOrderBySequenceNumberAsc(course)
             )).toList();
 
@@ -158,7 +158,7 @@ public class CourseServiceImpl implements CourseService {
                 courseReviewService.getAverageRating(course),
                 course.getRunningCount(),
                 courseBookmarkService.isBookmarked(member, course),
-                courseOptionRepository.findAllByCourse(course),
+                courseOptionService.getCourseOptions(course),
                 coursePointRepository.findAllByCourseOrderBySequenceNumberAsc(course)
             )).toList();
 
@@ -177,7 +177,7 @@ public class CourseServiceImpl implements CourseService {
                 courseReviewService.getAverageRating(course),
                 course.getRunningCount(),
                 courseBookmarkService.isBookmarked(member, course),
-                courseOptionRepository.findAllByCourse(course),
+                courseOptionService.getCourseOptions(course),
                 coursePointRepository.findAllByCourseOrderBySequenceNumberAsc(course)
             )).toList();
 
@@ -198,9 +198,7 @@ public class CourseServiceImpl implements CourseService {
 
         // 러닝 목표에 맞는 옵션 필터링
         List<String> goalOptions = (runningGoal != null) ?
-            getOptionsByRunningGoal(runningGoal).stream()
-                .map(CourseOptionType::name)
-                .toList() : List.of();
+            courseOptionService.getOptionByRunningGoal(runningGoal) : List.of();
 
         List<Course> recommendedCourses = courseRepository.recommendCourses(
             latitude, longitude, radius, effectiveDifficulty.name(), goalOptions);
@@ -211,7 +209,7 @@ public class CourseServiceImpl implements CourseService {
                 courseReviewService.getAverageRating(course),
                 course.getRunningCount(),
                 courseBookmarkService.isBookmarked(member, course),
-                courseOptionRepository.findAllByCourse(course),
+                courseOptionService.getCourseOptions(course),
                 coursePointRepository.findAllByCourseOrderBySequenceNumberAsc(course)
             )).toList();
 
@@ -245,7 +243,7 @@ public class CourseServiceImpl implements CourseService {
                 courseReviewService.getAverageRating(course),
                 course.getRunningCount(),
                 courseBookmarkService.isBookmarked(member, course),
-                courseOptionRepository.findAllByCourse(course),
+                courseOptionService.getCourseOptions(course),
                 coursePointRepository.findAllByCourseOrderBySequenceNumberAsc(course)
             )).toList();
 
@@ -265,7 +263,7 @@ public class CourseServiceImpl implements CourseService {
             courseImageRepository.findAllByCourse(course).stream()
                 .map(CourseImage::getUrl)
                 .toList(),
-            courseOptionRepository.findAllByCourse(course),
+            courseOptionService.getCourseOptions(course),
             coursePointRepository.findAllByCourseOrderBySequenceNumberAsc(course),
             courseResponseMapper.toCrewInfos(crewService.getCrewByCourse(course)),
             courseResponseMapper.toReviewInfos(courseReviewService.getRecentReviews(course), member)
@@ -335,14 +333,6 @@ public class CourseServiceImpl implements CourseService {
         }
     }
 
-    // 코스 옵션 저장 메서드
-    private void saveCourseOptions(Course course, List<CourseOptionType> options) {
-        options.stream()
-            .map(type -> courseEntityMapper.toCourseOption(course, type))
-            .map(courseOptionRepository::save)
-            .forEach(course::addOption);
-    }
-
     // 코스 포인트 저장 메서드
     private void saveCoursePoints(Course course, List<CourseRequest.CoursePointInfo> coursePoints) {
         for (int i = 0; i < coursePoints.size(); i++) {
@@ -357,18 +347,6 @@ public class CourseServiceImpl implements CourseService {
             case JOGGER, RUNNER -> Difficulty.EASY;
             case RACER, SPRINTER -> Difficulty.NORMAL;
             case MARATHONER, ULTRA_RUNNER, IRON_LEGS, SPEED_DEMON -> Difficulty.HARD;
-        };
-    }
-
-    // 러닝 목표에 따른 추천 옵션 필터링
-    private List<CourseOptionType> getOptionsByRunningGoal(RunningGoal runningGoal) {
-        return switch (runningGoal) {
-            case WEIGHT_LOSS ->
-                List.of(CourseOptionType.GRADIENT_MIDDLE, CourseOptionType.PARK, CourseOptionType.TRAIL);
-            case ENDURANCE ->
-                List.of(CourseOptionType.MOUNTAIN, CourseOptionType.FOREST, CourseOptionType.GRADIENT_HIGH);
-            case SPEED -> List.of(CourseOptionType.TRACK, CourseOptionType.GRADIENT_NONE, CourseOptionType.CITYSCAPE);
-            default -> List.of(); // 목표가 없으면 모든 코스 허용
         };
     }
 
