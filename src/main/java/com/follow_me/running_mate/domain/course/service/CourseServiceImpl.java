@@ -47,12 +47,12 @@ public class CourseServiceImpl implements CourseService {
 
     private final CourseRepository courseRepository;
     private final CoursePointRepository coursePointRepository;
-    private final CourseImageRepository courseImageRepository;
 
     private final CourseRecordService courseRecordService;
     private final CourseReviewService courseReviewService;
     private final CourseBookmarkService courseBookmarkService;
     private final CourseOptionService courseOptionService;
+    private final CourseImageService courseImageService;
     private final CrewService crewService;
     private final S3ImageService s3ImageService;
     private final LambdaService lambdaService;
@@ -66,7 +66,7 @@ public class CourseServiceImpl implements CourseService {
     ) {
         Course course = courseRepository.save(courseEntityMapper.toCourse(request, member));
 
-        saveCourseImages(course, representativeImage, startImage, endImage);
+        courseImageService.saveCourseImages(course, representativeImage, startImage, endImage);
         course.addOption(courseOptionService.getCourseOptions(course));
         saveCoursePoints(course, request.getCoursePoints());
 
@@ -260,9 +260,7 @@ public class CourseServiceImpl implements CourseService {
             course,
             courseReviewService.getAverageRating(course),
             courseBookmarkService.isBookmarked(member, course),
-            courseImageRepository.findAllByCourse(course).stream()
-                .map(CourseImage::getUrl)
-                .toList(),
+            courseImageService.getCourseImages(course),
             courseOptionService.getCourseOptions(course),
             coursePointRepository.findAllByCourseOrderBySequenceNumberAsc(course),
             courseResponseMapper.toCrewInfos(crewService.getCrewByCourse(course)),
@@ -307,30 +305,6 @@ public class CourseServiceImpl implements CourseService {
         return new CourseResponse.CheckCourseNameResponse(
             courseRepository.existsByName(name)
         );
-    }
-
-    // 코스 이미지 저장 메서드
-    private void saveCourseImages(
-        Course course, MultipartFile representativeImage, MultipartFile startImage, MultipartFile endImage
-    ) {
-        if (representativeImage != null) {
-            String repImageUrl = s3ImageService.upload(representativeImage);
-            courseImageRepository.save(
-                courseEntityMapper.toCourseImage(course, repImageUrl, CourseImageType.REPRESENTATIVE)
-            );
-        }
-        if (startImage != null) {
-            String startImageUrl = s3ImageService.upload(startImage);
-            courseImageRepository.save(
-                courseEntityMapper.toCourseImage(course, startImageUrl, CourseImageType.START)
-            );
-        }
-        if (endImage != null) {
-            String endImageUrl = s3ImageService.upload(endImage);
-            courseImageRepository.save(
-                courseEntityMapper.toCourseImage(course, endImageUrl, CourseImageType.FINISH)
-            );
-        }
     }
 
     // 코스 포인트 저장 메서드

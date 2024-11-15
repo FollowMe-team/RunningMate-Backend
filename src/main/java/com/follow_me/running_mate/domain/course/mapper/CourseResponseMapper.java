@@ -2,6 +2,7 @@ package com.follow_me.running_mate.domain.course.mapper;
 
 import com.follow_me.running_mate.domain.course.dto.response.CourseResponse;
 import com.follow_me.running_mate.domain.course.entity.Course;
+import com.follow_me.running_mate.domain.course.entity.CourseImage;
 import com.follow_me.running_mate.domain.course.entity.CourseOption;
 import com.follow_me.running_mate.domain.course.entity.CoursePoint;
 import com.follow_me.running_mate.domain.course.entity.CourseReview;
@@ -66,7 +67,7 @@ public class CourseResponseMapper {
     }
 
     public CourseResponse.CourseDetailResponse toCourseDetailResponse(
-        Course course, Double rating, Boolean isBookmarked, List<String> images,
+        Course course, Double rating, Boolean isBookmarked, List<CourseImage> images,
         List<CourseOption> courseOptions, List<CoursePoint> coursePoints,
         List<CourseResponse.CrewInfo> crews, List<CourseResponse.ReviewInfo> reviews
     ) {
@@ -83,7 +84,7 @@ public class CourseResponseMapper {
             .isBookmarked(isBookmarked)
             .courseOptionTypes(toCourseOptionTypes(courseOptions))
             .coursePointInfos(toCoursePointInfos(coursePoints))
-            .images(images)
+            .images(images.stream().map(this::toCourseImageInfo).toList())
             .crews(crews)
             .crewCount(crews.size())
             .reviews(reviews)
@@ -107,6 +108,14 @@ public class CourseResponseMapper {
             .ratingCounts(ratingCounts)
             .reviews(reviews)
             .reviewCount(reviews.size())
+            .build();
+    }
+
+    public CourseResponse.CourseImageInfo toCourseImageInfo(CourseImage courseImage) {
+        return CourseResponse.CourseImageInfo.builder()
+            .id(courseImage.getId())
+            .imageUrl(courseImage.getUrl())
+            .type(courseImage.getType())
             .build();
     }
 

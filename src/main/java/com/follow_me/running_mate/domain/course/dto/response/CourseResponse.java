@@ -1,5 +1,6 @@
 package com.follow_me.running_mate.domain.course.dto.response;
 
+import com.follow_me.running_mate.domain.enums.CourseImageType;
 import com.follow_me.running_mate.domain.enums.CourseOptionType;
 import com.follow_me.running_mate.domain.enums.CoursePointVoice;
 import com.follow_me.running_mate.domain.enums.Difficulty;
@@ -111,11 +112,21 @@ public class CourseResponse {
         private boolean isBookmarked;
         private List<CourseOptionType> courseOptionTypes;
         private List<CoursePointInfo> coursePointInfos;
-        private List<String> images;
+        private List<CourseImageInfo> images;
         private List<CrewInfo> crews;
         private Integer crewCount;
         private List<ReviewInfo> reviews;
         private Integer reviewCount;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class CourseImageInfo {
+        private Long id;
+        private String imageUrl;
+        private CourseImageType type;
     }
 
     @Getter
