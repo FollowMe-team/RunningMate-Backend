@@ -9,7 +9,7 @@ import java.util.List;
 public interface CourseRecordService {
 
     List<Course> getRecentCourses(Member member);
-    CourseResponse.CreateCourseRecordResponse createCourseRecord(
+    CourseResponse.CourseRecordIdResponse createCourseRecord(
         Member member, Course course, CourseRequest.CreateCourseRecordRequest request
     );
 }

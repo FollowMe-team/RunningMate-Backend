@@ -11,16 +11,16 @@ import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface CourseService {
-    CourseResponse.CreateCourseResponse createCourse(
+    CourseResponse.CourseIdResponse createCourse(
         Member member, CourseRequest.CreateCourseRequest request,
         MultipartFile representativeImage, MultipartFile startImage, MultipartFile endImage
     );
-    CourseResponse.CreateCourseRecordResponse createCourseRecord(
+    CourseResponse.CourseRecordIdResponse createCourseRecord(
         Member member, Long courseId, CourseRequest.CreateCourseRecordRequest request
     );
     void bookmarkCourse(Member member, Long courseId);
     void bookmarkCancelCourse(Member member, Long courseId);
-    CourseResponse.CreateReviewResponse createCourseReview(
+    CourseResponse.ReviewIdResponse createCourseReview(
         Member member, Long courseId, CourseRequest.CreateReviewRequest request, List<MultipartFile> images);
 
     CourseResponse.CourseListResponse getRecentCourses(Member member);

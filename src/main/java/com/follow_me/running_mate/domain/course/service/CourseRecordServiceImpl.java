@@ -4,7 +4,6 @@ import com.follow_me.running_mate.domain.course.dto.request.CourseRequest;
 import com.follow_me.running_mate.domain.course.dto.response.CourseResponse;
 import com.follow_me.running_mate.domain.course.entity.Course;
 import com.follow_me.running_mate.domain.course.mapper.CourseEntityMapper;
-import com.follow_me.running_mate.domain.course.mapper.CourseResponseMapper;
 import com.follow_me.running_mate.domain.course.repository.CourseRecordPointRepository;
 import com.follow_me.running_mate.domain.member.entity.Member;
 import com.follow_me.running_mate.domain.course.entity.CourseRecord;
@@ -30,7 +29,7 @@ public class CourseRecordServiceImpl implements CourseRecordService {
     }
 
     @Override
-    public CourseResponse.CreateCourseRecordResponse createCourseRecord(
+    public CourseResponse.CourseRecordIdResponse createCourseRecord(
         Member member, Course course, CourseRequest.CreateCourseRecordRequest request
     ) {
         CourseRecord courseRecord = courseRecordRepository.save(
@@ -42,6 +41,6 @@ public class CourseRecordServiceImpl implements CourseRecordService {
             .map(courseRecordPointRepository::save)
             .forEach(courseRecord::addRecordPoint);
 
-        return new CourseResponse.CreateCourseRecordResponse(courseRecord.getId());
+        return new CourseResponse.CourseRecordIdResponse(courseRecord.getId());
     }
 }

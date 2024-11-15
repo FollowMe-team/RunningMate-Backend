@@ -13,6 +13,7 @@ public enum CourseErrorCode implements ResultCode {
     NOT_BOOKMARKED("COURSE004", "북마크한 코스가 아닙니다."),
     OVER_MAX_BOOKMARK("COURSE005", "북마크한 코스가 최대 개수를 초과했습니다."),
     DUPLICATED_NAME("COURSE006", "이미 존재하는 코스 이름입니다."),
+    NOT_FOUND_REVIEW("COURSE007", "리뷰를 찾을 수 없습니다."),
     ;
 
     private final String code;

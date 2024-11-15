@@ -23,6 +23,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -50,7 +51,7 @@ public class CourseController {
         @ApiResponse(responseCode = "COURSE006", description = "이미 존재하는 코스 이름입니다.",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
     })
-    public BaseResponse<CourseResponse.CreateCourseResponse> createCourse(
+    public BaseResponse<CourseResponse.CourseIdResponse> createCourse(
         @AuthenticationPrincipal PrincipalDetails principalDetails,
         @RequestPart(name = "request") @Valid CourseRequest.CreateCourseRequest request,
         @RequestPart(value = "representativeImage", required = false) MultipartFile representativeImage,
@@ -70,7 +71,7 @@ public class CourseController {
         @ApiResponse(responseCode = "200", description = "코스 기록에 성공했습니다.",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
     })
-    public BaseResponse<CourseResponse.CreateCourseRecordResponse> createCourseRecord(
+    public BaseResponse<CourseResponse.CourseRecordIdResponse> createCourseRecord(
         @AuthenticationPrincipal PrincipalDetails principalDetails,
         @PathVariable(value = "courseId") Long courseId,
         @RequestBody CourseRequest.CreateCourseRecordRequest request
@@ -123,7 +124,7 @@ public class CourseController {
         @ApiResponse(responseCode = "VALID001", description = "잘못된 입력값입니다",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
     })
-    public BaseResponse<CourseResponse.CreateReviewResponse> createCourseReview(
+    public BaseResponse<CourseResponse.ReviewIdResponse> createCourseReview(
         @AuthenticationPrincipal PrincipalDetails principalDetails,
         @PathVariable(value = "courseId") Long courseId,
         @RequestPart(name = "request") @Valid CourseRequest.CreateReviewRequest request,

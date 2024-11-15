@@ -61,7 +61,7 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     @Transactional
-    public CourseResponse.CreateCourseResponse createCourse(
+    public CourseResponse.CourseIdResponse createCourse(
         Member member, CourseRequest.CreateCourseRequest request,
         MultipartFile representativeImage, MultipartFile startImage, MultipartFile endImage
     ) {
@@ -75,12 +75,12 @@ public class CourseServiceImpl implements CourseService {
         // TODO: 람다 완성되면 주석 해제
         // CompletableFuture.runAsync(() -> lambdaService.invokeCourseDifficultyLambda(course.getId()));
 
-        return new CourseResponse.CreateCourseResponse(course.getId());
+        return new CourseResponse.CourseIdResponse(course.getId());
     }
 
     @Override
     @Transactional
-    public CourseResponse.CreateCourseRecordResponse createCourseRecord(
+    public CourseResponse.CourseRecordIdResponse createCourseRecord(
         Member member, Long courseId, CourseRequest.CreateCourseRecordRequest request
     ) {
         Course course = courseRepository.getCourse(courseId);
@@ -115,7 +115,7 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     @Transactional
-    public CourseResponse.CreateReviewResponse createCourseReview(
+    public CourseResponse.ReviewIdResponse createCourseReview(
         Member member, Long courseId, CourseRequest.CreateReviewRequest request, List<MultipartFile> images
     ) {
         Course course = courseRepository.getCourse(courseId);
@@ -139,7 +139,7 @@ public class CourseServiceImpl implements CourseService {
             courseReviewImages.forEach(courseReview::addImage);
         }
 
-        return new CourseResponse.CreateReviewResponse(courseReview.getId());
+        return new CourseResponse.ReviewIdResponse(courseReview.getId());
     }
 
     @Override
