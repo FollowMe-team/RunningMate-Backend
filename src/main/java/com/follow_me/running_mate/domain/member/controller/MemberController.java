@@ -96,7 +96,7 @@ public class MemberController {
         MemberResponse.BadgeListResponse badgeListResponse = new MemberResponse.BadgeListResponse(badges);  // List를 BadgeListResponse로 감싸기
         return BaseResponse.success("배지 조회에 성공했습니다.", badgeListResponse);  // 성공 응답으로 감싼 객체 반환
     }
-    @GetMapping("/nickname/{nickname}")
+    @GetMapping("/check/nickname=")
     @Operation(summary = "닉네임 중복 확인 API", description = "입력된 닉네임이 중복되었는지 확인합니다. 존재시 true")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "닉네임 중복 확인에 성공했습니다.",
@@ -107,12 +107,13 @@ public class MemberController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
     })
     public BaseResponse<Boolean> checkNicknameDuplicate(
-            @PathVariable(value = "nickname") String nickname
+            @RequestParam(value = "nickname") String nickname
     ) {
-        boolean isDuplicate = memberService.isNicknameDuplicate(nickname); //중복 닉네임 존재시
+        boolean isDuplicate = memberService.isNicknameDuplicate(nickname); // 중복 닉네임 존재 시
         return BaseResponse.success("닉네임 중복 확인에 성공했습니다.", isDuplicate);
     }
-    @GetMapping("/email/{email}")
+
+    @GetMapping("/check/email=")
     @Operation(summary = "이메일 중복 확인 API", description = "입력된 이메일이 중복되었는지 확인합니다. 존재시 true")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "이메일 중복 확인에 성공했습니다.",
@@ -123,12 +124,13 @@ public class MemberController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
     })
     public BaseResponse<Boolean> checkEmailDuplicate(
-            @PathVariable(value = "email") String email
+            @RequestParam(value = "email") String email
     ) {
         boolean isDuplicate = memberService.isEmailDuplicate(email);
         return BaseResponse.success("이메일 중복 확인에 성공했습니다.", isDuplicate);
     }
-    @GetMapping("/{email}")//TODO: 자신의 프로필 조회 막을건지 고민,에러처리 고도화 필요 , mapper 생성 필요
+
+    @GetMapping("/{email}")//TODO: 자신의 프로필 조회 막을건지 고민,에러처리 고도화 필요 , mapper 생성 필요 , 인증 절차 필요할까?
     @Operation(summary = "상대방 프로필 조회 API", description = "주어진 이메일에 해당하는 사용자의 프로필 정보를 조회합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "프로필 조회에 성공했습니다.",
@@ -146,6 +148,4 @@ public class MemberController {
         // 상대방 프로필 조회 성공
         return BaseResponse.success("상대방 프로필 조회에 성공했습니다.", memberProfile);
     }
-
-
 }
