@@ -9,7 +9,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -29,7 +29,7 @@ public class Crew extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn
     private Member leader;
 
@@ -40,8 +40,23 @@ public class Crew extends BaseEntity {
     private String openChatUrl;
 
     @Column(nullable = false)
+    private String profileImageUrl;
+
+    @Column(nullable = false)
     private String detailDescription;
 
     @Column(nullable = false)
     private String shortDescription;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private Integer memberCount = 0;
+
+    public void increaseMemberCount() {
+        this.memberCount++;
+    }
+
+    public void decreaseMemberCount() {
+        this.memberCount--;
+    }
 }
