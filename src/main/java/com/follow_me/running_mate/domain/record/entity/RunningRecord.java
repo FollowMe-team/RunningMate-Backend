@@ -52,4 +52,5 @@ public class RunningRecord extends BaseEntity {
 
     @Column(columnDefinition = "geography(LineString, 4326)")
     private LineString path;
+
 }

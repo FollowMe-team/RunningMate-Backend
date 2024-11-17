@@ -5,12 +5,10 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum RunningGoal {
-    // TODO: 러닝 목표 카테고리 정하기
-    WEIGHT_LOSS("체중 감량"),
-    ENDURANCE("체력 향상"),
-    SPEED("속도 향상")
+public enum Difficulty {
+    EASY("쉬움"),
+    NORMAL("보통"),
+    HARD("어려움"),
     ;
-
     private final String toKorean;
 }

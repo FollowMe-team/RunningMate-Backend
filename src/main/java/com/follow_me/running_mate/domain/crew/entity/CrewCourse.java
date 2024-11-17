@@ -1,7 +1,7 @@
-package com.follow_me.running_mate.domain.course.entity;
+package com.follow_me.running_mate.domain.crew.entity;
 
+import com.follow_me.running_mate.domain.course.entity.Course;
 import com.follow_me.running_mate.global.common.BaseEntity;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -22,7 +22,7 @@ import org.hibernate.annotations.SQLRestriction;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SQLRestriction("deleted_at is null")
-public class CourseLocation extends BaseEntity {
+public class CrewCourse extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,11 +30,9 @@ public class CourseLocation extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable = false)
+    private Crew crew;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(nullable = false)
     private Course course;
-
-    @Column(nullable = false)
-    private String city;
-
-    @Column(nullable = false)
-    private String district;
 }
