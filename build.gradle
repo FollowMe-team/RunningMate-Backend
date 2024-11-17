@@ -76,3 +76,8 @@ tasks.register('copyConfig', Copy) {
 tasks.named('processResources') {
 	dependsOn 'copyConfig'
 }
+
+
+jar {
+	enabled = false
+}
