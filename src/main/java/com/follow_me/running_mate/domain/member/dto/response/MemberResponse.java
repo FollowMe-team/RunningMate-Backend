@@ -26,6 +26,7 @@ public class MemberResponse {
         private LocalDate birth; // LocalDate for birth
         private RunningGoal runningGoal; // RunningGoal enum
         private RunningCareer runningCareer; // RunningCareer enum
+        private Long footPrint;
     }
 
     @Getter

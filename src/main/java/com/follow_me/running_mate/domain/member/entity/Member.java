@@ -81,6 +81,10 @@ public class Member extends BaseEntity {
     @Builder.Default
     private Integer followingCount = 0;
 
+    @Column(nullable = false)
+    @Builder.Default
+    private Long footprint = 500L;
+
     // 팔로워 수 증가
     public void incrementFollowerCount() {
         this.followerCount++;

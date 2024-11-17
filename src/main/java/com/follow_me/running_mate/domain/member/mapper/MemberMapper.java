@@ -36,7 +36,8 @@ public class MemberMapper {
                 .gender(member.getGender())
                 .birth(member.getBirth())
                 .runningCareer(member.getRunningCareer())
-                .build(); //TODO: 발자취 추가하기
+                .footPrint(member.getFootprint())
+                .build();
     }
     public MemberResponse.UpdateMyProfileResponse toUpdateMyProfileResponse(Member member) {
         return MemberResponse.UpdateMyProfileResponse.builder()
