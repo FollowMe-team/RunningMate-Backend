@@ -122,5 +122,9 @@ public class MemberServiceImpl implements MemberService {
     public boolean isNicknameDuplicate(String nickname) {
         return memberRepository.existsByNickname(nickname);
     }
+    @Override
+    public boolean isEmailDuplicate(String email) {
+        return memberRepository.existsByEmail(email);
+    }
 }
 

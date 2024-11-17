@@ -13,7 +13,8 @@ public class SecurityConstant {
             "/api/auth/refresh",
             "/api/images",
             "/api/images/delete",
-            "/api/members/**"
+            "/api/members/email/**",  // 이메일 형식 매칭
+            "/api/members/nickname/**"// 닉네임 문자열 매칭
     };
 
     // Swagger UI 관련 공개 경로
