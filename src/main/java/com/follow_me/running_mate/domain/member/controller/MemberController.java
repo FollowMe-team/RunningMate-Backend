@@ -128,5 +128,24 @@ public class MemberController {
         boolean isDuplicate = memberService.isEmailDuplicate(email);
         return BaseResponse.success("이메일 중복 확인에 성공했습니다.", isDuplicate);
     }
+    @GetMapping("/{email}")//TODO: 자신의 프로필 조회 막을건지 고민,에러처리 고도화 필요 , mapper 생성 필요
+    @Operation(summary = "상대방 프로필 조회 API", description = "주어진 이메일에 해당하는 사용자의 프로필 정보를 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "프로필 조회에 성공했습니다.",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+            @ApiResponse(responseCode = "MEMBER001", description = "회원을 찾을 수 없습니다.",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
+    })
+    public BaseResponse<MemberResponse.MyProfileResponse> getOtherProfile(
+            @AuthenticationPrincipal PrincipalDetails principalDetails,
+            @PathVariable String email) {
+
+        // 로그인한 사용자의 프로필 정보와 상대방 프로필 정보를 조회
+        MemberResponse.MyProfileResponse memberProfile = memberService.getMemberProfileByEmail(email);
+
+        // 상대방 프로필 조회 성공
+        return BaseResponse.success("상대방 프로필 조회에 성공했습니다.", memberProfile);
+    }
+
 
 }

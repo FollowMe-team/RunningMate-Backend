@@ -17,4 +17,5 @@ public interface MemberService {
     List<MemberResponse.BadgeResponse> getMemberBadges(String email);
     boolean isNicknameDuplicate(String nickname);
     boolean isEmailDuplicate(String email);
+    MemberResponse.MyProfileResponse getMemberProfileByEmail(String email);
 }

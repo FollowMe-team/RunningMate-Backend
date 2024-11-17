@@ -117,14 +117,27 @@ public class MemberServiceImpl implements MemberService {
         List<MemberBadge> memberBadges = memberBadgeRepository.findByMember(member);
         return memberMapper.toBadgeResponseList(memberBadges);
     }
-
+    //닉네임 중복 확인
     @Override
     public boolean isNicknameDuplicate(String nickname) {
         return memberRepository.existsByNickname(nickname);
     }
+    //이메일 중복 확인
     @Override
     public boolean isEmailDuplicate(String email) {
         return memberRepository.existsByEmail(email);
+    }
+    //상대방 프로필 조회
+    @Override
+    @Transactional(readOnly = true)
+    public MemberResponse.MyProfileResponse getMemberProfileByEmail(String email) {
+        // 이메일로 회원 조회
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(MemberErrorCode.NOT_FOUND)); // 회원이 없으면 예외 처리
+
+        // Member 엔티티를 MyProfileResponse DTO로 변환하여 반환
+        //TODO: Mapper를 따로 만들어 상대방이 볼 수 있는 정보를 분리하기
+        return memberMapper.toMyProfileResponse(member);
     }
 }
 
