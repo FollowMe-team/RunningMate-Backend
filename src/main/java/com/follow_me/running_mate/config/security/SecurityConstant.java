@@ -13,7 +13,7 @@ public class SecurityConstant {
             "/api/auth/refresh",
             "/api/images",
             "/api/images/delete",
-
+            "/api/members/**"
     };
 
     // Swagger UI 관련 공개 경로

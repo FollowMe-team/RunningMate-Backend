@@ -15,4 +15,5 @@ public interface MemberService {
     MemberResponse.UpdateMyProfileResponse updateProfile(MemberRequest.UpdateProfileRequest request , String email);
     void changePassword(MemberRequest.ChangePasswordRequest request, String email);
     List<MemberResponse.BadgeResponse> getMemberBadges(String email);
+    boolean isNicknameDuplicate(String nickname);
 }

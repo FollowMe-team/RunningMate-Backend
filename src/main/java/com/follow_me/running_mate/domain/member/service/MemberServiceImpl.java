@@ -117,5 +117,10 @@ public class MemberServiceImpl implements MemberService {
         List<MemberBadge> memberBadges = memberBadgeRepository.findByMember(member);
         return memberMapper.toBadgeResponseList(memberBadges);
     }
+
+    @Override
+    public boolean isNicknameDuplicate(String nickname) {
+        return memberRepository.existsByNickname(nickname);
+    }
 }
 

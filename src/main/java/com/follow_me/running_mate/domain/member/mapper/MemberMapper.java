@@ -35,7 +35,6 @@ public class MemberMapper {
                 .nickname(member.getNickname())
                 .gender(member.getGender())
                 .birth(member.getBirth())
-                .runningGoal(member.getRunningGoal())
                 .runningCareer(member.getRunningCareer())
                 .build(); //TODO: 발자취 추가하기
     }

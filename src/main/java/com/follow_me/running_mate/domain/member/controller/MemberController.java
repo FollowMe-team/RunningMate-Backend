@@ -96,4 +96,21 @@ public class MemberController {
         MemberResponse.BadgeListResponse badgeListResponse = new MemberResponse.BadgeListResponse(badges);  // List를 BadgeListResponse로 감싸기
         return BaseResponse.success("배지 조회에 성공했습니다.", badgeListResponse);  // 성공 응답으로 감싼 객체 반환
     }
+    @GetMapping("/{nickname}")
+    @Operation(summary = "닉네임 중복 확인 API", description = "입력된 닉네임이 중복되었는지 확인합니다. 존재시 true")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "닉네임 중복 확인에 성공했습니다.",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+            @ApiResponse(responseCode = "400", description = "입력 값이 유효하지 않습니다.",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+            @ApiResponse(responseCode = "500", description = "서버 오류입니다.",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
+    })
+    public BaseResponse<Boolean> checkNicknameDuplicate(
+            @PathVariable(value = "nickname") String nickname
+    ) {
+        boolean isDuplicate = memberService.isNicknameDuplicate(nickname); //중복 닉네임 존재시
+        return BaseResponse.success("닉네임 중복 확인에 성공했습니다.", isDuplicate);
+    }
+
 }
