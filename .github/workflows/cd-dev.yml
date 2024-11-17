@@ -84,8 +84,8 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             cd /home/ubuntu
-            DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }} docker-compose -f docker-compose.develop.yml pull
-            DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }} docker-compose -f docker-compose.develop.yml down
-            DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }} docker-compose -f docker-compose.develop.yml up -d
+            DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }} docker compose -f docker-compose.develop.yml pull
+            DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }} docker compose -f docker-compose.develop.yml down
+            DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }} docker compose -f docker-compose.develop.yml up -d
       
       
