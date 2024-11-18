@@ -2,7 +2,7 @@ FROM openjdk:17-jdk
 
 # JAR 파일 복사
 ARG JAR_FILE=build/libs/*SNAPSHOT.jar
-COPY ${JAR_FILE} ruuning-mate.jar
+COPY ${JAR_FILE} running-mate.jar
 
 # 환경 변수 설정
 ENV SPRING_PROFILES_ACTIVE=develop
