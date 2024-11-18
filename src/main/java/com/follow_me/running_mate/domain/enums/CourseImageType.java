@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 public enum CourseImageType {
     START("출발지"),
     FINISH("도착지"),
-    REST("휴식지"),
     REPRESENTATIVE("대표 이미지"),
     ;
 

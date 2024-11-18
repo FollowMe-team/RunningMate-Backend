@@ -1,8 +1,15 @@
 package com.follow_me.running_mate.global.common.util;
 
+import com.follow_me.running_mate.domain.course.dto.request.CourseRequest;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.PrecisionModel;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -40,7 +47,7 @@ public class FormatterUtil {
 
     // Rating 포맷팅
     public static Double formatRating(Double rating) {
-        return rating != null ? Math.round(rating * 10) / 10.0 : 0.0;
+        return rating != null ? Double.parseDouble(String.format("%.1f", rating)) : 0.0;
     }
 
     // 시간 포맷팅
@@ -60,5 +67,32 @@ public class FormatterUtil {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
             return createdAt.format(formatter);
         }
+    }
+
+    // Point 포맷팅
+    public static Point formatPoint(CourseRequest.GeoPoint geoPoint) {
+        return new GeometryFactory(new PrecisionModel(), 4326)
+            .createPoint(new Coordinate(geoPoint.getLongitude(), geoPoint.getLatitude()));
+    }
+
+    // LineString 포맷팅
+    public static LineString formatLineString(List<? extends CourseRequest.GeoPoint> points) {
+        Coordinate[] coordinates = points.stream()
+            .map(p -> new Coordinate(p.getLongitude(), p.getLatitude()))
+            .toArray(Coordinate[]::new);
+        return new GeometryFactory(new PrecisionModel(), 4326)
+            .createLineString(coordinates);
+    }
+
+    // Duration 포맷팅
+    public static Duration formatDuration(Double distance) {
+        double averageSpeed = 10.0; // TODO: 평균 속도를 어떻게 계산할지 고민해보기
+        double durationInHours = distance / averageSpeed;
+
+        long hours = (long) durationInHours;
+        long minutes = (long) ((durationInHours - hours) * 60);
+        long seconds = (long) ((((durationInHours - hours) * 60) - minutes) * 60);
+
+        return Duration.ofHours(hours).plusMinutes(minutes).plusSeconds(seconds);
     }
 }

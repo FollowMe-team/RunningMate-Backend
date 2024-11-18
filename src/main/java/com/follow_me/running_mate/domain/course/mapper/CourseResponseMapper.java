@@ -2,6 +2,7 @@ package com.follow_me.running_mate.domain.course.mapper;
 
 import com.follow_me.running_mate.domain.course.dto.response.CourseResponse;
 import com.follow_me.running_mate.domain.course.entity.Course;
+import com.follow_me.running_mate.domain.course.entity.CourseImage;
 import com.follow_me.running_mate.domain.course.entity.CourseOption;
 import com.follow_me.running_mate.domain.course.entity.CoursePoint;
 import com.follow_me.running_mate.domain.course.entity.CourseReview;
@@ -14,7 +15,7 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 
 @Component
-public class CourseMapper {
+public class CourseResponseMapper {
 
     public CourseResponse.SummaryInfo toSummaryInfo(
         Course course,
@@ -66,9 +67,9 @@ public class CourseMapper {
     }
 
     public CourseResponse.CourseDetailResponse toCourseDetailResponse(
-        Course course, Double rating, Boolean isBookmarked, List<String> images,
+        Course course, Double rating, Boolean isBookmarked, List<CourseImage> images,
         List<CourseOption> courseOptions, List<CoursePoint> coursePoints,
-        List<CourseResponse.CrewInfo> crews, List<CourseResponse.ReviewInfo> reviews, List<Integer> ratingCounts
+        List<CourseResponse.CrewInfo> crews, List<CourseResponse.ReviewInfo> reviews
     ) {
         return CourseResponse.CourseDetailResponse.builder()
             .id(course.getId())
@@ -83,7 +84,7 @@ public class CourseMapper {
             .isBookmarked(isBookmarked)
             .courseOptionTypes(toCourseOptionTypes(courseOptions))
             .coursePointInfos(toCoursePointInfos(coursePoints))
-            .images(images)
+            .images(images.stream().map(this::toCourseImageInfo).toList())
             .crews(crews)
             .crewCount(crews.size())
             .reviews(reviews)
@@ -110,17 +111,20 @@ public class CourseMapper {
             .build();
     }
 
+    public CourseResponse.CourseImageInfo toCourseImageInfo(CourseImage courseImage) {
+        return CourseResponse.CourseImageInfo.builder()
+            .id(courseImage.getId())
+            .imageUrl(courseImage.getUrl())
+            .type(courseImage.getType())
+            .build();
+    }
+
     public List<CourseResponse.ReviewInfo> toReviewInfos(
         List<CourseReview> reviews, Member member
     ) {
         return reviews.stream()
-            .map(review -> toReviewInfo(
-                review,
-                review.getImages().stream()
-                    .map(CourseReviewImage::getUrl)
-                    .toList(),
-                member
-            )).toList();
+            .map(review -> toReviewInfo(review, member))
+            .toList();
     }
 
     public List<CourseResponse.CrewInfo> toCrewInfos(List<Crew> crews) {
@@ -130,16 +134,27 @@ public class CourseMapper {
     }
 
     private CourseResponse.ReviewInfo toReviewInfo(
-        CourseReview review, List<String> reviewImages,  Member member
+        CourseReview review,  Member member
     ) {
         return CourseResponse.ReviewInfo.builder()
             .id(review.getId())
             .writer(toMemberInfo(review.getWriter()))
             .content(review.getContent())
             .rating(review.getRating())
-            .images(reviewImages)
+            .images(
+                review.getImages().stream()
+                    .map(this::toReviewImageInfo)
+                    .toList()
+            )
             .createdAt(FormatterUtil.formatTime(review.getCreatedAt()))
             .isMine(review.getWriter().getId().equals(member.getId()))
+            .build();
+    }
+
+    private CourseResponse.ReviewImageInfo toReviewImageInfo(CourseReviewImage reviewImage) {
+        return CourseResponse.ReviewImageInfo.builder()
+            .id(reviewImage.getId())
+            .imageUrl(reviewImage.getUrl())
             .build();
     }
 

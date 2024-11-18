@@ -1,5 +1,6 @@
 package com.follow_me.running_mate.domain.course.dto.response;
 
+import com.follow_me.running_mate.domain.enums.CourseImageType;
 import com.follow_me.running_mate.domain.enums.CourseOptionType;
 import com.follow_me.running_mate.domain.enums.CoursePointVoice;
 import com.follow_me.running_mate.domain.enums.Difficulty;
@@ -12,6 +13,30 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 public class CourseResponse {
+
+    @Getter
+    @AllArgsConstructor
+    public static class CourseIdResponse {
+        private Long courseId;
+    }
+
+    @Getter
+    @AllArgsConstructor
+    public static class CourseRecordIdResponse {
+        private Long recordId;
+    }
+
+    @Getter
+    @AllArgsConstructor
+    public static class ReviewIdResponse {
+        private Long reviewId;
+    }
+
+    @Getter
+    @AllArgsConstructor
+    public static class CheckCourseNameResponse {
+        private boolean isAvailable;
+    }
 
     @Getter
     @AllArgsConstructor
@@ -87,11 +112,21 @@ public class CourseResponse {
         private boolean isBookmarked;
         private List<CourseOptionType> courseOptionTypes;
         private List<CoursePointInfo> coursePointInfos;
-        private List<String> images;
+        private List<CourseImageInfo> images;
         private List<CrewInfo> crews;
         private Integer crewCount;
         private List<ReviewInfo> reviews;
         private Integer reviewCount;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class CourseImageInfo {
+        private Long id;
+        private String imageUrl;
+        private CourseImageType type;
     }
 
     @Getter
@@ -144,10 +179,19 @@ public class CourseResponse {
         private Long id;
         private MemberInfo writer;
         private String content;
-        private Double rating;
-        private List<String> images;
+        private Integer rating;
+        private List<ReviewImageInfo> images;
         private String createdAt;
         private Boolean isMine;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class ReviewImageInfo {
+        private Long id;
+        private String imageUrl;
     }
 
     @Getter
