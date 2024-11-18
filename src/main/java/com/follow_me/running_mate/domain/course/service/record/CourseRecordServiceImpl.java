@@ -13,7 +13,6 @@ import com.follow_me.running_mate.domain.member.entity.Member;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Date;
 import java.util.List;
 
 import jakarta.transaction.Transactional;

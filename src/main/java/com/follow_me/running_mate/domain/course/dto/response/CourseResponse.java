@@ -215,7 +215,7 @@ public class CourseResponse {
     public static class CourseRecordInfo{
         private LocalDateTime date;
         private String courseName;
-        private Double distance;;
+        private Double distance;
         private Integer caloriesBurned;
         private Integer averagePace;
         private String formattedDuration;
