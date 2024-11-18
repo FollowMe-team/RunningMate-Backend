@@ -28,13 +28,13 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-            .allowedOriginPatterns("*")
-            .allowCredentials(true)
-            .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
+            .allowedOrigins("*")
+            .allowedMethods("*")
             .allowedHeaders("*")
-            .maxAge(3600);
+            .allowCredentials(false)
+            .maxAge(6000);
     }
-
+    
     private static class CustomRequestMappingHandlerMapping extends RequestMappingHandlerMapping {
         @Override
         protected RequestMappingInfo getMappingForMethod(Method method, Class<?> handlerType) {
