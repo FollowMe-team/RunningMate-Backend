@@ -9,6 +9,7 @@ import com.follow_me.running_mate.domain.member.entity.MemberBadge;
 import com.follow_me.running_mate.domain.member.exception.MemberErrorCode;
 import com.follow_me.running_mate.domain.member.mapper.MemberMapper;
 import com.follow_me.running_mate.domain.member.repository.MemberBadgeRepository;
+import com.follow_me.running_mate.domain.member.repository.MemberFollowRepository;
 import com.follow_me.running_mate.domain.member.repository.MemberRepository;
 import com.follow_me.running_mate.domain.token.repository.TokenRepository;
 import com.follow_me.running_mate.global.error.exception.CustomException;
@@ -30,6 +31,8 @@ public class MemberServiceImpl implements MemberService {
     private final TokenRepository tokenRepository;
     private final MemberBadgeRepository memberBadgeRepository;
     private final CourseRecordService courseRecordService;
+
+    private final MemberFollowRepository memberFollowRepository;
 
     @Override
     public String signup(MemberRequest.SignUpRequest request) {
@@ -144,6 +147,32 @@ public class MemberServiceImpl implements MemberService {
     @Transactional(readOnly = true)
     public List<CourseResponse.CourseRecordInfo> getMemberRunningRecords(Long memberId, LocalDate date) {
         return courseRecordService.getRecordsByDate(memberId, date);
+    }
+    @Override
+    @Transactional(readOnly = true)
+    public List<MemberResponse.FollowResponse> getFollowList(Long memberId) {
+        // memberId를 기준으로 팔로우하는 사용자를 조회하는 로직
+        List<Long> followList = memberFollowRepository.findActiveFollowedIdsByFollowerId(memberId);
+        List<Member> followListmembers = memberRepository.findAllById(followList);
+
+        // 팔로우한 사용자들을 MyProfileResponse로 변환하여 반환
+        return followListmembers.stream()
+                .map(memberMapper::toFollowResponse)
+                .toList();
+    }
+    @Override
+    @Transactional(readOnly = true)
+    public List<MemberResponse.FollowResponse> getFollowerList(Long memberId) {
+        // memberId를 기준으로 팔로워 ID 조회
+        List<Long> followerIds = memberFollowRepository.findActiveFollowerIdsByFollowedId(memberId);
+
+        // 팔로워 ID로 회원 엔티티 조회
+        List<Member> followers = memberRepository.findAllById(followerIds);
+
+        // 엔티티를 FollowResponse로 매핑
+        return followers.stream()
+                .map(memberMapper::toFollowResponse)
+                .toList();
     }
 }
 

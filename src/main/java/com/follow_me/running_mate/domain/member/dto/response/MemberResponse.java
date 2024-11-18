@@ -55,4 +55,24 @@ public class MemberResponse {
     public static class BadgeListResponse{
         private List<BadgeResponse> badges;
     }
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    public static class FollowResponse {
+        private String nickname;
+        private String iconUrl;
+        private Long footPrint;// 배지를 획득한 기준
+    }
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    public static class FollowListResponse{
+        private List<FollowResponse> Follows;
+    }
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    public static class FollowerListResponse{
+        private List<FollowResponse> Followers;
+    }
 }

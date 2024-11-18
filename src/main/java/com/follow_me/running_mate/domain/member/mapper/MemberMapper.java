@@ -6,6 +6,9 @@ import com.follow_me.running_mate.domain.member.dto.request.MemberRequest;
 import com.follow_me.running_mate.domain.member.dto.response.MemberResponse;
 import com.follow_me.running_mate.domain.member.entity.Member;
 import com.follow_me.running_mate.domain.member.entity.MemberBadge;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -57,5 +60,11 @@ public class MemberMapper {
                         .build()) // 빌더로 객체 생성
                 .collect(Collectors.toList()); // 다시 stream -> list 로 변경
     }
-
+    public MemberResponse.FollowResponse toFollowResponse(Member member) {
+        return MemberResponse.FollowResponse.builder()
+                .nickname(member.getNickname())
+                .iconUrl(member.getProfileImageUrl())
+                .footPrint(member.getFootprint())
+                .build();
+    }
 }

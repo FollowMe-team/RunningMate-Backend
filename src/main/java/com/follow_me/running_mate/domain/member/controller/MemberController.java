@@ -167,4 +167,39 @@ public class MemberController {
         List<CourseResponse.CourseRecordInfo> response = memberService.getMemberRunningRecords(principalDetails.member().getId(), date);
         return BaseResponse.success("해당 일자의 코스 조회에 성공했습니다.", new CourseResponse.CourseRecordInfoList(response));
     }
+    @GetMapping("/follow") // 내 팔로우 목록 조회 API
+    @Operation(summary = "사용자 팔로우 조회 API", description = "로그인한 사용자가 팔로우한 사용자 목록을 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "팔로우 목록 조회에 성공했습니다.",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+            @ApiResponse(responseCode = "MEMBER001", description = "회원을 찾을 수 없습니다.",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
+    })
+    public BaseResponse<MemberResponse.FollowListResponse> getFollowList(
+            @AuthenticationPrincipal PrincipalDetails principalDetails) {
+
+        // 로그인한 사용자의 팔로우 목록 조회
+        List<MemberResponse.FollowResponse> followList = memberService.getFollowList(principalDetails.member().getId());
+        // 팔로우 목록 조회 성공
+        return BaseResponse.success("팔로우 목록 조회에 성공했습니다.", new MemberResponse.FollowListResponse(followList));
+    }
+    @GetMapping("/follower") // 사용자 팔로워 목록 조회 API
+    @Operation(summary = "사용자 팔로워 조회 API", description = "로그인한 사용자를 팔로우한 사용자 목록을 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "팔로워 목록 조회에 성공했습니다.",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+            @ApiResponse(responseCode = "MEMBER001", description = "회원을 찾을 수 없습니다.",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
+    })
+    public BaseResponse<MemberResponse.FollowerListResponse> getFollowerList(
+            @AuthenticationPrincipal PrincipalDetails principalDetails) {
+
+        // 로그인한 사용자의 팔로워 목록 조회
+        Long memberId = principalDetails.member().getId();
+        List<MemberResponse.FollowResponse> followerList = memberService.getFollowerList(memberId);
+
+        // 팔로워 목록 조회 성공
+        return BaseResponse.success("팔로워 목록 조회에 성공했습니다.", new MemberResponse.FollowerListResponse(followerList));
+    }
+    //TODO:팔로우 화면 나오면 response 수정하기
 }
