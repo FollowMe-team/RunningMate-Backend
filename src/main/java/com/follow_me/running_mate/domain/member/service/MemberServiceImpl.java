@@ -1,5 +1,7 @@
 package com.follow_me.running_mate.domain.member.service;
 
+import com.follow_me.running_mate.domain.course.dto.response.CourseResponse;
+import com.follow_me.running_mate.domain.course.service.record.CourseRecordService;
 import com.follow_me.running_mate.domain.member.dto.request.MemberRequest;
 import com.follow_me.running_mate.domain.member.dto.response.MemberResponse;
 import com.follow_me.running_mate.domain.member.entity.Member;
@@ -9,16 +11,15 @@ import com.follow_me.running_mate.domain.member.mapper.MemberMapper;
 import com.follow_me.running_mate.domain.member.repository.MemberBadgeRepository;
 import com.follow_me.running_mate.domain.member.repository.MemberRepository;
 import com.follow_me.running_mate.domain.token.repository.TokenRepository;
-import com.follow_me.running_mate.global.error.code.CommonErrorCode;
 import com.follow_me.running_mate.global.error.exception.CustomException;
-import com.follow_me.running_mate.global.error.exception.GlobalExceptionHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +30,7 @@ public class MemberServiceImpl implements MemberService {
     private final PasswordEncoder passwordEncoder;
     private final TokenRepository tokenRepository;
     private final MemberBadgeRepository memberBadgeRepository;
+    private final CourseRecordService courseRecordService;
 
     @Override
     public String signup(MemberRequest.SignUpRequest request) {
@@ -138,6 +140,11 @@ public class MemberServiceImpl implements MemberService {
         // Member 엔티티를 MyProfileResponse DTO로 변환하여 반환
         //TODO: Mapper를 따로 만들어 상대방이 볼 수 있는 정보를 분리하기
         return memberMapper.toMyProfileResponse(member);
+    }
+    @Override
+    @Transactional(readOnly = true)
+    public List<CourseResponse.CourseRecordInfo> getMemberRunningRecords(Long memberId, LocalDate date) {
+        return courseRecordService.getRecordsByDate(memberId, date);
     }
 }
 

@@ -6,7 +6,10 @@ import com.follow_me.running_mate.domain.enums.CoursePointVoice;
 import com.follow_me.running_mate.domain.enums.Difficulty;
 import com.follow_me.running_mate.domain.enums.Ranking;
 import com.follow_me.running_mate.domain.enums.Status;
+
+import java.time.LocalDateTime;
 import java.util.List;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -204,5 +207,30 @@ public class CourseResponse {
         private String profileImageUrl;
         private Ranking ranking;
         // 러닝 발자국 추가
+    }
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class CourseRecordInfo{
+        private LocalDateTime date;
+        private String courseName;
+        private Double distance;;
+        private Integer caloriesBurned;
+        private Integer averagePace;
+        private String formattedDuration;
+        public void setFormattedDuration(Long durationInSeconds,Long nanos) {
+            long hours = durationInSeconds / 3600;
+            long minutes = (durationInSeconds % 3600) / 60;
+            long seconds = durationInSeconds % 60;
+            long millis = nanos / 1000000;
+            this.formattedDuration = String.format("%02d:%02d:%02d:%03d", hours, minutes, seconds, millis);
+        }
+    }
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    public static class CourseRecordInfoList{
+        private List<CourseRecordInfo> records;
     }
 }

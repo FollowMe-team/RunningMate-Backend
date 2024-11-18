@@ -1,10 +1,9 @@
 package com.follow_me.running_mate.domain.member.controller;
 
 import com.follow_me.running_mate.config.security.auth.PrincipalDetails;
-import com.follow_me.running_mate.config.security.jwt.JwtTokenProvider;
+import com.follow_me.running_mate.domain.course.dto.response.CourseResponse;
 import com.follow_me.running_mate.domain.member.dto.request.MemberRequest;
 import com.follow_me.running_mate.domain.member.dto.response.MemberResponse;
-import com.follow_me.running_mate.domain.member.entity.Member;
 import com.follow_me.running_mate.domain.member.service.MemberService;
 import com.follow_me.running_mate.global.common.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,9 +14,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -147,5 +149,23 @@ public class MemberController {
 
         // 상대방 프로필 조회 성공
         return BaseResponse.success("상대방 프로필 조회에 성공했습니다.", memberProfile);
+    }
+
+    @GetMapping("/record")
+    @Operation(summary = "마이 기록 조회 (캘린더)", description = "자신이 선택한 날짜의 코스 기록을 확인합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "코스 기록 조회에 성공했습니다.",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+            @ApiResponse(responseCode = "400", description = "입력 값이 유효하지 않습니다.",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+            @ApiResponse(responseCode = "500", description = "서버 오류입니다.",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
+    })
+    public BaseResponse<CourseResponse.CourseRecordInfoList> getMyRunningRecord(
+            @AuthenticationPrincipal PrincipalDetails principalDetails,
+            @RequestParam(value = "date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date) {
+
+        List<CourseResponse.CourseRecordInfo> response = memberService.getMemberRunningRecords(principalDetails.member().getId(), date);
+        return BaseResponse.success("해당 일자의 코스 조회에 성공했습니다.", new CourseResponse.CourseRecordInfoList(response));
     }
 }
