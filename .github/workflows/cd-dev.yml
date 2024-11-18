@@ -2,7 +2,7 @@ name: Dockerizing to Amazon EC2 for Dev
 
 on:
   push:
-    branches: [ "develop", "ci/#22/ci-cd" ]
+    branches: [ "develop"]
 
 jobs:
   deploy_job:
