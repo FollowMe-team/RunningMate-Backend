@@ -1,4 +1,4 @@
-package com.follow_me.running_mate.domain.record.entity;
+package com.follow_me.running_mate.domain.course.entity;
 
 import com.follow_me.running_mate.global.common.BaseEntity;
 import jakarta.persistence.Column;
@@ -23,7 +23,7 @@ import org.locationtech.jts.geom.Point;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SQLRestriction("deleted_at is null")
-public class RecordPoint extends BaseEntity {
+public class CourseRecordPoint extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,7 +31,7 @@ public class RecordPoint extends BaseEntity {
 
     @ManyToOne
     @JoinColumn()
-    private RunningRecord record;
+    private CourseRecord record;
 
     @Column(columnDefinition = "geography(Point, 4326)")
     private Point location;

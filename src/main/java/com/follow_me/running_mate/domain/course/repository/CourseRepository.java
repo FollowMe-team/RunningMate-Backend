@@ -23,6 +23,8 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
             .orElseThrow(() -> new CustomException(CourseErrorCode.NOT_FOUND));
     }
 
+    boolean existsByName(String name);
+
     List<Course> findAllByWriterOrderByCreatedAtDesc(Member writer);
 
     @Query(value = "SELECT DISTINCT c.* FROM course c " +
@@ -41,10 +43,10 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
 
     @Query(value = "SELECT DISTINCT c.* FROM course c " +
         "JOIN course_option o ON c.id = o.course_id " +
-        "WHERE (:keyword IS NULL OR c.name LIKE CONCAT('%', :keyword, '%') " +
-        "OR c.description LIKE CONCAT('%', :keyword, '%') " +
-        "OR c.city LIKE CONCAT('%', :keyword, '%') " +
-        "OR c.district LIKE CONCAT('%', :keyword, '%')) " +
+        "WHERE (:keyword IS NULL OR c.name ILIKE CONCAT('%', :keyword, '%') " +
+        "OR c.description ILIKE CONCAT('%', :keyword, '%') " +
+        "OR c.city ILIKE CONCAT('%', :keyword, '%') " +
+        "OR c.district ILIKE CONCAT('%', :keyword, '%')) " +
         "AND (:latitude IS NULL OR ST_DWithin(c.start_point, ST_MakePoint(:longitude, :latitude)::geography, :radius)) " +
         "AND c.status = 'COMPLETE' " +
         "AND (:difficulties IS NULL OR c.difficulty IN (:difficulties)) " +

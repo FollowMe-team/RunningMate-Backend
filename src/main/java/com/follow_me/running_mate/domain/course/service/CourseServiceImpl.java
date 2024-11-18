@@ -1,18 +1,20 @@
 package com.follow_me.running_mate.domain.course.service;
 
+import com.follow_me.running_mate.domain.course.dto.request.CourseRequest;
 import com.follow_me.running_mate.domain.course.dto.response.CourseResponse;
 import com.follow_me.running_mate.domain.course.entity.Course;
-import com.follow_me.running_mate.domain.course.entity.CourseBookmark;
-import com.follow_me.running_mate.domain.course.entity.CourseImage;
 import com.follow_me.running_mate.domain.course.entity.CoursePoint;
+import com.follow_me.running_mate.domain.course.entity.CourseReview;
 import com.follow_me.running_mate.domain.course.entity.CourseReviewImage;
-import com.follow_me.running_mate.domain.course.mapper.CourseMapper;
-import com.follow_me.running_mate.domain.course.repository.CourseBookmarkRepository;
-import com.follow_me.running_mate.domain.course.repository.CourseImageRepository;
-import com.follow_me.running_mate.domain.course.repository.CourseOptionRepository;
-import com.follow_me.running_mate.domain.course.repository.CoursePointRepository;
+import com.follow_me.running_mate.domain.course.mapper.CourseEntityMapper;
+import com.follow_me.running_mate.domain.course.mapper.CourseResponseMapper;
 import com.follow_me.running_mate.domain.course.repository.CourseRepository;
-import com.follow_me.running_mate.domain.course.repository.CourseReviewRepository;
+import com.follow_me.running_mate.domain.course.service.bookmark.CourseBookmarkService;
+import com.follow_me.running_mate.domain.course.service.image.CourseImageService;
+import com.follow_me.running_mate.domain.course.service.option.CourseOptionService;
+import com.follow_me.running_mate.domain.course.service.point.CoursePointService;
+import com.follow_me.running_mate.domain.course.service.record.CourseRecordService;
+import com.follow_me.running_mate.domain.course.service.review.CourseReviewService;
 import com.follow_me.running_mate.domain.crew.service.CrewService;
 import com.follow_me.running_mate.domain.enums.CourseOptionType;
 import com.follow_me.running_mate.domain.enums.Difficulty;
@@ -20,49 +22,114 @@ import com.follow_me.running_mate.domain.enums.Ranking;
 import com.follow_me.running_mate.domain.enums.ReviewSortType;
 import com.follow_me.running_mate.domain.enums.RunningGoal;
 import com.follow_me.running_mate.domain.member.entity.Member;
-import com.follow_me.running_mate.domain.record.service.RunningRecordService;
-import com.follow_me.running_mate.domain.course.repository.CourseReviewImageRepository;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
 public class CourseServiceImpl implements CourseService {
 
-    private final CourseMapper courseMapper;
+    private final CourseResponseMapper courseResponseMapper;
+    private final CourseEntityMapper courseEntityMapper;
 
     private final CourseRepository courseRepository;
-    private final CourseReviewRepository courseReviewRepository;
-    private final CourseBookmarkRepository courseBookmarkRepository;
-    private final CourseOptionRepository courseOptionRepository;
-    private final CoursePointRepository coursePointRepository;
-    private final CourseImageRepository courseImageRepository;
-    private final CourseReviewImageRepository courseReviewImageRepository;
 
-    private final RunningRecordService runningRecordService;
+    private final CourseRecordService courseRecordService;
+    private final CourseReviewService courseReviewService;
+    private final CourseBookmarkService courseBookmarkService;
+    private final CourseOptionService courseOptionService;
+    private final CourseImageService courseImageService;
+    private final CoursePointService coursePointService;
     private final CrewService crewService;
+    private final LambdaService lambdaService;
 
+
+    @Override
+    @Transactional
+    public CourseResponse.CourseIdResponse createCourse(
+        Member member, CourseRequest.CreateCourseRequest request,
+        MultipartFile representativeImage, MultipartFile startImage, MultipartFile endImage
+    ) {
+        Course course = courseRepository.save(courseEntityMapper.toCourse(request, member));
+
+        courseImageService.saveCourseImages(course, representativeImage, startImage, endImage);
+        course.addOption(courseOptionService.getCourseOptions(course));
+        coursePointService.saveCoursePoints(course, request.getCoursePoints());
+
+        // 람다 호출: 난이도 및 기타 계산 (비동기)
+        // TODO: 람다 완성되면 주석 해제
+        // CompletableFuture.runAsync(() -> lambdaService.invokeCourseDifficultyLambda(course.getId()));
+
+        return new CourseResponse.CourseIdResponse(course.getId());
+    }
+
+    @Override
+    @Transactional
+    public CourseResponse.CourseRecordIdResponse createCourseRecord(
+        Member member, Long courseId, CourseRequest.CreateCourseRecordRequest request
+    ) {
+        Course course = courseRepository.getCourse(courseId);
+
+        return courseRecordService.createCourseRecord(member, course, request);
+    }
+
+    @Override
+    @Transactional
+    public void bookmarkCourse(Member member, Long courseId) {
+        Course course = courseRepository.getCourse(courseId);
+
+        courseBookmarkService.bookmarkCourse(member, course);
+    }
+
+    @Override
+    @Transactional
+    public void bookmarkCancelCourse(Member member, Long courseId) {
+        Course course = courseRepository.getCourse(courseId);
+
+        courseBookmarkService.cancelBookmark(member, course);
+    }
+
+    @Override
+    @Transactional
+    public CourseResponse.ReviewIdResponse createCourseReview(
+        Member member, Long courseId, CourseRequest.CreateReviewRequest request, List<MultipartFile> images
+    ) {
+        Course course = courseRepository.getCourse(courseId);
+
+        CourseReview courseReview = courseReviewService.save(course, member, request);
+
+        if (images != null && !images.isEmpty()) {
+            List<CourseReviewImage> reviewImages = courseReviewService.saveImages(courseReview, images);
+            reviewImages.forEach(courseReview::addImage);
+        }
+
+        return new CourseResponse.ReviewIdResponse(courseReview.getId());
+    }
+
+    @Override
+    @Transactional
+    public CourseResponse.ReviewIdResponse deleteCourseReview(Member member, Long reviewId) {
+        CourseReview courseReview = courseReviewService.delete(reviewId, member);
+        return new CourseResponse.ReviewIdResponse(courseReview.getId());
+    }
 
     @Override
     @Transactional(readOnly = true)
     public CourseResponse.CourseListResponse getRecentCourses(Member member) {
 
-        List<Course> recentCourses = runningRecordService.getRecentCourses(member);
+        List<Course> recentCourses = courseRecordService.getRecentCourses(member);
 
         List<CourseResponse.SummaryInfo> courses = recentCourses.stream().map(course ->
-            courseMapper.toSummaryInfo(
+            courseResponseMapper.toSummaryInfo(
                 course,
-                courseReviewRepository.findAverageRatingByCourse(course),
+                courseReviewService.getAverageRating(course),
                 course.getRunningCount(),
-                isBookmarkedCourse(member, course),
-                courseOptionRepository.findAllByCourse(course),
-                coursePointRepository.findAllByCourseOrderBySequenceNumberAsc(course)
+                courseBookmarkService.isBookmarked(member, course),
+                courseOptionService.getCourseOptions(course),
+                coursePointService.getCoursePoints(course)
             )).toList();
 
         return new CourseResponse.CourseListResponse(courses);
@@ -72,16 +139,16 @@ public class CourseServiceImpl implements CourseService {
     @Transactional(readOnly = true)
     public CourseResponse.CourseListResponse getBookmarkedCourses(Member member) {
 
-        List<Course> bookmarkedCourses = getBookmarkedCourseByMember(member);
+        List<Course> bookmarkedCourses = courseBookmarkService.getBookmarkedCourses(member);
 
         List<CourseResponse.SummaryInfo> courses = bookmarkedCourses.stream().map(course ->
-            courseMapper.toSummaryInfo(
+            courseResponseMapper.toSummaryInfo(
                 course,
-                courseReviewRepository.findAverageRatingByCourse(course),
+                courseReviewService.getAverageRating(course),
                 course.getRunningCount(),
-                isBookmarkedCourse(member, course),
-                courseOptionRepository.findAllByCourse(course),
-                coursePointRepository.findAllByCourseOrderBySequenceNumberAsc(course)
+                courseBookmarkService.isBookmarked(member, course),
+                courseOptionService.getCourseOptions(course),
+                coursePointService.getCoursePoints(course)
             )).toList();
 
         return new CourseResponse.CourseListResponse(courses);
@@ -94,13 +161,13 @@ public class CourseServiceImpl implements CourseService {
         List<Course> myCourses = courseRepository.findAllByWriterOrderByCreatedAtDesc(member);
 
         List<CourseResponse.MyCourseInfo> courses = myCourses.stream().map(course ->
-            courseMapper.toMyCourseInfo(
+            courseResponseMapper.toMyCourseInfo(
                 course,
-                courseReviewRepository.findAverageRatingByCourse(course),
+                courseReviewService.getAverageRating(course),
                 course.getRunningCount(),
-                isBookmarkedCourse(member, course),
-                courseOptionRepository.findAllByCourse(course),
-                coursePointRepository.findAllByCourseOrderBySequenceNumberAsc(course)
+                courseBookmarkService.isBookmarked(member, course),
+                courseOptionService.getCourseOptions(course),
+                coursePointService.getCoursePoints(course)
             )).toList();
 
         return new CourseResponse.MyCourseListResponse(courses);
@@ -120,21 +187,19 @@ public class CourseServiceImpl implements CourseService {
 
         // 러닝 목표에 맞는 옵션 필터링
         List<String> goalOptions = (runningGoal != null) ?
-            getOptionsByRunningGoal(runningGoal).stream()
-                .map(CourseOptionType::name)
-                .toList() : List.of();
+            courseOptionService.getOptionByRunningGoal(runningGoal) : List.of();
 
         List<Course> recommendedCourses = courseRepository.recommendCourses(
             latitude, longitude, radius, effectiveDifficulty.name(), goalOptions);
 
         List<CourseResponse.SummaryInfo> courses = recommendedCourses.stream().map(course ->
-            courseMapper.toSummaryInfo(
+            courseResponseMapper.toSummaryInfo(
                 course,
-                courseReviewRepository.findAverageRatingByCourse(course),
+                courseReviewService.getAverageRating(course),
                 course.getRunningCount(),
-                isBookmarkedCourse(member, course),
-                courseOptionRepository.findAllByCourse(course),
-                coursePointRepository.findAllByCourseOrderBySequenceNumberAsc(course)
+                courseBookmarkService.isBookmarked(member, course),
+                courseOptionService.getCourseOptions(course),
+                coursePointService.getCoursePoints(course)
             )).toList();
 
         return new CourseResponse.CourseListResponse(courses);
@@ -162,13 +227,13 @@ public class CourseServiceImpl implements CourseService {
         );
 
         List<CourseResponse.SummaryInfo> courses = searchCourses.stream().map(course ->
-            courseMapper.toSummaryInfo(
+            courseResponseMapper.toSummaryInfo(
                 course,
-                courseReviewRepository.findAverageRatingByCourse(course),
+                courseReviewService.getAverageRating(course),
                 course.getRunningCount(),
-                isBookmarkedCourse(member, course),
-                courseOptionRepository.findAllByCourse(course),
-                coursePointRepository.findAllByCourseOrderBySequenceNumberAsc(course)
+                courseBookmarkService.isBookmarked(member, course),
+                courseOptionService.getCourseOptions(course),
+                coursePointService.getCoursePoints(course)
             )).toList();
 
         return new CourseResponse.CourseListResponse(courses);
@@ -180,18 +245,15 @@ public class CourseServiceImpl implements CourseService {
 
         Course course = courseRepository.getCourse(courseId);
 
-        return courseMapper.toCourseDetailResponse(
+        return courseResponseMapper.toCourseDetailResponse(
             course,
-            courseReviewRepository.findAverageRatingByCourse(course),
-            isBookmarkedCourse(member, course),
-            courseImageRepository.findAllByCourse(course).stream()
-                .map(CourseImage::getUrl)
-                .toList(),
-            courseOptionRepository.findAllByCourse(course),
-            coursePointRepository.findAllByCourseOrderBySequenceNumberAsc(course),
-            courseMapper.toCrewInfos(crewService.getCrewByCourse(course)),
-            courseMapper.toReviewInfos(courseReviewRepository.findTop3ByCourseOrderByCreatedAtDesc(course), member),
-            getRatingCounts(courseMapper.toReviewInfos(courseReviewRepository.findAllByCourse(course), member))
+            courseReviewService.getAverageRating(course),
+            courseBookmarkService.isBookmarked(member, course),
+            courseImageService.getCourseImages(course),
+            courseOptionService.getCourseOptions(course),
+            coursePointService.getCoursePoints(course),
+            courseResponseMapper.toCrewInfos(crewService.getCrewByCourse(course)),
+            courseResponseMapper.toReviewInfos(courseReviewService.getRecentReviews(course), member)
         );
     }
 
@@ -202,14 +264,14 @@ public class CourseServiceImpl implements CourseService {
     ) {
         Course course = courseRepository.getCourse(courseId);
 
-        List<CourseResponse.ReviewInfo> reviews = courseMapper.toReviewInfos(
-            sortType.sort(course, courseReviewRepository), member
+        List<CourseResponse.ReviewInfo> reviews = courseResponseMapper.toReviewInfos(
+            courseReviewService.getReviews(course, sortType), member
         );
 
-        return courseMapper.toCourseReviewListResponse(
+        return courseResponseMapper.toCourseReviewListResponse(
             reviews,
-            courseReviewRepository.findAverageRatingByCourse(course),
-            getRatingCounts(reviews)
+            courseReviewService.getAverageRating(course),
+            courseReviewService.getReviewCounts(reviews)
         );
     }
 
@@ -218,12 +280,20 @@ public class CourseServiceImpl implements CourseService {
     public CourseResponse.CoursePathResponse getCoursePath(Long courseId) {
         Course course = courseRepository.getCourse(courseId);
 
-        List<CoursePoint> coursePoints = coursePointRepository.findAllByCourseOrderBySequenceNumberAsc(course);
+        List<CoursePoint> coursePoints = coursePointService.getCoursePoints(course);
 
         return new CourseResponse.CoursePathResponse(
             coursePoints.stream()
-                .map(courseMapper::toCoursePointDetail)
+                .map(courseResponseMapper::toCoursePointDetail)
                 .toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public CourseResponse.CheckCourseNameResponse checkCourseName(String name) {
+        return new CourseResponse.CheckCourseNameResponse(
+            courseRepository.existsByName(name)
+        );
     }
 
     // 사용자 ranking에 따른 기본 난이도 설정
@@ -233,44 +303,5 @@ public class CourseServiceImpl implements CourseService {
             case RACER, SPRINTER -> Difficulty.NORMAL;
             case MARATHONER, ULTRA_RUNNER, IRON_LEGS, SPEED_DEMON -> Difficulty.HARD;
         };
-    }
-
-    // 러닝 목표에 따른 추천 옵션 필터링
-    private List<CourseOptionType> getOptionsByRunningGoal(RunningGoal runningGoal) {
-        return switch (runningGoal) {
-            case WEIGHT_LOSS ->
-                List.of(CourseOptionType.GRADIENT_MIDDLE, CourseOptionType.PARK, CourseOptionType.TRAIL);
-            case ENDURANCE ->
-                List.of(CourseOptionType.MOUNTAIN, CourseOptionType.FOREST, CourseOptionType.GRADIENT_HIGH);
-            case SPEED -> List.of(CourseOptionType.TRACK, CourseOptionType.GRADIENT_NONE, CourseOptionType.CITYSCAPE);
-            default -> List.of(); // 목표가 없으면 모든 코스 허용
-        };
-    }
-
-    private boolean isBookmarkedCourse(Member member, Course course) {
-        Optional<CourseBookmark> courseBookmark = courseBookmarkRepository.findByMemberAndCourse(member, course);
-        return courseBookmark.map(CourseBookmark::getIsBookmarked).orElse(false);
-    }
-
-    private List<Course> getBookmarkedCourseByMember(Member member) {
-        return courseBookmarkRepository.findAllByMemberAndIsBookmarkedTrue(member).stream()
-            .map(CourseBookmark::getCourse)
-            .toList();
-    }
-
-    private List<Integer> getRatingCounts(List<CourseResponse.ReviewInfo> reviews) {
-        // 리뷰 리스트를 평점별로 그룹화하여 개수를 세기
-        Map<Integer, Long> ratingCountMap = reviews.stream()
-            .collect(Collectors.groupingBy(
-                review -> review.getRating().intValue(),
-                Collectors.counting()
-            ));
-
-        // 각 평점(5점 ~ 1점)별 개수를 순서대로 List에 추가
-        List<Integer> ratingCounts = new ArrayList<>();
-        for (int i = 5; i >= 1; i--) {
-            ratingCounts.add(ratingCountMap.getOrDefault(i, 0L).intValue());
-        }
-        return ratingCounts;
     }
 }

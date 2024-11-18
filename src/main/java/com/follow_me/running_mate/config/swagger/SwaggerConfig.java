@@ -1,4 +1,4 @@
-package com.follow_me.running_mate.config;
+package com.follow_me.running_mate.config.swagger;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -48,5 +48,4 @@ public class SwaggerConfig {
             return operation;
         };
     }
-
 }

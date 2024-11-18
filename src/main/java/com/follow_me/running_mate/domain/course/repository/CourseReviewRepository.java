@@ -2,12 +2,19 @@ package com.follow_me.running_mate.domain.course.repository;
 
 import com.follow_me.running_mate.domain.course.entity.Course;
 import com.follow_me.running_mate.domain.course.entity.CourseReview;
+import com.follow_me.running_mate.domain.course.exception.CourseErrorCode;
+import com.follow_me.running_mate.global.error.exception.CustomException;
 import io.lettuce.core.dynamic.annotation.Param;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 public interface CourseReviewRepository extends JpaRepository<CourseReview, Long> {
+
+    default CourseReview getCourseReview(Long id) {
+        return findById(id)
+            .orElseThrow(() -> new CustomException(CourseErrorCode.NOT_FOUND_REVIEW));
+    }
 
     List<CourseReview> findAllByCourse(Course course);
 

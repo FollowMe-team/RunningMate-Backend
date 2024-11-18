@@ -45,8 +45,13 @@ public class CourseReview extends BaseEntity {
     private String content;
 
     @Column(nullable = false)
-    private Double rating;
+    private Integer rating;
 
+    @Builder.Default
     @OneToMany(mappedBy = "review", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CourseReviewImage> images = new ArrayList<>();
+
+    public void addImage(CourseReviewImage image) {
+        images.add(image);
+    }
 }

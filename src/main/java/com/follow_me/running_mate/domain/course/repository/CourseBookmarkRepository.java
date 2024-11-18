@@ -10,4 +10,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface CourseBookmarkRepository extends JpaRepository<CourseBookmark, Long> {
     Optional<CourseBookmark> findByMemberAndCourse(Member member, Course course);
     List<CourseBookmark> findAllByMemberAndIsBookmarkedTrue(Member member);
+    long countByMemberAndIsBookmarkedTrue(Member member);
 }
