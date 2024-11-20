@@ -164,7 +164,7 @@ public class MemberController {
             @AuthenticationPrincipal PrincipalDetails principalDetails,
             @RequestParam(value = "date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date) {
 
-        List<CourseResponse.CourseRecordInfo> response = memberService.getMemberRunningRecords(principalDetails.member().getId(), date);
+        List<CourseResponse.CourseRecordInfo> response = memberService.getMemberRunningRecords(principalDetails.member(), date);
         return BaseResponse.success("해당 일자의 코스 조회에 성공했습니다.", new CourseResponse.CourseRecordInfoList(response));
     }
     @GetMapping("/follow") // 내 팔로우 목록 조회 API
@@ -179,7 +179,7 @@ public class MemberController {
             @AuthenticationPrincipal PrincipalDetails principalDetails) {
 
         // 로그인한 사용자의 팔로우 목록 조회
-        List<MemberResponse.FollowResponse> followList = memberService.getFollowList(principalDetails.member().getId());
+        List<MemberResponse.FollowResponse> followList = memberService.getFollowList(principalDetails.member());
         // 팔로우 목록 조회 성공
         return BaseResponse.success("팔로우 목록 조회에 성공했습니다.", new MemberResponse.FollowListResponse(followList));
     }
@@ -194,9 +194,7 @@ public class MemberController {
     public BaseResponse<MemberResponse.FollowerListResponse> getFollowerList(
             @AuthenticationPrincipal PrincipalDetails principalDetails) {
 
-        // 로그인한 사용자의 팔로워 목록 조회
-        Long memberId = principalDetails.member().getId();
-        List<MemberResponse.FollowResponse> followerList = memberService.getFollowerList(memberId);
+        List<MemberResponse.FollowResponse> followerList = memberService.getFollowerList(principalDetails.member());
 
         // 팔로워 목록 조회 성공
         return BaseResponse.success("팔로워 목록 조회에 성공했습니다.", new MemberResponse.FollowerListResponse(followerList));

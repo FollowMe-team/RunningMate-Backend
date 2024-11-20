@@ -145,32 +145,24 @@ public class MemberServiceImpl implements MemberService {
     }
     @Override
     @Transactional(readOnly = true)
-    public List<CourseResponse.CourseRecordInfo> getMemberRunningRecords(Long memberId, LocalDate date) {
-        return courseRecordService.getRecordsByDate(memberId, date);
+    public List<CourseResponse.CourseRecordInfo> getMemberRunningRecords(Member member, LocalDate date) {
+        return courseRecordService.getRecordsByDate(member, date);
     }
     @Override
     @Transactional(readOnly = true)
-    public List<MemberResponse.FollowResponse> getFollowList(Long memberId) {
-        // memberId를 기준으로 팔로우하는 사용자를 조회하는 로직
-        List<Long> followList = memberFollowRepository.findActiveFollowedIdsByFollowerId(memberId);
-        List<Member> followListmembers = memberRepository.findAllById(followList);
+    public List<MemberResponse.FollowResponse> getFollowList(Member member) {
+        List<Member> followMemberList = memberFollowRepository.findActiveFollowedsByFollower(member);
 
-        // 팔로우한 사용자들을 MyProfileResponse로 변환하여 반환
-        return followListmembers.stream()
+        return followMemberList.stream()
                 .map(memberMapper::toFollowResponse)
                 .toList();
     }
     @Override
     @Transactional(readOnly = true)
-    public List<MemberResponse.FollowResponse> getFollowerList(Long memberId) {
-        // memberId를 기준으로 팔로워 ID 조회
-        List<Long> followerIds = memberFollowRepository.findActiveFollowerIdsByFollowedId(memberId);
+    public List<MemberResponse.FollowResponse> getFollowerList(Member member) {
+        List<Member> followerMemberList = memberFollowRepository.findActiveFollowersByFollowed(member);
 
-        // 팔로워 ID로 회원 엔티티 조회
-        List<Member> followers = memberRepository.findAllById(followerIds);
-
-        // 엔티티를 FollowResponse로 매핑
-        return followers.stream()
+        return followerMemberList.stream()
                 .map(memberMapper::toFollowResponse)
                 .toList();
     }

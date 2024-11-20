@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
+import com.follow_me.running_mate.domain.member.entity.MemberFollow;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -51,13 +52,13 @@ public class CourseRecordServiceImpl implements CourseRecordService {
     }
     @Override
     @Transactional
-    public List<CourseResponse.CourseRecordInfo> getRecordsByDate(Long memberId, LocalDate date) {
+    public List<CourseResponse.CourseRecordInfo> getRecordsByDate(Member member, LocalDate date) {
         // 날짜의 시작과 끝을 설정
         LocalDateTime startOfDay = date.atStartOfDay();
         LocalDateTime endOfDay = date.atTime(LocalTime.MAX);
 
         // 해당 날짜와 회원의 코스 기록을 조회
-        List<CourseRecord> courseRecords = courseRecordRepository.findAllByRunnerIdAndStartTimeBetween(memberId, startOfDay, endOfDay);
+        List<CourseRecord> courseRecords = courseRecordRepository.findAllByRunnerAndStartTimeBetween(member, startOfDay, endOfDay);
 
         // 각 코스 기록을 CourserecordInfo로 변환
         return courseRecords.stream()

@@ -20,7 +20,7 @@ public interface MemberService {
     boolean isNicknameDuplicate(String nickname);
     boolean isEmailDuplicate(String email);
     MemberResponse.MyProfileResponse getMemberProfileByEmail(String email);
-    List<CourseResponse.CourseRecordInfo> getMemberRunningRecords(Long memberId , LocalDate date);
-    List<MemberResponse.FollowResponse> getFollowList(Long memberId);
-    List<MemberResponse.FollowResponse> getFollowerList(Long memberId);
+    List<CourseResponse.CourseRecordInfo> getMemberRunningRecords(Member member , LocalDate date);
+    List<MemberResponse.FollowResponse> getFollowList(Member member);
+    List<MemberResponse.FollowResponse> getFollowerList(Member member);
 }

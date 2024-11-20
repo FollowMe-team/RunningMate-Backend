@@ -14,5 +14,5 @@ public interface CourseRecordService {
     CourseResponse.CourseRecordIdResponse createCourseRecord(
         Member member, Course course, CourseRequest.CreateCourseRecordRequest request
     );
-    List<CourseResponse.CourseRecordInfo> getRecordsByDate(Long memberId, LocalDate date);
+    List<CourseResponse.CourseRecordInfo> getRecordsByDate(Member member, LocalDate date);
 }
