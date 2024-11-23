@@ -62,7 +62,7 @@ public class CourseRecordServiceImpl implements CourseRecordService {
 
         // 각 코스 기록을 CourserecordInfo로 변환
         return courseRecords.stream()
-                .map(CourseResponseMapper::toCourseSummaryResponse) // CourseRecord -> CourserecordInfo 변환
+                .map(CourseResponseMapper::toCourseRecordInfo) // CourseRecord -> CourserecordInfo 변환
                 .toList();
     }
 }

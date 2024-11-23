@@ -187,16 +187,20 @@ public class CourseResponseMapper {
             .ranking(member.getRanking())
             .build();
     }
-    public static CourseResponse.CourseRecordInfo toCourseSummaryResponse(CourseRecord record) {
-        CourseResponse.CourseRecordInfo response = CourseResponse.CourseRecordInfo.builder()
-                .date(record.getStartTime().toLocalDate().atStartOfDay())
-                .courseName(record.getCourse().getName())
-                .distance(record.getDistance())
-                .caloriesBurned(record.getCaloriesBurned())
-                .averagePace(record.getAveragePace())
-                .build();
+    public static CourseResponse.CourseRecordInfo toCourseRecordInfo(CourseRecord courseRecord) {
+        // Duration 포맷팅
+        long durationInSeconds = courseRecord.getDuration().getSeconds();
+        long nanos = courseRecord.getDuration().getNano();
+        String formattedDuration = FormatterUtil.formatDurationWithNanos(durationInSeconds, nanos);
 
-        response.setFormattedDuration(record.getDuration().toSeconds(),record.getDuration().toNanos()%1000000000);
-        return response;
+        // CourseRecordInfo 객체 생성
+        return CourseResponse.CourseRecordInfo.builder()
+                .date(courseRecord.getStartTime())
+                .courseName(courseRecord.getCourse().getName())
+                .distance(courseRecord.getDistance())
+                .caloriesBurned(courseRecord.getCaloriesBurned())
+                .averagePace(courseRecord.getAveragePace())
+                .formattedDuration(formattedDuration) // 바로 포맷팅된 값 설정
+                .build();
     }
 }

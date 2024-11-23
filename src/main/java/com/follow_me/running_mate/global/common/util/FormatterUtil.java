@@ -95,4 +95,11 @@ public class FormatterUtil {
 
         return Duration.ofHours(hours).plusMinutes(minutes).plusSeconds(seconds);
     }
+    public static String formatDurationWithNanos(Long durationInSeconds, Long nanos) {
+        long hours = durationInSeconds / 3600;
+        long minutes = (durationInSeconds % 3600) / 60;
+        long seconds = durationInSeconds % 60;
+        long millis = nanos / 1_000_000; // 나노초를 밀리초로 변환
+        return String.format("%02d:%02d:%02d:%03d", hours, minutes, seconds, millis);
+    }
 }

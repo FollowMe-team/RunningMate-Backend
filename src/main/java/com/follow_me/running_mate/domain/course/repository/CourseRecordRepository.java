@@ -13,4 +13,5 @@ public interface CourseRecordRepository extends JpaRepository<CourseRecord, Long
     List<CourseRecord> findTop3ByRunnerOrderByStartTimeDesc(Member member);
 
     List<CourseRecord> findAllByRunnerAndStartTimeBetween(Member runner, LocalDateTime startOfDay, LocalDateTime endOfDay);
+
 }

@@ -219,13 +219,6 @@ public class CourseResponse {
         private Integer caloriesBurned;
         private Integer averagePace;
         private String formattedDuration;
-        public void setFormattedDuration(Long durationInSeconds,Long nanos) {
-            long hours = durationInSeconds / 3600;
-            long minutes = (durationInSeconds % 3600) / 60;
-            long seconds = durationInSeconds % 60;
-            long millis = nanos / 1000000;
-            this.formattedDuration = String.format("%02d:%02d:%02d:%03d", hours, minutes, seconds, millis);
-        }
     }
     @Getter
     @Builder
