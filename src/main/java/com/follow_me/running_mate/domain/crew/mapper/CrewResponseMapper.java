@@ -8,6 +8,7 @@ import com.follow_me.running_mate.domain.crew.dto.response.CrewResponse;
 import com.follow_me.running_mate.domain.crew.entity.Crew;
 import com.follow_me.running_mate.domain.crew.entity.CrewActivityTime;
 import com.follow_me.running_mate.domain.crew.entity.CrewLocation;
+import com.follow_me.running_mate.domain.crew.entity.CrewSchedule;
 import com.follow_me.running_mate.domain.enums.ActivityTimeType;
 import com.follow_me.running_mate.domain.enums.CourseOptionType;
 import com.follow_me.running_mate.global.common.util.FormatterUtil;
@@ -60,5 +61,18 @@ public class CrewResponseMapper {
                         .district(crewLocation.getDistrict())
                         .build()
                         ).toList();
+    }
+    public CrewResponse.CrewScheduleInfo toCrewScheduleInfo(
+            CrewSchedule crewSchedules,
+            CourseResponse.MyCourseListResponse courseInfo
+    ){
+        return CrewResponse.CrewScheduleInfo.builder()
+                .id(crewSchedules.getId())
+                .startTime(crewSchedules.getStartTime())
+                .endTime(crewSchedules.getEndTime())
+                .memberCount(crewSchedules.getMemberCount())
+                .memberMax(crewSchedules.getMemberMax())
+                .crewCourse(courseInfo)
+                .build();
     }
 }

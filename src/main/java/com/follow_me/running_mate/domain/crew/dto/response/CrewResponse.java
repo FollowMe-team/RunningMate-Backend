@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class CrewResponse {
@@ -63,5 +64,25 @@ public class CrewResponse {
         private  String city;
         private String district;
     }
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class CrewScheduleListResponse {
+        private Long crewId;
+        private List<CrewScheduleInfo> crewSchedule;
+    }
 
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class CrewScheduleInfo {
+        private Long id;
+        private LocalDateTime startTime;
+        private LocalDateTime endTime;
+        private Integer memberCount;
+        private Integer memberMax;
+        private CourseResponse.MyCourseListResponse crewCourse;
+    }
 }

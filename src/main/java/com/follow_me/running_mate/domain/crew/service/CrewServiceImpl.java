@@ -3,6 +3,7 @@ package com.follow_me.running_mate.domain.crew.service;
 import com.follow_me.running_mate.domain.course.dto.response.CourseResponse;
 import com.follow_me.running_mate.domain.course.entity.Course;
 import com.follow_me.running_mate.domain.course.mapper.CourseResponseMapper;
+import com.follow_me.running_mate.domain.course.repository.CourseRepository;
 import com.follow_me.running_mate.domain.course.service.CourseService;
 import com.follow_me.running_mate.domain.course.service.option.CourseOptionService;
 import com.follow_me.running_mate.domain.course.service.point.CoursePointService;
@@ -12,6 +13,8 @@ import com.follow_me.running_mate.domain.crew.entity.*;
 import com.follow_me.running_mate.domain.crew.mapper.CrewResponseMapper;
 import com.follow_me.running_mate.domain.crew.repository.*;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import com.follow_me.running_mate.domain.enums.ActivityTimeType;
@@ -37,6 +40,8 @@ public class CrewServiceImpl implements CrewService {
     private final CourseReviewService courseReviewService;
     private final CourseOptionService courseOptionService;
     private final CoursePointService coursePointService;
+    private final CrewScheduleRepository crewScheduleRepository;
+    private final CourseRepository courseRepository;
 
     @Override
     public List<Crew> getCrewByCourse(Course course) {
@@ -91,5 +96,36 @@ public class CrewServiceImpl implements CrewService {
 
         return new CourseResponse.MyCourseListResponse(courses);
     }
+    @Override
+    @Transactional(readOnly = true)
+    public CrewResponse.CrewScheduleListResponse getCrewScheduleByDate(Member member, Long crewId, LocalDate date) {
 
+        LocalDateTime startOfDay = date.atStartOfDay();
+        LocalDateTime endOfDay = date.atTime(23, 59, 59);
+        Crew crew = crewRepository.getCrew(crewId);
+        List<CrewSchedule> crewSchedules = crewScheduleRepository.findByCrewAndStartTimeBetween(crew, startOfDay,endOfDay);
+
+        List<CrewResponse.CrewScheduleInfo> scheduleInfos = crewSchedules.stream().map(schedule ->
+            crewResponseMapper.toCrewScheduleInfo(
+                    schedule,
+                    this.getCrewScheduleCourses(schedule.getCourse())
+            )).toList();
+
+        return CrewResponse.CrewScheduleListResponse.builder()
+                .crewId(crew.getId())
+                .crewSchedule(scheduleInfos)
+                .build();
+    }
+    @Override
+    @Transactional(readOnly = true)
+    public CourseResponse.MyCourseListResponse getCrewScheduleCourses(Course course) {
+
+        CourseResponse.MyCourseInfo courseInfo = courseResponseMapper.toCrewCourseInfo(
+                        course,
+                        courseReviewService.getAverageRating(course),
+                        course.getRunningCount(),
+                        courseOptionService.getCourseOptions(course),
+                        coursePointService.getCoursePoints(course));
+        return new CourseResponse.MyCourseListResponse(List.of(courseInfo));
+    }
 }
