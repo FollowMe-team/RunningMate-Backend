@@ -1,19 +1,27 @@
 package com.follow_me.running_mate.domain.crew.service;
 
+import com.follow_me.running_mate.domain.course.dto.response.CourseResponse;
 import com.follow_me.running_mate.domain.course.entity.Course;
+import com.follow_me.running_mate.domain.course.mapper.CourseResponseMapper;
+import com.follow_me.running_mate.domain.course.service.CourseService;
+import com.follow_me.running_mate.domain.course.service.option.CourseOptionService;
+import com.follow_me.running_mate.domain.course.service.point.CoursePointService;
+import com.follow_me.running_mate.domain.course.service.review.CourseReviewService;
 import com.follow_me.running_mate.domain.crew.dto.response.CrewResponse;
-import com.follow_me.running_mate.domain.crew.entity.Crew;
-import com.follow_me.running_mate.domain.crew.entity.CrewMember;
+import com.follow_me.running_mate.domain.crew.entity.*;
 import com.follow_me.running_mate.domain.crew.mapper.CrewResponseMapper;
-import com.follow_me.running_mate.domain.crew.repository.CrewCourseRepository;
+import com.follow_me.running_mate.domain.crew.repository.*;
+
 import java.util.List;
 
-import com.follow_me.running_mate.domain.crew.repository.CrewMemberRepository;
-import com.follow_me.running_mate.domain.crew.repository.CrewRepository;
+import com.follow_me.running_mate.domain.enums.ActivityTimeType;
 import com.follow_me.running_mate.domain.enums.Status;
 import com.follow_me.running_mate.domain.member.entity.Member;
+import com.follow_me.running_mate.domain.member.exception.MemberErrorCode;
+import com.follow_me.running_mate.global.error.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +31,12 @@ public class CrewServiceImpl implements CrewService {
     private final CrewMemberRepository crewMemberRepository;
     private final CrewResponseMapper crewResponseMapper;
     private final CrewRepository crewRepository;
+    private final CrewActivityTimeRepository crewActivityTimeRepository;
+    private final CrewLocationRepository crewLocationRepository;
+    private final CourseResponseMapper courseResponseMapper;
+    private final CourseReviewService courseReviewService;
+    private final CourseOptionService courseOptionService;
+    private final CoursePointService coursePointService;
 
     @Override
     public List<Crew> getCrewByCourse(Course course) {
@@ -37,4 +51,45 @@ public class CrewServiceImpl implements CrewService {
         List<Crew> recommendedCrews = crewRepository.findTop4ByIdNotInOrderByCreatedAtDesc(myCrewIds);
         return new CrewResponse.MyCrewListResponse(crewResponseMapper.toCrewInfoResponse(myCrewMembers),crewResponseMapper.toCrewInfoResponse(recommendedCrews));
     }
+
+    @Override
+    public CrewResponse.CrewDetailResponse getCrewDetail(Member member, Long crewId){
+        Crew crew = crewRepository.getCrew(crewId);
+
+        return crewResponseMapper.toCrewDetailInfo(
+                crew,
+                getCrewActivityTime(crew),
+                getCrewLocationInfo(crew),
+                this.getCrewCourses(crew)
+        );
+    }
+
+    @Override
+    public List<CrewActivityTime> getCrewActivityTime(Crew crew){
+        return crewActivityTimeRepository.findAllByCrew(crew);
+    }
+
+    @Override
+    public List<CrewLocation> getCrewLocationInfo(Crew crew){
+        return crewLocationRepository.findAllByCrew(crew);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public CourseResponse.MyCourseListResponse getCrewCourses(Crew crew) {
+
+        List<Course> myCourses = crewCourseRepository.findTop3CoursesByCrewOrderByCreatedAtDesc(crew);
+
+        List<CourseResponse.MyCourseInfo> courses = myCourses.stream().map(course ->
+                courseResponseMapper.toCrewCourseInfo(
+                        course,
+                        courseReviewService.getAverageRating(course),
+                        course.getRunningCount(),
+                        courseOptionService.getCourseOptions(course),
+                        coursePointService.getCoursePoints(course)
+                )).toList();
+
+        return new CourseResponse.MyCourseListResponse(courses);
+    }
+
 }

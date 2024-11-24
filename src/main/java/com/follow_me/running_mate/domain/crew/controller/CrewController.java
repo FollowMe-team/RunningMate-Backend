@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -36,6 +37,22 @@ public class CrewController {
     public BaseResponse<CrewResponse.MyCrewListResponse> getMyCrews(@AuthenticationPrincipal PrincipalDetails principalDetails) {
         CrewResponse.MyCrewListResponse crewListResponse = crewService.getCrewsByMember(principalDetails.member());
         return BaseResponse.success("크루 조회에 성공했습니다.", crewListResponse); // 응답 객체 반환
+    }
+
+    @GetMapping("/{crewId}/detail")
+    @Operation(summary = "크루 상세 조회 API", description = "크루 상세 정보를 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "크루 상세 조회에 성공했습니다.",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+    })
+    public BaseResponse<CrewResponse.CrewDetailResponse> getCrewDetail(
+            @AuthenticationPrincipal PrincipalDetails principalDetails,
+            @PathVariable(value = "crewId") Long crewId
+    ) {
+        return BaseResponse.success(
+                "크루 상세 조회에 성공했습니다.",
+                crewService.getCrewDetail(principalDetails.member(), crewId)
+        );
     }
 
 }

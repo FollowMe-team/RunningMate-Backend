@@ -60,6 +60,29 @@ public class CourseResponseMapper {
             .coursePointInfos(toCoursePointInfos(coursePointInfos))
             .build();
     }
+    //크루 관련 코스 정보를 가져올때
+    public CourseResponse.MyCourseInfo toCrewCourseInfo(
+            Course course,
+            Double rating,
+            Integer runningCount,
+            List<CourseOption> courseOptions,
+            List<CoursePoint> coursePointInfos
+    ) {
+        return CourseResponse.MyCourseInfo.builder()
+                .id(course.getId())
+                .name(course.getName())
+                .description(course.getDescription())
+                .location(FormatterUtil.formatLocation(course.getCity(), course.getDistrict()))
+                .distance(course.getDistance())
+                .duration(FormatterUtil.formatDuration(course.getDuration()))
+                .difficulty(course.getDifficulty())
+                .status(course.getStatus())
+                .rating(FormatterUtil.formatRating(rating))
+                .runningCount(runningCount)
+                .courseOptionTypes(toCourseOptionTypes(courseOptions))
+                .coursePointInfos(toCoursePointInfos(coursePointInfos))
+                .build();
+    }
 
     public CourseResponse.CourseDetailResponse toCourseDetailResponse(
         Course course, Double rating, Boolean isBookmarked, List<CourseImage> images,

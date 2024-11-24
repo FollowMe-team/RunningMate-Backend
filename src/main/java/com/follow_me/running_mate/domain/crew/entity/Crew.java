@@ -59,4 +59,5 @@ public class Crew extends BaseEntity {
     public void decreaseMemberCount() {
         this.memberCount--;
     }
+    //TODO: 크루 조건 엔티티에 추가하기
 }
