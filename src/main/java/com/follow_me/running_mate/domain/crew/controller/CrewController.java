@@ -2,8 +2,8 @@ package com.follow_me.running_mate.domain.crew.controller;
 
 import com.follow_me.running_mate.config.security.auth.PrincipalDetails;
 import com.follow_me.running_mate.domain.crew.dto.response.CrewResponse;
-import com.follow_me.running_mate.domain.crew.entity.Crew;
 import com.follow_me.running_mate.domain.crew.service.CrewService;
+import com.follow_me.running_mate.domain.member.dto.response.MemberResponse;
 import com.follow_me.running_mate.global.common.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -46,12 +46,11 @@ public class CrewController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
     })
     public BaseResponse<CrewResponse.CrewDetailResponse> getCrewDetail(
-            @AuthenticationPrincipal PrincipalDetails principalDetails,
             @PathVariable(value = "crewId") Long crewId
     ) {
         return BaseResponse.success(
                 "크루 상세 조회에 성공했습니다.",
-                crewService.getCrewDetail(principalDetails.member(), crewId)
+                crewService.getCrewDetail(crewId)
         );
     }
     @GetMapping("/{crewId}/schedule")
@@ -68,7 +67,23 @@ public class CrewController {
             @AuthenticationPrincipal PrincipalDetails principalDetails,
             @PathVariable(value = "crewId") Long crewId,
             @RequestParam(value = "date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date) {
-        return BaseResponse.success("크루의 월간 스케줄 조회에 성공했습니다.", crewService.getCrewScheduleByDate(principalDetails.member(),crewId, date));
+        return BaseResponse.success("크루의 월간 스케줄 조회에 성공했습니다.", crewService.getCrewScheduleByDate(crewId, date));
     }
+
+    @GetMapping("/members/{scheduleId}")
+    @Operation(summary = "스케줄 참여 멤버 조회", description = "특정 스케줄에 참여한 멤버들의 정보를 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "멤버 조회 성공",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+            @ApiResponse(responseCode = "404", description = "스케줄을 찾을 수 없음",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+            @ApiResponse(responseCode = "500", description = "서버 오류",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
+    })
+    public BaseResponse<CrewResponse.CrewScheduleMemberListResponse> getMembersBySchedule(@PathVariable(value = "scheduleId") Long scheduleId) {
+        List<MemberResponse.FollowResponse> responses = crewService.getMembersBySchedule(scheduleId);
+        return BaseResponse.success("스케줄 멤버 조회에 성공했습니다.", new CrewResponse.CrewScheduleMemberListResponse(responses));
+    }
+    //TODO: 아직 프로필 리스트 화면이 나오지 않아 임시로 팔로워랑 똑같이 작성해둠
 
 }

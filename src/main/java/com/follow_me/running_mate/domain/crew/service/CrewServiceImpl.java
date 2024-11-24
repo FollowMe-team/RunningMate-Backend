@@ -18,9 +18,12 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import com.follow_me.running_mate.domain.enums.ActivityTimeType;
+import com.follow_me.running_mate.domain.enums.CrewScheduleApplyStatus;
 import com.follow_me.running_mate.domain.enums.Status;
+import com.follow_me.running_mate.domain.member.dto.response.MemberResponse;
 import com.follow_me.running_mate.domain.member.entity.Member;
 import com.follow_me.running_mate.domain.member.exception.MemberErrorCode;
+import com.follow_me.running_mate.domain.member.mapper.MemberMapper;
 import com.follow_me.running_mate.global.error.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -41,7 +44,8 @@ public class CrewServiceImpl implements CrewService {
     private final CourseOptionService courseOptionService;
     private final CoursePointService coursePointService;
     private final CrewScheduleRepository crewScheduleRepository;
-    private final CourseRepository courseRepository;
+    private final CrewScheduleApplyRepository crewScheduleApplyRepository;
+    private final MemberMapper memberMapper;
 
     @Override
     public List<Crew> getCrewByCourse(Course course) {
@@ -58,7 +62,7 @@ public class CrewServiceImpl implements CrewService {
     }
 
     @Override
-    public CrewResponse.CrewDetailResponse getCrewDetail(Member member, Long crewId){
+    public CrewResponse.CrewDetailResponse getCrewDetail(Long crewId){
         Crew crew = crewRepository.getCrew(crewId);
 
         return crewResponseMapper.toCrewDetailInfo(
@@ -98,7 +102,7 @@ public class CrewServiceImpl implements CrewService {
     }
     @Override
     @Transactional(readOnly = true)
-    public CrewResponse.CrewScheduleListResponse getCrewScheduleByDate(Member member, Long crewId, LocalDate date) {
+    public CrewResponse.CrewScheduleListResponse getCrewScheduleByDate(Long crewId, LocalDate date) {
 
         LocalDateTime startOfDay = date.atStartOfDay();
         LocalDateTime endOfDay = date.atTime(23, 59, 59);
@@ -127,5 +131,13 @@ public class CrewServiceImpl implements CrewService {
                         courseOptionService.getCourseOptions(course),
                         coursePointService.getCoursePoints(course));
         return new CourseResponse.MyCourseListResponse(List.of(courseInfo));
+    }
+    @Override
+    @Transactional(readOnly = true)
+    public List<MemberResponse.FollowResponse> getMembersBySchedule(Long scheduleId){
+        List<CrewMember> crewMembers = crewScheduleApplyRepository.findAllCrewMembersByScheduleIdAndStatus(scheduleId, CrewScheduleApplyStatus.PARTICIPATE);
+        return crewMembers.stream()
+                .map(crewMember -> memberMapper.toFollowResponse(crewMember.getMember()))
+                .toList();
     }
 }

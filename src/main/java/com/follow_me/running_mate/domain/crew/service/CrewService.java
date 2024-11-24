@@ -6,6 +6,7 @@ import com.follow_me.running_mate.domain.crew.dto.response.CrewResponse;
 import com.follow_me.running_mate.domain.crew.entity.Crew;
 import com.follow_me.running_mate.domain.crew.entity.CrewActivityTime;
 import com.follow_me.running_mate.domain.crew.entity.CrewLocation;
+import com.follow_me.running_mate.domain.member.dto.response.MemberResponse;
 import com.follow_me.running_mate.domain.member.entity.Member;
 
 import java.time.LocalDate;
@@ -14,10 +15,11 @@ import java.util.List;
 public interface CrewService {
     List<Crew> getCrewByCourse(Course course);
     CrewResponse.MyCrewListResponse getCrewsByMember(Member member);
-    CrewResponse.CrewDetailResponse getCrewDetail(Member member, Long crewId);
+    CrewResponse.CrewDetailResponse getCrewDetail(Long crewId);
     List<CrewActivityTime> getCrewActivityTime(Crew crew);
     List<CrewLocation> getCrewLocationInfo(Crew crew);
     CourseResponse.MyCourseListResponse getCrewCourses(Crew crew);
-    CrewResponse.CrewScheduleListResponse getCrewScheduleByDate(Member member, Long crewId, LocalDate date);
+    CrewResponse.CrewScheduleListResponse getCrewScheduleByDate(Long crewId, LocalDate date);
     CourseResponse.MyCourseListResponse getCrewScheduleCourses(Course course);
+    List<MemberResponse.FollowResponse> getMembersBySchedule(Long scheduleId);
 }

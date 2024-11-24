@@ -3,6 +3,7 @@ package com.follow_me.running_mate.domain.crew.dto.response;
 import com.follow_me.running_mate.domain.course.dto.response.CourseResponse;
 import com.follow_me.running_mate.domain.enums.ActivityTimeType;
 import com.follow_me.running_mate.domain.enums.CourseImageType;
+import com.follow_me.running_mate.domain.member.dto.response.MemberResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -84,5 +85,11 @@ public class CrewResponse {
         private Integer memberCount;
         private Integer memberMax;
         private CourseResponse.MyCourseListResponse crewCourse;
+    }
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    public static class CrewScheduleMemberListResponse{
+        private List<MemberResponse.FollowResponse> CrewScheduleMembers;
     }
 }
