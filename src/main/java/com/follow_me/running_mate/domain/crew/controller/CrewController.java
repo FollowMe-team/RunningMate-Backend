@@ -1,9 +1,11 @@
 package com.follow_me.running_mate.domain.crew.controller;
 
 import com.follow_me.running_mate.config.security.auth.PrincipalDetails;
+import com.follow_me.running_mate.domain.crew.dto.request.CrewRequest;
 import com.follow_me.running_mate.domain.crew.dto.response.CrewResponse;
 import com.follow_me.running_mate.domain.crew.service.CrewService;
 import com.follow_me.running_mate.domain.member.dto.response.MemberResponse;
+import com.follow_me.running_mate.domain.member.entity.Member;
 import com.follow_me.running_mate.global.common.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -11,10 +13,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -85,5 +89,16 @@ public class CrewController {
         return BaseResponse.success("스케줄 멤버 조회에 성공했습니다.", new CrewResponse.CrewScheduleMemberListResponse(responses));
     }
     //TODO: 아직 프로필 리스트 화면이 나오지 않아 임시로 팔로워랑 똑같이 작성해둠
+    @PostMapping
+    @Operation(summary = "크루 생성 API", description = "크루를 생성합니다.")
+    @ApiResponse(responseCode = "200", description = "크루 생성에 성공했습니다.",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
+    public BaseResponse<CrewResponse.CrewIdResponse> createCrew(
+            @AuthenticationPrincipal PrincipalDetails principalDetails,
+            @RequestPart(name = "request") @Valid CrewRequest.createCrew request,
+            @RequestPart(value = "representativeImage", required = false) MultipartFile representativeImage
+    ) {
+        return BaseResponse.success("크루 생성에 성공했습니다.", crewService.createCrew(principalDetails.member(), request,representativeImage));
+    }
 
 }

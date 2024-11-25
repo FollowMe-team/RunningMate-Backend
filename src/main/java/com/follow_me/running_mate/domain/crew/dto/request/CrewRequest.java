@@ -1,0 +1,47 @@
+package com.follow_me.running_mate.domain.crew.dto.request;
+
+import com.follow_me.running_mate.domain.crew.validation.annotation.UniqueCrewName;
+import com.follow_me.running_mate.domain.enums.ActivityTimeType;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
+import java.util.List;
+
+import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@Getter
+@AllArgsConstructor
+public class CrewRequest {
+    @Getter
+    @AllArgsConstructor
+    public static class createCrew {
+
+        @NotBlank(message = "크루명을 입력해주세요.")
+        @UniqueCrewName
+        private String name;
+
+        @NotBlank(message = "간단한 크루 소개를 입력해주세요.")
+        private String shortDescription;
+
+        @NotBlank(message = "크루 상세 소개를 입력해주세요.")
+        private String detailDescription;
+
+        @NotBlank(message = "오픈채팅방 링크를 입력해주세요.")
+        private String openChatUrl;
+
+        @Size(min = 1, message = "최소 1개의 활동 시간을 입력해주세요.")
+        private List<ActivityTime> activityTimes;
+    }
+
+    @Getter
+    @AllArgsConstructor
+    public static class ActivityTime {
+        private String startTime;
+        private String endTime;
+        @NotNull
+        private ActivityTimeType type;
+    }
+}
+

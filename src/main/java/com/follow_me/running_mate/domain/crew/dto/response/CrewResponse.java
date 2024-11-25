@@ -14,6 +14,11 @@ import java.util.List;
 
 public class CrewResponse {
     @Getter
+    @AllArgsConstructor
+    public static class CrewIdResponse {
+        private Long crewId;
+    }
+    @Getter
     @Builder // 인자가 많아 생성자가 많이 필요할때 사용해 선택적으로 인자를 사용해 편하게 해주는 어노테이션
     @AllArgsConstructor // 모든 인자들을 포함하는 생성자 만들어주는 어노테이션
     @NoArgsConstructor

@@ -3,13 +3,13 @@ package com.follow_me.running_mate.domain.crew.service;
 import com.follow_me.running_mate.domain.course.dto.response.CourseResponse;
 import com.follow_me.running_mate.domain.course.entity.Course;
 import com.follow_me.running_mate.domain.course.mapper.CourseResponseMapper;
-import com.follow_me.running_mate.domain.course.repository.CourseRepository;
-import com.follow_me.running_mate.domain.course.service.CourseService;
 import com.follow_me.running_mate.domain.course.service.option.CourseOptionService;
 import com.follow_me.running_mate.domain.course.service.point.CoursePointService;
 import com.follow_me.running_mate.domain.course.service.review.CourseReviewService;
+import com.follow_me.running_mate.domain.crew.dto.request.CrewRequest;
 import com.follow_me.running_mate.domain.crew.dto.response.CrewResponse;
 import com.follow_me.running_mate.domain.crew.entity.*;
+import com.follow_me.running_mate.domain.crew.mapper.CrewEntityMapper;
 import com.follow_me.running_mate.domain.crew.mapper.CrewResponseMapper;
 import com.follow_me.running_mate.domain.crew.repository.*;
 
@@ -17,17 +17,16 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import com.follow_me.running_mate.domain.enums.ActivityTimeType;
 import com.follow_me.running_mate.domain.enums.CrewScheduleApplyStatus;
 import com.follow_me.running_mate.domain.enums.Status;
 import com.follow_me.running_mate.domain.member.dto.response.MemberResponse;
 import com.follow_me.running_mate.domain.member.entity.Member;
-import com.follow_me.running_mate.domain.member.exception.MemberErrorCode;
 import com.follow_me.running_mate.domain.member.mapper.MemberMapper;
-import com.follow_me.running_mate.global.error.exception.CustomException;
+import com.follow_me.running_mate.global.common.service.S3ImageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -46,6 +45,8 @@ public class CrewServiceImpl implements CrewService {
     private final CrewScheduleRepository crewScheduleRepository;
     private final CrewScheduleApplyRepository crewScheduleApplyRepository;
     private final MemberMapper memberMapper;
+    private final CrewEntityMapper crewEntityMapper;
+    private final S3ImageService s3ImageService;
 
     @Override
     public List<Crew> getCrewByCourse(Course course) {
@@ -139,5 +140,25 @@ public class CrewServiceImpl implements CrewService {
         return crewMembers.stream()
                 .map(crewMember -> memberMapper.toFollowResponse(crewMember.getMember()))
                 .toList();
+    }
+    @Override
+    @Transactional
+    public CrewResponse.CrewIdResponse createCrew(Member leader, CrewRequest.createCrew request , MultipartFile representativeImage) {
+        // Crew 생성
+        Crew crew;
+        if(representativeImage != null) {
+            String imageUrl = s3ImageService.upload(representativeImage);
+            crew = crewEntityMapper.toCrew(leader, request, imageUrl);
+        }
+        else {
+            crew = crewEntityMapper.toCrew(leader, request, "default-image");
+        }
+        crewRepository.save(crew);
+
+        // CrewActivityTime 생성 및 저장
+        List<CrewActivityTime> activityTimes = crewEntityMapper.toCrewActivityTimes(crew, request.getActivityTimes());
+        crewActivityTimeRepository.saveAll(activityTimes);
+
+        return new CrewResponse.CrewIdResponse(crew.getId());
     }
 }

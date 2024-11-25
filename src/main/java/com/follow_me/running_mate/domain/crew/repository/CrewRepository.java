@@ -17,4 +17,5 @@ public interface CrewRepository extends JpaRepository<Crew,Long> {
         return findById(crewId)
                 .orElseThrow(() -> new CustomException(CrewErrorCode.NOT_FOUND));  // 크루가 없을 경우 예외 처리
     }
+    boolean existsByName(String name);
 }
