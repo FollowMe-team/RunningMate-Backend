@@ -18,16 +18,18 @@ public class CrewResponse {
     public static class CrewIdResponse {
         private Long crewId;
     }
+
     @Getter
     @AllArgsConstructor
     public static class CrewScheduleIdResponse {
         private Long ScheduleId;
     }
+
     @Getter
     @Builder // 인자가 많아 생성자가 많이 필요할때 사용해 선택적으로 인자를 사용해 편하게 해주는 어노테이션
     @AllArgsConstructor // 모든 인자들을 포함하는 생성자 만들어주는 어노테이션
     @NoArgsConstructor
-    public static class MyCrewResponse{
+    public static class MyCrewResponse {
         private Long id;
         private String name;
         private Integer memberCount;
@@ -39,7 +41,7 @@ public class CrewResponse {
     @Getter
     @Builder
     @AllArgsConstructor
-    public static class MyCrewListResponse{
+    public static class MyCrewListResponse {
         List<MyCrewResponse> myCrews;
         List<MyCrewResponse> recommendedCrews;
     }
@@ -53,6 +55,7 @@ public class CrewResponse {
         private String imageUrl;
         private CourseImageType type;
     }
+
     @Getter
     @Builder
     @AllArgsConstructor
@@ -66,6 +69,7 @@ public class CrewResponse {
         private List<CrewLocationInfo> crewLocationInfos;
         private CourseResponse.MyCourseListResponse crewCourses;
     }
+
     @Getter
     @Builder
     @AllArgsConstructor
@@ -82,9 +86,10 @@ public class CrewResponse {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class CrewLocationInfo {
-        private  String city;
+        private String city;
         private String district;
     }
+
     @Getter
     @Builder
     @AllArgsConstructor
@@ -106,10 +111,11 @@ public class CrewResponse {
         private Integer memberMax;
         private CourseResponse.MyCourseListResponse crewCourse;
     }
+
     @Getter
     @Builder
     @AllArgsConstructor
-    public static class CrewScheduleMemberListResponse{
+    public static class CrewScheduleMemberListResponse {
         private List<MemberResponse.FollowResponse> CrewScheduleMembers;
     }
 }

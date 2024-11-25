@@ -197,7 +197,7 @@ public class CrewServiceImpl implements CrewService {
         Course course = courseRepository.findById(request.getCourseId())
                 .orElseThrow(() -> new CustomException(CourseErrorCode.NOT_FOUND));
 
-        if(!crew.getLeader().getId().equals(member.getId())){
+        if (!crew.getLeader().getId().equals(member.getId())) {
             throw new CustomException(CrewErrorCode.FORBIDDEN_ACCESS);
         }
         boolean isScheduleExist = crewScheduleRepository.existsByCrewAndStartTimeBeforeAndEndTimeAfter(
@@ -206,7 +206,7 @@ public class CrewServiceImpl implements CrewService {
         if (isScheduleExist) {
             throw new CustomException(CrewErrorCode.SCHEDULE_CONFLICT);
         }
-        CrewSchedule crewSchedule = crewScheduleRepository.save(crewEntityMapper.toCrewSchedule(crew,course,request));
+        CrewSchedule crewSchedule = crewScheduleRepository.save(crewEntityMapper.toCrewSchedule(crew, course, request));
         return new CrewResponse.CrewScheduleIdResponse(crewSchedule.getId());
     }
 }

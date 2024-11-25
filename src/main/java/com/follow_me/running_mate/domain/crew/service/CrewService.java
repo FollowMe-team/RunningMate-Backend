@@ -16,15 +16,26 @@ import java.util.List;
 
 public interface CrewService {
     List<Crew> getCrewByCourse(Course course);
+
     CrewResponse.MyCrewListResponse getCrewsByMember(Member member);
+
     CrewResponse.CrewDetailResponse getCrewDetail(Long crewId);
+
     List<CrewActivityTime> getCrewActivityTime(Crew crew);
+
     List<CrewLocation> getCrewLocationInfo(Crew crew);
+
     CourseResponse.MyCourseListResponse getCrewCourses(Crew crew);
+
     CrewResponse.CrewScheduleListResponse getCrewScheduleByDate(Long crewId, LocalDate date);
+
     CourseResponse.MyCourseListResponse getCrewScheduleCourses(Course course);
+
     List<MemberResponse.FollowResponse> getMembersBySchedule(Long scheduleId);
+
     CrewResponse.CrewIdResponse createCrew(Member member, CrewRequest.createCrew request, MultipartFile representativeImage);
+
     void applyToCrew(Member member, Long crewId);
+
     CrewResponse.CrewScheduleIdResponse registerSchedule(Member member, Long crewId, CrewRequest.createSchedule request);
 }

@@ -29,6 +29,7 @@ import java.util.List;
 public class CrewController {
 
     private final CrewService crewService;
+
     @GetMapping
     @Operation(summary = "러닝 크루 조회 API", description = "로그인한 사용자가 속한 러닝 크루 목록을 조회합니다.")
     @ApiResponses(value = {
@@ -56,6 +57,7 @@ public class CrewController {
                 crewService.getCrewDetail(crewId)
         );
     }
+
     @GetMapping("/{crewId}/schedule")
     @Operation(summary = "특정 크루의 월간 스케줄 조회", description = "크루의 ID와 해당 월을 기준으로 스케줄을 조회합니다.")
     @ApiResponses(value = {
@@ -87,6 +89,7 @@ public class CrewController {
         List<MemberResponse.FollowResponse> responses = crewService.getMembersBySchedule(scheduleId);
         return BaseResponse.success("스케줄 멤버 조회에 성공했습니다.", new CrewResponse.CrewScheduleMemberListResponse(responses));
     }
+
     //TODO: 아직 프로필 리스트 화면이 나오지 않아 임시로 팔로워랑 똑같이 작성해둠
     @PostMapping
     @Operation(summary = "크루 생성 API", description = "크루를 생성합니다.")
@@ -97,7 +100,7 @@ public class CrewController {
             @RequestPart(name = "request") @Valid CrewRequest.createCrew request,
             @RequestPart(value = "representativeImage", required = false) MultipartFile representativeImage
     ) {
-        return BaseResponse.success("크루 생성에 성공했습니다.", crewService.createCrew(principalDetails.member(), request,representativeImage));
+        return BaseResponse.success("크루 생성에 성공했습니다.", crewService.createCrew(principalDetails.member(), request, representativeImage));
     }
 
     @PostMapping("/{crewId}/apply")
@@ -108,8 +111,9 @@ public class CrewController {
             @PathVariable(value = "crewId") Long crewId
     ) {
         crewService.applyToCrew(principalDetails.member(), crewId);
-        return BaseResponse.success("크루 신청이 완료되었습니다.",null);
+        return BaseResponse.success("크루 신청이 완료되었습니다.", null);
     }
+
     @PostMapping("/{crewId}/schedule")
     @Operation(summary = "크루 일정 등록 API", description = "특정 크루에 일정을 등록합니다.")
     @ApiResponse(responseCode = "200", description = "일정 등록 성공")
@@ -118,7 +122,7 @@ public class CrewController {
             @PathVariable(value = "crewId") Long crewId,
             @RequestBody @Valid CrewRequest.createSchedule request
     ) {
-        return BaseResponse.success("일정이 등록되었습니다.",crewService.registerSchedule(principalDetails.member(), crewId, request));
+        return BaseResponse.success("일정이 등록되었습니다.", crewService.registerSchedule(principalDetails.member(), crewId, request));
     }
 
 }

@@ -9,6 +9,7 @@ import com.follow_me.running_mate.domain.crew.entity.CrewSchedule;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+
 @Component
 public class CrewResponseMapper {
     public List<CrewResponse.MyCrewResponse> toCrewInfoResponse(List<Crew> CrewList) {
@@ -29,7 +30,7 @@ public class CrewResponseMapper {
             List<CrewActivityTime> crewActivityTimes,
             List<CrewLocation> crewLocations,
             CourseResponse.MyCourseListResponse myCourseListResponse
-    ){
+    ) {
         return CrewResponse.CrewDetailResponse.builder()
                 .id(crew.getId())
                 .name(crew.getName())
@@ -40,6 +41,7 @@ public class CrewResponseMapper {
                 .crewCourses(myCourseListResponse)
                 .build();
     }
+
     public List<CrewResponse.CrewActivityTime> toCrewActivityTimes(List<CrewActivityTime> crewActivityTimes) {
         return crewActivityTimes.stream()
                 .map(crewActivityTime -> CrewResponse.CrewActivityTime.builder()
@@ -50,19 +52,20 @@ public class CrewResponseMapper {
                 .toList();
     }
 
-    public List<CrewResponse.CrewLocationInfo> toCrewLocation(List<CrewLocation> crewLocations){
+    public List<CrewResponse.CrewLocationInfo> toCrewLocation(List<CrewLocation> crewLocations) {
         return crewLocations.stream()
                 .map(crewLocation ->
-                    CrewResponse.CrewLocationInfo.builder()
-                        .city(crewLocation.getCity())
-                        .district(crewLocation.getDistrict())
-                        .build()
-                        ).toList();
+                        CrewResponse.CrewLocationInfo.builder()
+                                .city(crewLocation.getCity())
+                                .district(crewLocation.getDistrict())
+                                .build()
+                ).toList();
     }
+
     public CrewResponse.CrewScheduleInfo toCrewScheduleInfo(
             CrewSchedule crewSchedules,
             CourseResponse.MyCourseListResponse courseInfo
-    ){
+    ) {
         return CrewResponse.CrewScheduleInfo.builder()
                 .id(crewSchedules.getId())
                 .startTime(crewSchedules.getStartTime())

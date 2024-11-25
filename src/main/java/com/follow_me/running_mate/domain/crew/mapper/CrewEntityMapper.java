@@ -35,6 +35,7 @@ public class CrewEntityMapper {
                         .build())
                 .toList();
     }
+
     public CrewMember toCrewMember(Crew crew, Member member) {
         return CrewMember.builder()
                 .crew(crew)
@@ -42,6 +43,7 @@ public class CrewEntityMapper {
                 .status(Status.READY) // 기본 상태 설정
                 .build();
     }
+
     public CrewSchedule toCrewSchedule(Crew crew, Course course, CrewRequest.createSchedule request) {
         return CrewSchedule.builder()
                 .crew(crew)

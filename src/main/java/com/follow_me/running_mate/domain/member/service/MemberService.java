@@ -11,16 +11,28 @@ import java.util.List;
 public interface MemberService {
 
     String signup(MemberRequest.SignUpRequest request);
+
     void logout(String email);
+
     void withdraw(Member member);
+
     MemberResponse.MyProfileResponse getMyProfile(String email);
-    MemberResponse.UpdateMyProfileResponse updateProfile(MemberRequest.UpdateProfileRequest request , String email);
+
+    MemberResponse.UpdateMyProfileResponse updateProfile(MemberRequest.UpdateProfileRequest request, String email);
+
     void changePassword(MemberRequest.ChangePasswordRequest request, String email);
+
     List<MemberResponse.BadgeResponse> getMemberBadges(String email);
+
     boolean isNicknameDuplicate(String nickname);
+
     boolean isEmailDuplicate(String email);
+
     MemberResponse.MyProfileResponse getMemberProfileByEmail(String email);
-    List<CourseResponse.CourseRecordInfo> getMemberRunningRecords(Member member , LocalDate date);
+
+    List<CourseResponse.CourseRecordInfo> getMemberRunningRecords(Member member, LocalDate date);
+
     List<MemberResponse.FollowResponse> getFollowList(Member member);
+
     List<MemberResponse.FollowResponse> getFollowerList(Member member);
 }

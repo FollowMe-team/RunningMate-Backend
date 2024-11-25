@@ -121,16 +121,19 @@ public class MemberServiceImpl implements MemberService {
         List<MemberBadge> memberBadges = memberBadgeRepository.findByMember(member);
         return memberMapper.toBadgeResponseList(memberBadges);
     }
+
     //닉네임 중복 확인
     @Override
     public boolean isNicknameDuplicate(String nickname) {
         return memberRepository.existsByNickname(nickname);
     }
+
     //이메일 중복 확인
     @Override
     public boolean isEmailDuplicate(String email) {
         return memberRepository.existsByEmail(email);
     }
+
     //상대방 프로필 조회
     @Override
     @Transactional(readOnly = true)
@@ -143,11 +146,13 @@ public class MemberServiceImpl implements MemberService {
         //TODO: Mapper를 따로 만들어 상대방이 볼 수 있는 정보를 분리하기
         return memberMapper.toMyProfileResponse(member);
     }
+
     @Override
     @Transactional(readOnly = true)
     public List<CourseResponse.CourseRecordInfo> getMemberRunningRecords(Member member, LocalDate date) {
         return courseRecordService.getRecordsByDate(member, date);
     }
+
     @Override
     @Transactional(readOnly = true)
     public List<MemberResponse.FollowResponse> getFollowList(Member member) {
@@ -157,6 +162,7 @@ public class MemberServiceImpl implements MemberService {
                 .map(memberMapper::toFollowResponse)
                 .toList();
     }
+
     @Override
     @Transactional(readOnly = true)
     public List<MemberResponse.FollowResponse> getFollowerList(Member member) {

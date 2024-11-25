@@ -42,9 +42,10 @@ public class MemberController {
         // 이메일을 기반으로 사용자 프로필 조회
         return BaseResponse.success("마이 프로필 조회에 성공했습니다.", memberProfile);
     }
+
     //마이프로필 수정 api
     @PatchMapping
-    @Operation(summary = "마이 프로필 수정 API" , description = "로그인한 사용자의 프로필을 수정합니다.")
+    @Operation(summary = "마이 프로필 수정 API", description = "로그인한 사용자의 프로필을 수정합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "프로필 수정에 성공했습니다.",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
@@ -55,12 +56,13 @@ public class MemberController {
             @ApiResponse(responseCode = "MEMBER002", description = "변경할 프로필 정보가 없습니다.",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
     })
-    public BaseResponse<MemberResponse.UpdateMyProfileResponse> updateMyProfile(@AuthenticationPrincipal PrincipalDetails principalDetails ,
-        @RequestBody @Valid MemberRequest.UpdateProfileRequest request) {
-        MemberResponse.UpdateMyProfileResponse memberProfile = memberService.updateProfile(request , principalDetails.getUsername());
+    public BaseResponse<MemberResponse.UpdateMyProfileResponse> updateMyProfile(@AuthenticationPrincipal PrincipalDetails principalDetails,
+                                                                                @RequestBody @Valid MemberRequest.UpdateProfileRequest request) {
+        MemberResponse.UpdateMyProfileResponse memberProfile = memberService.updateProfile(request, principalDetails.getUsername());
         // 이메일을 기반으로 사용자 프로필 조회
         return BaseResponse.success("마이 프로필 수정에 성공했습니다.", memberProfile);
     }
+
     //비밀번호 변경 api
     @PatchMapping("/password")
     @Operation(summary = "비밀번호 변경 API", description = "로그인한 사용자의 비밀번호를 변경합니다.")
@@ -77,10 +79,11 @@ public class MemberController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
     })
     public BaseResponse<Void> changePassword(@AuthenticationPrincipal PrincipalDetails principalDetails,
-                                               @RequestBody @Valid MemberRequest.ChangePasswordRequest request) {
+                                             @RequestBody @Valid MemberRequest.ChangePasswordRequest request) {
         memberService.changePassword(request, principalDetails.getUsername());
-        return BaseResponse.success("비밀번호 변경에 성공했습니다.",null);
+        return BaseResponse.success("비밀번호 변경에 성공했습니다.", null);
     }
+
     // 배지 조회 API
     @GetMapping("/badges")
     @Operation(summary = "멤버 배지 조회 API", description = "로그인한 사용자의 배지 정보를 조회합니다.")
@@ -97,6 +100,7 @@ public class MemberController {
         MemberResponse.BadgeListResponse badgeListResponse = new MemberResponse.BadgeListResponse(badges);  // List를 BadgeListResponse로 감싸기
         return BaseResponse.success("배지 조회에 성공했습니다.", badgeListResponse);  // 성공 응답으로 감싼 객체 반환
     }
+
     @GetMapping("/check/nickname=")
     @Operation(summary = "닉네임 중복 확인 API", description = "입력된 닉네임이 중복되었는지 확인합니다. 존재시 true")
     @ApiResponses(value = {
@@ -167,6 +171,7 @@ public class MemberController {
         List<CourseResponse.CourseRecordInfo> response = memberService.getMemberRunningRecords(principalDetails.member(), date);
         return BaseResponse.success("해당 일자의 코스 조회에 성공했습니다.", new CourseResponse.CourseRecordInfoList(response));
     }
+
     @GetMapping("/follow") // 내 팔로우 목록 조회 API
     @Operation(summary = "사용자 팔로우 조회 API", description = "로그인한 사용자가 팔로우한 사용자 목록을 조회합니다.")
     @ApiResponses(value = {
@@ -183,6 +188,7 @@ public class MemberController {
         // 팔로우 목록 조회 성공
         return BaseResponse.success("팔로우 목록 조회에 성공했습니다.", new MemberResponse.FollowListResponse(followList));
     }
+
     @GetMapping("/follower") // 사용자 팔로워 목록 조회 API
     @Operation(summary = "사용자 팔로워 조회 API", description = "로그인한 사용자를 팔로우한 사용자 목록을 조회합니다.")
     @ApiResponses(value = {
