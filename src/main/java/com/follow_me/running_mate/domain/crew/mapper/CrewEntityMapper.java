@@ -1,9 +1,11 @@
 package com.follow_me.running_mate.domain.crew.mapper;
 
+import com.follow_me.running_mate.domain.course.entity.Course;
 import com.follow_me.running_mate.domain.crew.dto.request.CrewRequest;
 import com.follow_me.running_mate.domain.crew.entity.Crew;
 import com.follow_me.running_mate.domain.crew.entity.CrewActivityTime;
 import com.follow_me.running_mate.domain.crew.entity.CrewMember;
+import com.follow_me.running_mate.domain.crew.entity.CrewSchedule;
 import com.follow_me.running_mate.domain.enums.Status;
 import com.follow_me.running_mate.domain.member.entity.Member;
 import org.springframework.stereotype.Component;
@@ -38,6 +40,15 @@ public class CrewEntityMapper {
                 .crew(crew)
                 .member(member)
                 .status(Status.READY) // 기본 상태 설정
+                .build();
+    }
+    public CrewSchedule toCrewSchedule(Crew crew, Course course, CrewRequest.createSchedule request) {
+        return CrewSchedule.builder()
+                .crew(crew)
+                .course(course)
+                .startTime(request.getStartTime())
+                .endTime(request.getEndTime())
+                .memberMax(request.getMemberMax())
                 .build();
     }
 }

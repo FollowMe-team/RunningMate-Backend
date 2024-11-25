@@ -26,4 +26,5 @@ public interface CrewService {
     List<MemberResponse.FollowResponse> getMembersBySchedule(Long scheduleId);
     CrewResponse.CrewIdResponse createCrew(Member member, CrewRequest.createCrew request, MultipartFile representativeImage);
     void applyToCrew(Member member, Long crewId);
+    CrewResponse.CrewScheduleIdResponse registerSchedule(Member member, Long crewId, CrewRequest.createSchedule request);
 }

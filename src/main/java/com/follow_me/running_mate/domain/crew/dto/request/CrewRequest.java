@@ -2,9 +2,11 @@ package com.follow_me.running_mate.domain.crew.dto.request;
 
 import com.follow_me.running_mate.domain.crew.validation.annotation.UniqueCrewName;
 import com.follow_me.running_mate.domain.enums.ActivityTimeType;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import jakarta.validation.constraints.Size;
@@ -42,6 +44,21 @@ public class CrewRequest {
         private String endTime;
         @NotNull
         private ActivityTimeType type;
+    }
+    @Getter
+    @AllArgsConstructor
+    public static class createSchedule{
+        @NotNull(message = "코스를 선택해주세요.")
+        private Long courseId;
+
+        @NotNull(message = "일정 시작 시간을 입력해주세요.")
+        private LocalDateTime startTime;
+
+        @NotNull(message = "일정 종료 시간을 입력해주세요.")
+        private LocalDateTime endTime;
+
+        @Min(value = 1, message = "최소 1명 이상의 인원이 필요합니다.")
+        private Integer memberMax;
     }
 }
 

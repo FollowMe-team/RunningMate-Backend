@@ -5,7 +5,6 @@ import com.follow_me.running_mate.domain.crew.dto.request.CrewRequest;
 import com.follow_me.running_mate.domain.crew.dto.response.CrewResponse;
 import com.follow_me.running_mate.domain.crew.service.CrewService;
 import com.follow_me.running_mate.domain.member.dto.response.MemberResponse;
-import com.follow_me.running_mate.domain.member.entity.Member;
 import com.follow_me.running_mate.global.common.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -110,6 +109,16 @@ public class CrewController {
     ) {
         crewService.applyToCrew(principalDetails.member(), crewId);
         return BaseResponse.success("크루 신청이 완료되었습니다.",null);
+    }
+    @PostMapping("/{crewId}/schedule")
+    @Operation(summary = "크루 일정 등록 API", description = "특정 크루에 일정을 등록합니다.")
+    @ApiResponse(responseCode = "200", description = "일정 등록 성공")
+    public BaseResponse<CrewResponse.CrewScheduleIdResponse> registerSchedule(
+            @AuthenticationPrincipal PrincipalDetails principalDetails,
+            @PathVariable(value = "crewId") Long crewId,
+            @RequestBody @Valid CrewRequest.createSchedule request
+    ) {
+        return BaseResponse.success("일정이 등록되었습니다.",crewService.registerSchedule(principalDetails.member(), crewId, request));
     }
 
 }

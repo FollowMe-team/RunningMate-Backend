@@ -9,4 +9,5 @@ import java.util.List;
 
 public interface CrewScheduleRepository extends JpaRepository<CrewSchedule, Long> {
     List<CrewSchedule> findByCrewAndStartTimeBetween(Crew crew, LocalDateTime start, LocalDateTime end);
+    boolean existsByCrewAndStartTimeBeforeAndEndTimeAfter(Crew crew, LocalDateTime endTime, LocalDateTime startTime);
 }

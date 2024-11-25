@@ -2,7 +2,9 @@ package com.follow_me.running_mate.domain.crew.service;
 
 import com.follow_me.running_mate.domain.course.dto.response.CourseResponse;
 import com.follow_me.running_mate.domain.course.entity.Course;
+import com.follow_me.running_mate.domain.course.exception.CourseErrorCode;
 import com.follow_me.running_mate.domain.course.mapper.CourseResponseMapper;
+import com.follow_me.running_mate.domain.course.repository.CourseRepository;
 import com.follow_me.running_mate.domain.course.service.option.CourseOptionService;
 import com.follow_me.running_mate.domain.course.service.point.CoursePointService;
 import com.follow_me.running_mate.domain.course.service.review.CourseReviewService;
@@ -175,6 +177,30 @@ public class CrewServiceImpl implements CrewService {
         if (isAlreadyApplied) {
             throw new CustomException(CrewErrorCode.ALREADY_EXISTS, "이미 해당 크루에 신청 중입니다.");
         }
-        crewMemberRepository.save(crewEntityMapper.toCrewMember(crew,member));
+        crewMemberRepository.save(crewEntityMapper.toCrewMember(crew, member));
+    }
+
+    @Override
+    @Transactional
+    public CrewResponse.CrewScheduleIdResponse registerSchedule(Member member, Long crewId, CrewRequest.createSchedule request) {
+        // 크루 존재 여부 확인
+        Crew crew = crewRepository.findById(crewId)
+                .orElseThrow(() -> new CustomException(CrewErrorCode.NOT_FOUND));
+
+        // 코스 존재 여부 확인
+        Course course = courseRepository.findById(request.getCourseId())
+                .orElseThrow(() -> new CustomException(CourseErrorCode.NOT_FOUND));
+
+        if(!crew.getLeader().getId().equals(member.getId())){
+            throw new CustomException(CrewErrorCode.FORBIDDEN_ACCESS);
+        }
+        boolean isScheduleExist = crewScheduleRepository.existsByCrewAndStartTimeBeforeAndEndTimeAfter(
+                crew, request.getEndTime(), request.getStartTime());
+
+        if (isScheduleExist) {
+            throw new CustomException(CrewErrorCode.SCHEDULE_CONFLICT);
+        }
+        CrewSchedule crewSchedule = crewScheduleRepository.save(crewEntityMapper.toCrewSchedule(crew,course,request));
+        return new CrewResponse.CrewScheduleIdResponse(crewSchedule.getId());
     }
 }

@@ -6,8 +6,6 @@ import com.follow_me.running_mate.domain.crew.entity.Crew;
 import com.follow_me.running_mate.domain.crew.entity.CrewActivityTime;
 import com.follow_me.running_mate.domain.crew.entity.CrewLocation;
 import com.follow_me.running_mate.domain.crew.entity.CrewSchedule;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
