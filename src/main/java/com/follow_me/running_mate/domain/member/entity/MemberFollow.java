@@ -38,4 +38,8 @@ public class MemberFollow extends BaseEntity {
 
     @Column(nullable = false)
     private Boolean isActive;
+
+    public void setActive(boolean active) {
+        this.isActive = active;
+    }
 }

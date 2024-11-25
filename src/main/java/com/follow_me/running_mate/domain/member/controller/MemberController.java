@@ -200,4 +200,41 @@ public class MemberController {
         return BaseResponse.success("팔로워 목록 조회에 성공했습니다.", new MemberResponse.FollowerListResponse(followerList));
     }
     //TODO:팔로우 화면 나오면 response 수정하기
+
+    @PostMapping("/follow/{id}")
+    @Operation(summary = "팔로우 추가 API", description = "특정 사용자를 팔로우하거나, 기존에 팔로우했던 사용자를 활성화합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "팔로우 처리에 성공했습니다.",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+            @ApiResponse(responseCode = "404", description = "해당 사용자를 찾을 수 없습니다.",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+            @ApiResponse(responseCode = "400", description = "자기 자신을 팔로우할 수 없습니다.",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+    })
+    public BaseResponse<Void> follow(
+            @AuthenticationPrincipal PrincipalDetails principalDetails,
+            @PathVariable(value = "id") Long id) {
+
+        memberService.follow(principalDetails.member(), id);
+        return BaseResponse.success("팔로우 처리에 성공했습니다.", null);
+    }
+
+    @PatchMapping("/follow/{id}")
+    @Operation(summary = "팔로우 취소 API", description = "특정 사용자의 팔로우 상태를 비활성화합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "팔로우 취소에 성공했습니다.",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+            @ApiResponse(responseCode = "404", description = "팔로우 대상이 존재하지 않습니다.",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+            @ApiResponse(responseCode = "400", description = "자기 자신과의 팔로우 상태를 변경할 수 없습니다.",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+    })
+    public BaseResponse<Void> unfollow(
+            @AuthenticationPrincipal PrincipalDetails principalDetails,
+            @PathVariable(value = "id") Long id) {
+
+        memberService.unfollow(principalDetails.member(), id);
+        return BaseResponse.success("팔로우 취소에 성공했습니다.", null);
+    }
+
 }

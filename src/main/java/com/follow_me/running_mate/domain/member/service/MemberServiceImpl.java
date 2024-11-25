@@ -6,12 +6,14 @@ import com.follow_me.running_mate.domain.member.dto.request.MemberRequest;
 import com.follow_me.running_mate.domain.member.dto.response.MemberResponse;
 import com.follow_me.running_mate.domain.member.entity.Member;
 import com.follow_me.running_mate.domain.member.entity.MemberBadge;
+import com.follow_me.running_mate.domain.member.entity.MemberFollow;
 import com.follow_me.running_mate.domain.member.exception.MemberErrorCode;
 import com.follow_me.running_mate.domain.member.mapper.MemberMapper;
 import com.follow_me.running_mate.domain.member.repository.MemberBadgeRepository;
 import com.follow_me.running_mate.domain.member.repository.MemberFollowRepository;
 import com.follow_me.running_mate.domain.member.repository.MemberRepository;
 import com.follow_me.running_mate.domain.token.repository.TokenRepository;
+import com.follow_me.running_mate.global.error.code.CommonErrorCode;
 import com.follow_me.running_mate.global.error.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -165,6 +167,69 @@ public class MemberServiceImpl implements MemberService {
         return followerMemberList.stream()
                 .map(memberMapper::toFollowResponse)
                 .toList();
+    }
+    @Transactional
+    public void follow(Member member, Long targetMemberId) {
+
+        // 자기 자신을 팔로우하려는 경우 예외 처리
+        if (member.getId().equals(targetMemberId)) {
+            throw new CustomException(CommonErrorCode.INVALID_INPUT_VALUE);
+        }
+
+        // 팔로우 대상 사용자 조회
+        Member targetMember = memberRepository.findById(targetMemberId)
+                .orElseThrow(() -> new CustomException(CommonErrorCode.ENTITY_NOT_FOUND));
+
+        // 기존 팔로우 여부 확인
+        MemberFollow existingFollow = memberFollowRepository.findByFollowerAndFollowed(member, targetMember)
+                .orElse(null);
+
+        if (existingFollow != null) {
+            if (!existingFollow.getIsActive()) {
+                existingFollow.setActive(true);
+
+                targetMember.incrementFollowerCount();
+                member.incrementFollowingCount();
+                memberRepository.save(member);
+            }
+
+        } else {
+            MemberFollow newFollow = MemberFollow.builder()
+                    .follower(member)
+                    .followed(targetMember)
+                    .isActive(true)
+                    .build();
+            memberFollowRepository.save(newFollow);
+            targetMember.incrementFollowerCount();
+            member.incrementFollowingCount();
+            memberRepository.save(member);
+        }
+    }
+
+    @Transactional
+    public void unfollow(Member currentMember, Long targetMemberId) {
+        // 자기 자신을 언팔로우하려는 경우 예외 처리
+        if (currentMember.getId().equals(targetMemberId)) {
+            throw new CustomException(CommonErrorCode.INVALID_INPUT_VALUE, "자기 자신과의 팔로우 상태를 변경할 수 없습니다.");
+        }
+
+        // 팔로우 대상 사용자 조회
+        Member targetMember = memberRepository.findById(targetMemberId)
+                .orElseThrow(() -> new CustomException(CommonErrorCode.ENTITY_NOT_FOUND, "팔로우 대상 사용자가 존재하지 않습니다."));
+
+        // 기존 팔로우 관계 확인
+        MemberFollow existingFollow = memberFollowRepository.findByFollowerAndFollowed(currentMember, targetMember)
+                .orElseThrow(() -> new CustomException(CommonErrorCode.ENTITY_NOT_FOUND, "팔로우 관계가 존재하지 않습니다."));
+
+        if (existingFollow.getIsActive()) {
+
+            existingFollow.setActive(false);
+
+            targetMember.decrementFollowerCount();
+            currentMember.decrementFollowingCount();
+            memberRepository.save(currentMember);
+            existingFollow.delete();
+        }
     }
 }
 

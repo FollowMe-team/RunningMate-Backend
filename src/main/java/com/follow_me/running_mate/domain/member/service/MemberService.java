@@ -23,4 +23,6 @@ public interface MemberService {
     List<CourseResponse.CourseRecordInfo> getMemberRunningRecords(Member member , LocalDate date);
     List<MemberResponse.FollowResponse> getFollowList(Member member);
     List<MemberResponse.FollowResponse> getFollowerList(Member member);
+    void follow(Member member , Long id);
+    void unfollow(Member member , Long id);
 }
