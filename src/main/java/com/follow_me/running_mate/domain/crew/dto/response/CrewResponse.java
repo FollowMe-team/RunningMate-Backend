@@ -52,10 +52,20 @@ public class CrewResponse {
         private String name;
         private String detailDescription;
         private String profileImageUrl;
-        private List<ActivityTimeType> activityTimes;
+        private List<CrewActivityTime> crewActivityTimeList;
         private List<CrewLocationInfo> crewLocationInfos;
         private CourseResponse.MyCourseListResponse crewCourses;
     }
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class CrewActivityTime {
+        private ActivityTimeType activityTimes;
+        private String startTime;
+        private String endTime;
+    }
+
 
     @Getter
     @Builder

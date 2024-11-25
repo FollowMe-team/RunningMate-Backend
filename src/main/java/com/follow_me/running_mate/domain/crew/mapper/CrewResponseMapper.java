@@ -12,8 +12,10 @@ import com.follow_me.running_mate.domain.crew.entity.CrewSchedule;
 import com.follow_me.running_mate.domain.enums.ActivityTimeType;
 import com.follow_me.running_mate.domain.enums.CourseOptionType;
 import com.follow_me.running_mate.global.common.util.FormatterUtil;
+import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.List;
 @Component
 public class CrewResponseMapper {
@@ -41,8 +43,8 @@ public class CrewResponseMapper {
                 .name(crew.getName())
                 .detailDescription(crew.getDetailDescription())
                 .profileImageUrl(crew.getProfileImageUrl())
-                .activityTimes(toActivityTimeType(crewActivityTimes))
-                .crewLocationInfos(toCrewLocation(crewLocations))
+                .crewActivityTimeList(toCrewActivityTimes(crewActivityTimes)) // 매핑된 CrewActivityTime 리스트
+                .crewLocationInfos(toCrewLocation(crewLocations)) // 매핑된 CrewLocationInfo 리스트
                 .crewCourses(myCourseListResponse)
                 .build();
     }
@@ -50,6 +52,15 @@ public class CrewResponseMapper {
     public List<ActivityTimeType> toActivityTimeType(List<CrewActivityTime> crewActivityTimes){
         return crewActivityTimes.stream()
                 .map(CrewActivityTime::getType)
+                .toList();
+    }
+    public List<CrewResponse.CrewActivityTime> toCrewActivityTimes(List<CrewActivityTime> crewActivityTimes) {
+        return crewActivityTimes.stream()
+                .map(crewActivityTime -> CrewResponse.CrewActivityTime.builder()
+                        .activityTimes(crewActivityTime.getType()) // 타입을 리스트로 래핑
+                        .startTime(crewActivityTime.getStartTime())
+                        .endTime(crewActivityTime.getEndTime())
+                        .build())
                 .toList();
     }
 
