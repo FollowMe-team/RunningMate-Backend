@@ -9,6 +9,7 @@ import com.follow_me.running_mate.domain.course.service.review.CourseReviewServi
 import com.follow_me.running_mate.domain.crew.dto.request.CrewRequest;
 import com.follow_me.running_mate.domain.crew.dto.response.CrewResponse;
 import com.follow_me.running_mate.domain.crew.entity.*;
+import com.follow_me.running_mate.domain.crew.exception.CrewErrorCode;
 import com.follow_me.running_mate.domain.crew.mapper.CrewEntityMapper;
 import com.follow_me.running_mate.domain.crew.mapper.CrewResponseMapper;
 import com.follow_me.running_mate.domain.crew.repository.*;
@@ -23,6 +24,7 @@ import com.follow_me.running_mate.domain.member.dto.response.MemberResponse;
 import com.follow_me.running_mate.domain.member.entity.Member;
 import com.follow_me.running_mate.domain.member.mapper.MemberMapper;
 import com.follow_me.running_mate.global.common.service.S3ImageService;
+import com.follow_me.running_mate.global.error.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -160,5 +162,19 @@ public class CrewServiceImpl implements CrewService {
         crewActivityTimeRepository.saveAll(activityTimes);
 
         return new CrewResponse.CrewIdResponse(crew.getId());
+    }
+    @Override
+    @Transactional
+    public void applyToCrew(Member member, Long crewId) {
+        // 크루 존재 여부 확인
+        Crew crew = crewRepository.findById(crewId)
+                .orElseThrow(() -> new CustomException(CrewErrorCode.NOT_FOUND));
+
+        // 이미 신청했는지 확인
+        boolean isAlreadyApplied = crewMemberRepository.existsByCrewAndMember(crew, member);
+        if (isAlreadyApplied) {
+            throw new CustomException(CrewErrorCode.ALREADY_EXISTS, "이미 해당 크루에 신청 중입니다.");
+        }
+        crewMemberRepository.save(crewEntityMapper.toCrewMember(crew,member));
     }
 }

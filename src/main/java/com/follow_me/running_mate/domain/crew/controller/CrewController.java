@@ -101,4 +101,15 @@ public class CrewController {
         return BaseResponse.success("크루 생성에 성공했습니다.", crewService.createCrew(principalDetails.member(), request,representativeImage));
     }
 
+    @PostMapping("/{crewId}/apply")
+    @Operation(summary = "크루 신청 API", description = "멤버가 특정 크루에 가입 신청합니다.")
+    @ApiResponse(responseCode = "200", description = "신청 성공")
+    public BaseResponse<Void> applyToCrew(
+            @AuthenticationPrincipal PrincipalDetails principalDetails,
+            @PathVariable(value = "crewId") Long crewId
+    ) {
+        crewService.applyToCrew(principalDetails.member(), crewId);
+        return BaseResponse.success("크루 신청이 완료되었습니다.",null);
+    }
+
 }
