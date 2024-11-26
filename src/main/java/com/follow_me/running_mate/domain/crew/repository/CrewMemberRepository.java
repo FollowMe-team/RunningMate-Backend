@@ -9,10 +9,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface CrewMemberRepository extends JpaRepository<CrewMember, Long> {
     @Query("SELECT cm.crew FROM CrewMember cm WHERE cm.member = :member AND cm.status = :status")
     List<Crew> findCrewsByMemberAndStatus(@Param("member") Member member, @Param("status") Status status);
 
     boolean existsByCrewAndMember(Crew crew, Member member);
+
+    Optional<CrewMember> findByCrewAndMember(Crew crew, Member member);
 }

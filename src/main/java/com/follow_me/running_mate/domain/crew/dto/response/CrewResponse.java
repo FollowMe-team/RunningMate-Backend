@@ -24,6 +24,11 @@ public class CrewResponse {
     public static class CrewScheduleIdResponse {
         private Long ScheduleId;
     }
+    @Getter
+    @AllArgsConstructor
+    public static class CrewScheduleApplyIdResponse {
+        private Long ScheduleApplyId;
+    }
 
     @Getter
     @Builder // 인자가 많아 생성자가 많이 필요할때 사용해 선택적으로 인자를 사용해 편하게 해주는 어노테이션

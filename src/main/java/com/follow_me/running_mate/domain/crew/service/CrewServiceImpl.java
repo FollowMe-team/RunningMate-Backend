@@ -209,4 +209,33 @@ public class CrewServiceImpl implements CrewService {
         CrewSchedule crewSchedule = crewScheduleRepository.save(crewEntityMapper.toCrewSchedule(crew, course, request));
         return new CrewResponse.CrewScheduleIdResponse(crewSchedule.getId());
     }
+
+    @Override
+    @Transactional
+    public CrewResponse.CrewScheduleApplyIdResponse applyToSchedule(Member member, Long scheduleId) {
+        // 일정 존재 여부 확인
+        CrewSchedule crewSchedule = crewScheduleRepository.findById(scheduleId)
+                .orElseThrow(() -> new CustomException(CrewErrorCode.NOT_FOUND));
+
+        // 크루에 이미 가입된 멤버인지 확인
+        CrewMember crewMember = crewMemberRepository.findByCrewAndMember(crewSchedule.getCrew(), member)
+                .orElseThrow(() -> new CustomException(CrewErrorCode.FORBIDDEN_ACCESS));
+
+        if(!crewMember.getStatus().equals(Status.COMPLETE)){
+            throw  new CustomException(CrewErrorCode.FORBIDDEN_ACCESS);
+        }
+
+        // 일정 최대 인원 초과 여부 확인
+        if (crewSchedule.getMemberCount() >= crewSchedule.getMemberMax()) {
+            throw new CustomException(CrewErrorCode.SCHEDULE_FULL);
+        }
+
+        // 중복 신청 확인
+        boolean isAlreadyApplied = crewScheduleApplyRepository.existsByCrewScheduleAndCrewMember(crewSchedule, crewMember);
+        if (isAlreadyApplied) {
+            throw new CustomException(CrewErrorCode.ALREADY_EXISTS);
+        }
+        CrewScheduleApply crewScheduleApply = crewScheduleApplyRepository.save(crewEntityMapper.toCrewScheduleApply(crewSchedule, crewMember));
+        return new CrewResponse.CrewScheduleApplyIdResponse(crewScheduleApply.getId());
+    }
 }

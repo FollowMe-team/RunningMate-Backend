@@ -124,5 +124,14 @@ public class CrewController {
     ) {
         return BaseResponse.success("일정이 등록되었습니다.", crewService.registerSchedule(principalDetails.member(), crewId, request));
     }
+    @PostMapping("/apply/{scheduleId}")
+    @Operation(summary = "크루 일정 참여 신청 API", description = "특정 크루 일정에 참여 신청을 합니다.")
+    @ApiResponse(responseCode = "200", description = "참여 신청 성공")
+    public BaseResponse<CrewResponse.CrewScheduleApplyIdResponse> applyToSchedule(
+            @AuthenticationPrincipal PrincipalDetails principalDetails,
+            @PathVariable(value = "scheduleId") Long scheduleId
+    ) {
+        return BaseResponse.success("일정 참여 신청이 완료되었습니다.",crewService.applyToSchedule(principalDetails.member(), scheduleId));
+    }
 
 }
