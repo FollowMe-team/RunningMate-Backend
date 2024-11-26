@@ -7,6 +7,8 @@ import java.util.List;
 
 public interface CoursePointService {
 
-    void saveCoursePoints(Course course, List<CourseRequest.CoursePointInfo> coursePoints);
+    void saveCoursePoint(CoursePoint coursePoint);
+    List<CoursePoint> saveCoursePoints(Course course, List<CourseRequest.CoursePointInfo> coursePoints);
     List<CoursePoint> getCoursePoints(Course course);
+    List<CoursePoint> getCoursePointsByCourseId(Long courseId);
 }

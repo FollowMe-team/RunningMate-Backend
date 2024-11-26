@@ -7,4 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface CoursePointRepository extends JpaRepository<CoursePoint, Long> {
     List<CoursePoint> findAllByCourseOrderBySequenceNumberAsc(Course course);
+    List<CoursePoint> findAllByCourseIdOrderBySequenceNumberAsc(Long courseId);
 }

@@ -1,39 +1,143 @@
 package com.follow_me.running_mate.domain.course.service;
 
+import com.amazonaws.services.lambda.AWSLambda;
+import com.amazonaws.services.lambda.model.InvokeRequest;
+import com.amazonaws.services.lambda.model.InvokeResult;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.follow_me.running_mate.domain.course.dto.request.CourseLambdaRequest;
+import com.follow_me.running_mate.domain.course.dto.response.CourseLambdaResponse;
+import com.follow_me.running_mate.domain.course.entity.Course;
+import com.follow_me.running_mate.domain.course.entity.CoursePoint;
+import com.follow_me.running_mate.domain.course.repository.CourseRepository;
+import com.follow_me.running_mate.domain.course.service.option.CourseOptionService;
+import com.follow_me.running_mate.domain.course.service.point.CoursePointService;
+import com.follow_me.running_mate.domain.enums.CourseOptionType;
+import com.follow_me.running_mate.domain.enums.CoursePointVoice;
+import com.follow_me.running_mate.domain.enums.Difficulty;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import org.springframework.transaction.annotation.Transactional;
+
+
 @Service
+@RequiredArgsConstructor
+@Slf4j
 public class LambdaService {
-//    private final AWSLambda awsLambda;
-//    private final ObjectMapper objectMapper;
-//
-//    public LambdaService(AWSLambda awsLambda, ObjectMapper objectMapper) {
-//        this.awsLambda = awsLambda;
-//        this.objectMapper = objectMapper;
-//    }
-//
-//    // 람다 호출 함수의 틀
-//    public void invokeCourseDifficultyLambda(Long courseId) {
-//        try {
-//            // 1. Payload 준비
-//            Map<String, Object> payload = Map.of("courseId", courseId);
-//            String payloadJson = objectMapper.writeValueAsString(payload);
-//
-//            // 2. InvokeRequest 설정
-//            InvokeRequest invokeRequest = new InvokeRequest()
-//                .withFunctionName("CourseDifficultyCalculationLambda") // 람다 함수명
-//                .withPayload(payloadJson);
-//
-//            // 3. 람다 호출
-//            InvokeResult result = awsLambda.invoke(invokeRequest);
-//
-//            // 결과 처리 (로그 출력 등)
-//            String response = new String(result.getPayload().array());
-//            System.out.println("Lambda response: " + response);
-//
-//        } catch (Exception e) {
-//            // 예외 처리 (예: 로그 출력)
-//            System.err.println("Lambda invocation failed: " + e.getMessage());
-//        }
-//    }
+
+
+    @Value("${cloud.aws.lambda.name}")
+    private String lambdaName;
+
+    private final AWSLambda awsLambda;
+    private final ObjectMapper objectMapper;
+    private final CourseRepository courseRepository;
+    private final CourseOptionService courseOptionService;
+    private final CoursePointService coursePointService;
+
+    @Transactional
+    public void invokeCourseDifficultyLambda(Course course, List<CoursePoint> points) {
+        try {
+            log.info("Lambda 요청 생성 시작: courseId={}", course.getId());
+            CourseLambdaRequest request = createRequest(course, points);
+            log.info("Lambda 요청 데이터: {}", objectMapper.writeValueAsString(request));
+
+            log.info("Lambda 함수 호출: courseId={}", course.getId());
+            CourseLambdaResponse response = invokeLambda(request);
+            log.info("Lambda 응답 데이터: {}", objectMapper.writeValueAsString(response));
+
+            log.info("Lambda 응답 처리 시작: courseId={}", course.getId());
+            applyResponse(course, points, response);
+            log.info("Lambda 처리 완료: courseId={}", course.getId());
+
+        } catch (Exception e) {
+            log.error("Lambda 함수 호출 중 오류 발생: courseId={}", course.getId(), e);
+            throw new RuntimeException("코스 분석 중 오류가 발생했습니다", e);
+        }
+    }
+
+    private CourseLambdaRequest createRequest(Course course, List<CoursePoint> points) {
+        List<CourseLambdaRequest.PointInfo> pointInfos = points.stream()
+            .map(point -> CourseLambdaRequest.PointInfo.builder()
+                .x(point.getLocation().getX())
+                .y(point.getLocation().getY())
+                .elevation(point.getElevation())
+                .sequenceNumber(point.getSequenceNumber())
+                .build())
+            .toList();
+
+        return CourseLambdaRequest.builder()
+            .totalDistance(course.getDistance())
+            .points(pointInfos)
+            .build();
+    }
+
+    private CourseLambdaResponse invokeLambda(CourseLambdaRequest request) throws JsonProcessingException {
+        InvokeRequest invokeRequest = new InvokeRequest()
+            .withFunctionName(lambdaName)
+            .withPayload(objectMapper.writeValueAsString(request));
+
+        InvokeResult result = awsLambda.invoke(invokeRequest);
+        String responseStr = new String(result.getPayload().array());
+        log.info("Lambda 원본 응답: {}", responseStr);  // 응답 로그 추가
+
+        return objectMapper.readValue(responseStr, CourseLambdaResponse.class);
+    }
+
+
+    private void applyResponse(Course course, List<CoursePoint> points, CourseLambdaResponse response) {
+        try {
+            if (response == null) {
+                log.error("Lambda 응답이 null입니다.");
+                course.setDifficulty(Difficulty.NORMAL);  // 기본값 설정
+                return;
+            }
+
+            String difficultyStr = response.getDifficulty();
+            log.info("Lambda에서 받은 난이도: {}", difficultyStr);
+
+            if (difficultyStr == null) {
+                log.error("난이도 값이 null입니다.");
+                course.setDifficulty(Difficulty.NORMAL);
+            } else {
+                try {
+                    course.setDifficulty(Difficulty.valueOf(difficultyStr.trim().toUpperCase()));
+                } catch (IllegalArgumentException e) {
+                    log.error("잘못된 난이도 값: {}", difficultyStr);
+                    course.setDifficulty(Difficulty.NORMAL);
+                }
+            }
+            courseRepository.save(course);
+
+            if (response.getGradient() != null) {
+                courseOptionService.saveGradientOption(course, CourseOptionType.valueOf(response.getGradient()));
+            }
+
+            if (response.getVoicePoints() != null) {
+                for (CourseLambdaResponse.VoicePointInfo voicePoint : response.getVoicePoints()) {
+                    if (voicePoint.getVoiceType() != null && voicePoint.getSequenceNumber() != null) {
+                        points.stream()
+                            .filter(p -> voicePoint.getSequenceNumber().equals(p.getSequenceNumber()))
+                            .findFirst()
+                            .ifPresent(point -> {
+                                try {
+                                    point.setVoice(CoursePointVoice.valueOf(voicePoint.getVoiceType().trim()));
+                                    coursePointService.saveCoursePoint(point);
+                                } catch (IllegalArgumentException e) {
+                                    log.error("잘못된 voice type: {}", voicePoint.getVoiceType());
+                                }
+                            });
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error("응답 처리 중 예외 발생", e);
+            course.setDifficulty(Difficulty.NORMAL);
+            courseRepository.save(course);
+        }
+    }
 }

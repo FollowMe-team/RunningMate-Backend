@@ -87,6 +87,7 @@ public class CourseRequest {
     public static class CoursePointInfo implements GeoPoint {
         private Double latitude;
         private Double longitude;
+        private Double elevation;
     }
 
     @Getter
