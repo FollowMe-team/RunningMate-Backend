@@ -7,6 +7,7 @@ import com.follow_me.running_mate.domain.crew.dto.response.CrewResponse;
 import com.follow_me.running_mate.domain.crew.entity.Crew;
 import com.follow_me.running_mate.domain.crew.entity.CrewActivityTime;
 import com.follow_me.running_mate.domain.crew.entity.CrewLocation;
+import com.follow_me.running_mate.domain.enums.Status;
 import com.follow_me.running_mate.domain.member.dto.response.MemberResponse;
 import com.follow_me.running_mate.domain.member.entity.Member;
 import org.springframework.web.multipart.MultipartFile;
@@ -39,4 +40,5 @@ public interface CrewService {
 
     CrewResponse.CrewScheduleIdResponse registerSchedule(Member member, Long crewId, CrewRequest.createSchedule request);
     CrewResponse.CrewScheduleApplyIdResponse applyToSchedule(Member member, Long scheduleId);
+    void updateCrewMemberStatus(Member currentUser, Long memberId, String status);
 }

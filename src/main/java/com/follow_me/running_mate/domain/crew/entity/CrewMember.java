@@ -43,4 +43,8 @@ public class CrewMember extends BaseEntity {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Status status;
+
+    public void updateStatus(Status newStatus) {
+        this.status = newStatus;
+    }
 }

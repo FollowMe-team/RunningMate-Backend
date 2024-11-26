@@ -133,5 +133,15 @@ public class CrewController {
     ) {
         return BaseResponse.success("일정 참여 신청이 완료되었습니다.",crewService.applyToSchedule(principalDetails.member(), scheduleId));
     }
-
+    @PatchMapping("/{memberId}")
+    @Operation(summary = "크루 신청 상태 업데이트 API", description = "크루 신청 상태를 수락하거나 거절합니다.")
+    @ApiResponse(responseCode = "200", description = "상태 업데이트 성공")
+    public BaseResponse<Void> updateCrewMemberStatus(
+            @AuthenticationPrincipal PrincipalDetails principalDetails,
+            @PathVariable(value = "memberId") Long memberId,
+            @RequestParam(value = "status") String status
+    ) {
+        crewService.updateCrewMemberStatus(principalDetails.member(), memberId, status);
+        return BaseResponse.success("크루 신청 상태가 성공적으로 업데이트되었습니다.", null);
+    }
 }

@@ -24,7 +24,9 @@ import com.follow_me.running_mate.domain.enums.CrewScheduleApplyStatus;
 import com.follow_me.running_mate.domain.enums.Status;
 import com.follow_me.running_mate.domain.member.dto.response.MemberResponse;
 import com.follow_me.running_mate.domain.member.entity.Member;
+import com.follow_me.running_mate.domain.member.exception.MemberErrorCode;
 import com.follow_me.running_mate.domain.member.mapper.MemberMapper;
+import com.follow_me.running_mate.domain.member.repository.MemberRepository;
 import com.follow_me.running_mate.global.common.service.S3ImageService;
 import com.follow_me.running_mate.global.error.exception.CustomException;
 import lombok.RequiredArgsConstructor;
@@ -52,6 +54,7 @@ public class CrewServiceImpl implements CrewService {
     private final CrewEntityMapper crewEntityMapper;
     private final S3ImageService s3ImageService;
     private final CourseRepository courseRepository;
+    private final MemberRepository memberRepository;
 
     @Override
     public List<Crew> getCrewByCourse(Course course) {
@@ -237,5 +240,36 @@ public class CrewServiceImpl implements CrewService {
         }
         CrewScheduleApply crewScheduleApply = crewScheduleApplyRepository.save(crewEntityMapper.toCrewScheduleApply(crewSchedule, crewMember));
         return new CrewResponse.CrewScheduleApplyIdResponse(crewScheduleApply.getId());
+    }
+    @Override
+    @Transactional
+    public void updateCrewMemberStatus(Member currentUser, Long memberId, String status) {
+
+        Member applyMember = memberRepository.findById(memberId).orElseThrow(()-> new CustomException(MemberErrorCode.NOT_FOUND));
+        Crew crew = crewRepository.findByLeader(currentUser).orElseThrow(()->new CustomException(CrewErrorCode.NOT_FOUND));
+        CrewMember crewMember = crewMemberRepository.findByCrewAndMember(crew,applyMember)
+                .orElseThrow(() -> new CustomException(CrewErrorCode.NOAPPLY_CREW));
+
+        if(crewMember.getStatus().equals(Status.COMPLETE) || crewMember.getStatus().equals(Status.REJECT)){
+            throw new CustomException(CrewErrorCode.ALREADY_EXISTS);
+        }
+
+        // 현재 사용자가 해당 크루의 리더인지 확인하는 로직
+        validateCrewLeader(currentUser, crewMember);
+
+        try {
+            Status newStatus = Status.valueOf(status.toUpperCase());
+            crewMember.updateStatus(newStatus);
+            if(newStatus.equals(Status.COMPLETE)){
+                crewMember.getCrew().increaseMemberCount();
+            }
+        } catch (IllegalArgumentException e) {
+            throw new CustomException(CrewErrorCode.INVALID_INPUT_VALUE);
+        }
+    }
+    private void validateCrewLeader(Member currentUser, CrewMember crewMember) {
+        if (!crewMember.getCrew().getLeader().getId().equals(currentUser.getId())) {
+            throw new CustomException(CrewErrorCode.FORBIDDEN_ACCESS);
+        }
     }
 }
