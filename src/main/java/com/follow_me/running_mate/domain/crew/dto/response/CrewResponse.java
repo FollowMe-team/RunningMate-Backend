@@ -74,6 +74,17 @@ public class CrewResponse {
         private List<CrewLocationInfo> crewLocationInfos;
         private CourseResponse.MyCourseListResponse crewCourses;
     }
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class UpdateCrewResponse {
+        private Long id;
+        private String name;
+        private String detailDescription;
+        private String profileImageUrl;
+        private List<CrewActivityTime> crewActivityTimeList;
+    }
 
     @Getter
     @Builder

@@ -8,4 +8,6 @@ import java.util.List;
 
 public interface CrewActivityTimeRepository extends JpaRepository<CrewActivityTime,Long> {
     List<CrewActivityTime> findAllByCrew(Crew crew);
+
+    void deleteByCrew(Crew crew);
 }

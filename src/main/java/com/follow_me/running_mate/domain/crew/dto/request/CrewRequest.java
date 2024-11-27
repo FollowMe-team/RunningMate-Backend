@@ -12,6 +12,7 @@ import java.util.List;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @AllArgsConstructor
@@ -60,6 +61,27 @@ public class CrewRequest {
 
         @Min(value = 1, message = "최소 1명 이상의 인원이 필요합니다.")
         private Integer memberMax;
+    }
+
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UpdateCrewRequest {
+
+        @NotBlank(message = "크루명을 입력해주세요.")
+        private String name;
+
+        @NotBlank(message = "간단한 크루 소개를 입력해주세요.")
+        private String shortDescription;
+
+        @NotBlank(message = "크루 상세 소개를 입력해주세요.")
+        private String detailDescription;
+
+        @NotBlank(message = "오픈채팅방 링크를 입력해주세요.")
+        private String openChatUrl;
+
+        @Size(min = 1, message = "최소 1개의 활동 시간을 입력해주세요.")
+        private List<ActivityTime> activityTimes;
     }
 }
 

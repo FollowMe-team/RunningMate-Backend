@@ -59,5 +59,11 @@ public class Crew extends BaseEntity {
     public void decreaseMemberCount() {
         this.memberCount--;
     }
+    public void update(String name, String shortDescription, String detailDescription, String openChatUrl) {
+        this.name = name;
+        this.shortDescription = shortDescription;
+        this.detailDescription = detailDescription;
+        this.openChatUrl = openChatUrl;
+    }
     //TODO: 크루 조건 엔티티에 추가하기
 }

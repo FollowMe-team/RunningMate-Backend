@@ -144,4 +144,17 @@ public class CrewController {
         crewService.updateCrewMemberStatus(principalDetails.member(), memberId, status);
         return BaseResponse.success("크루 신청 상태가 성공적으로 업데이트되었습니다.", null);
     }
+
+    @PatchMapping("/{crewId}/modify")
+    @Operation(summary = "크루 수정 API", description = "크루장이 본인의 크루를 수정합니다.")
+    @ApiResponse(responseCode = "200", description = "크루 수정 성공")
+    public BaseResponse<CrewResponse.UpdateCrewResponse> updateCrew(
+            @AuthenticationPrincipal PrincipalDetails principalDetails,
+            @PathVariable(value = "crewId") Long crewId,
+            @RequestBody @Valid CrewRequest.UpdateCrewRequest request
+    ) {
+
+        return BaseResponse.success("크루 수정에 성공했습니다.", crewService.updateCrew(principalDetails.member(), crewId, request));
+        //TODO: 닉네임 중복 확인 마이프로필과 동일하게 해야할지 고민
+    }
 }
