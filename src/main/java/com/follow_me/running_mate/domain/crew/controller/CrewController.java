@@ -167,4 +167,15 @@ public class CrewController {
     ) {
         return BaseResponse.success("즐겨찾기 코스를 성공적으로 조회했습니다.", crewService.getFavoriteCourses(crewId));
     }
+    @PostMapping("{crewId}/courses/{courseId}/favorite")
+    @Operation(summary = "크루 코스 즐겨찾기 추가 API", description = "특정 크루의 즐겨찾기 코스에 추가합니다.")
+    @ApiResponse(responseCode = "200", description = "즐겨찾기 추가 성공",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
+    public BaseResponse<CrewResponse.CrewCourseIdResponse> addFavoriteCourse(
+            @AuthenticationPrincipal PrincipalDetails principalDetails,
+            @PathVariable(value = "crewId") Long crewId,
+            @PathVariable(value = "courseId") Long courseId
+    ) {
+        return BaseResponse.success("코스가 즐겨찾기에 추가되었습니다.", crewService.addFavoriteCourse(principalDetails.member(),crewId, courseId));
+    }
 }

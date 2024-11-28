@@ -20,7 +20,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import com.follow_me.running_mate.domain.enums.ActivityTimeType;
 import com.follow_me.running_mate.domain.enums.CrewScheduleApplyStatus;
 import com.follow_me.running_mate.domain.enums.Status;
 import com.follow_me.running_mate.domain.member.dto.response.MemberResponse;
@@ -225,8 +224,8 @@ public class CrewServiceImpl implements CrewService {
         CrewMember crewMember = crewMemberRepository.findByCrewAndMember(crewSchedule.getCrew(), member)
                 .orElseThrow(() -> new CustomException(CrewErrorCode.FORBIDDEN_ACCESS));
 
-        if(!crewMember.getStatus().equals(Status.COMPLETE)){
-            throw  new CustomException(CrewErrorCode.FORBIDDEN_ACCESS);
+        if (!crewMember.getStatus().equals(Status.COMPLETE)) {
+            throw new CustomException(CrewErrorCode.FORBIDDEN_ACCESS);
         }
 
         // 일정 최대 인원 초과 여부 확인
@@ -242,16 +241,17 @@ public class CrewServiceImpl implements CrewService {
         CrewScheduleApply crewScheduleApply = crewScheduleApplyRepository.save(crewEntityMapper.toCrewScheduleApply(crewSchedule, crewMember));
         return new CrewResponse.CrewScheduleApplyIdResponse(crewScheduleApply.getId());
     }
+
     @Override
     @Transactional
     public void updateCrewMemberStatus(Member currentUser, Long memberId, String status) {
 
-        Member applyMember = memberRepository.findById(memberId).orElseThrow(()-> new CustomException(MemberErrorCode.NOT_FOUND));
-        Crew crew = crewRepository.findByLeader(currentUser).orElseThrow(()->new CustomException(CrewErrorCode.NOT_FOUND));
-        CrewMember crewMember = crewMemberRepository.findByCrewAndMember(crew,applyMember)
+        Member applyMember = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(MemberErrorCode.NOT_FOUND));
+        Crew crew = crewRepository.findByLeader(currentUser).orElseThrow(() -> new CustomException(CrewErrorCode.NOT_FOUND));
+        CrewMember crewMember = crewMemberRepository.findByCrewAndMember(crew, applyMember)
                 .orElseThrow(() -> new CustomException(CrewErrorCode.NOAPPLY_CREW));
 
-        if(crewMember.getStatus().equals(Status.COMPLETE) || crewMember.getStatus().equals(Status.REJECT)){
+        if (crewMember.getStatus().equals(Status.COMPLETE) || crewMember.getStatus().equals(Status.REJECT)) {
             throw new CustomException(CrewErrorCode.ALREADY_EXISTS);
         }
 
@@ -261,13 +261,14 @@ public class CrewServiceImpl implements CrewService {
         try {
             Status newStatus = Status.valueOf(status.toUpperCase());
             crewMember.updateStatus(newStatus);
-            if(newStatus.equals(Status.COMPLETE)){
+            if (newStatus.equals(Status.COMPLETE)) {
                 crewMember.getCrew().increaseMemberCount();
             }
         } catch (IllegalArgumentException e) {
             throw new CustomException(CrewErrorCode.INVALID_INPUT_VALUE);
         }
     }
+
     private void validateCrewLeader(Member currentUser, CrewMember crewMember) {
         if (!crewMember.getCrew().getLeader().getId().equals(currentUser.getId())) {
             throw new CustomException(CrewErrorCode.FORBIDDEN_ACCESS);
@@ -288,8 +289,32 @@ public class CrewServiceImpl implements CrewService {
                         courseOptionService.getCourseOptions(course.getCourse()),
                         coursePointService.getCoursePoints(course.getCourse())
                 )).toList();
-        return new CrewResponse.CrewCourseListResponse(crewId,courses);
+        return new CrewResponse.CrewCourseListResponse(crewId, courses);
 
+    }
+
+    @Override
+    @Transactional
+    public CrewResponse.CrewCourseIdResponse addFavoriteCourse(Member member, Long crewId, Long courseId) {
+        // 크루 존재 확인
+        Crew crew = crewRepository.getCrew(crewId);
+        if (!member.getId().equals(crew.getLeader().getId())) {
+            throw new CustomException(CrewErrorCode.FORBIDDEN_ACCESS);
+        }
+        // 코스 존재 확인
+        Course course = courseRepository.getCourse(courseId);
+
+        // 이미 즐겨찾기된 코스인지 확인
+        if (crewCourseRepository.existsByCrewIdAndCourseId(crewId, courseId)) {
+            throw new CustomException(CrewErrorCode.DUPLICATE_RESOURCE);
+        }
+
+        // 즐겨찾기 추가
+        CrewCourse crewCourse = CrewCourse.builder()
+                .crew(crew)
+                .course(course)
+                .build();
+        return new CrewResponse.CrewCourseIdResponse(crewCourseRepository.save(crewCourse).getId());
     }
 
     @Override
@@ -309,8 +334,8 @@ public class CrewServiceImpl implements CrewService {
         crewActivityTimeRepository.deleteByCrew(crew);
 
 
-        List<CrewActivityTime> crewActivityTimeList = crewActivityTimeRepository.saveAll(crewEntityMapper.toCrewActivityTimes(crew,request.getActivityTimes()));
-        return crewResponseMapper.toUpdateCrewInfo(crew,crewActivityTimeList);
+        List<CrewActivityTime> crewActivityTimeList = crewActivityTimeRepository.saveAll(crewEntityMapper.toCrewActivityTimes(crew, request.getActivityTimes()));
+        return crewResponseMapper.toUpdateCrewInfo(crew, crewActivityTimeList);
 
 //        // 기존 ActivityTime 조회
 //        List<CrewActivityTime> existingActivityTimes = crewActivityTimeRepository.findByCrew(crew);

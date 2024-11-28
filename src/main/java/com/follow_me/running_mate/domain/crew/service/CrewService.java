@@ -43,4 +43,5 @@ public interface CrewService {
     void updateCrewMemberStatus(Member currentUser, Long memberId, String status);
     CrewResponse.UpdateCrewResponse updateCrew(Member member, Long crewId, CrewRequest.UpdateCrewRequest request);
     CrewResponse.CrewCourseListResponse getFavoriteCourses(Long crewId);
+    CrewResponse.CrewCourseIdResponse addFavoriteCourse(Member member,Long crewId ,Long courseId);
 }

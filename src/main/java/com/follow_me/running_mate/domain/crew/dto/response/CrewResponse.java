@@ -26,6 +26,11 @@ public class CrewResponse {
     }
     @Getter
     @AllArgsConstructor
+    public static class CrewCourseIdResponse {
+        private Long CrewCourseId;
+    }
+    @Getter
+    @AllArgsConstructor
     public static class CrewScheduleApplyIdResponse {
         private Long ScheduleApplyId;
     }

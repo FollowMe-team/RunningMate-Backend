@@ -13,7 +13,8 @@ public enum CrewErrorCode implements ResultCode {
     FORBIDDEN_ACCESS("CREW004", "해당 사용자에게 권한이 없습니다."),
     SCHEDULE_FULL("CREW005","인원을 초과했습니다." ),
     INVALID_INPUT_VALUE("CREW006","유효하지 않은 상태 값입니다." ),
-    NOAPPLY_CREW("CREW007", "해당 크루에 신청하지 않은 사용자입니다.");
+    NOAPPLY_CREW("CREW007", "해당 크루에 신청하지 않은 사용자입니다."),
+    DUPLICATE_RESOURCE("CREW008","이미 즐겨찾기된 코스입니다." );
     private final String code;
     private final String message;
 }
