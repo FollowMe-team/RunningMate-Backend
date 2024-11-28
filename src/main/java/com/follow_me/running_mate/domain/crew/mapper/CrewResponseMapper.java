@@ -2,10 +2,7 @@ package com.follow_me.running_mate.domain.crew.mapper;
 
 import com.follow_me.running_mate.domain.course.dto.response.CourseResponse;
 import com.follow_me.running_mate.domain.crew.dto.response.CrewResponse;
-import com.follow_me.running_mate.domain.crew.entity.Crew;
-import com.follow_me.running_mate.domain.crew.entity.CrewActivityTime;
-import com.follow_me.running_mate.domain.crew.entity.CrewLocation;
-import com.follow_me.running_mate.domain.crew.entity.CrewSchedule;
+import com.follow_me.running_mate.domain.crew.entity.*;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -87,5 +84,17 @@ public class CrewResponseMapper {
                 .memberMax(crewSchedules.getMemberMax())
                 .crewCourse(courseInfo)
                 .build();
+    }
+    public List<CrewResponse.CrewActivityImageResponse> toCrewActivityImages(
+            List<CrewImage> crewImages
+    ){
+        return crewImages.stream()
+                .map(crewImage ->
+                        CrewResponse.CrewActivityImageResponse.builder()
+                                .imageUrls(crewImage.getUrl())
+                                .CrewActivityId(crewImage.getId())
+                                .OrderNumber(crewImage.getOrderNumber())
+                                .build()
+                ) .toList();
     }
 }

@@ -19,6 +19,7 @@ import com.follow_me.running_mate.domain.crew.repository.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import com.follow_me.running_mate.domain.enums.CrewScheduleApplyStatus;
 import com.follow_me.running_mate.domain.enums.Status;
@@ -55,6 +56,7 @@ public class CrewServiceImpl implements CrewService {
     private final S3ImageService s3ImageService;
     private final CourseRepository courseRepository;
     private final MemberRepository memberRepository;
+    private final CrewImageRepository crewImageRepository;
 
     @Override
     public List<Crew> getCrewByCourse(Course course) {
@@ -315,6 +317,37 @@ public class CrewServiceImpl implements CrewService {
                 .course(course)
                 .build();
         return new CrewResponse.CrewCourseIdResponse(crewCourseRepository.save(crewCourse).getId());
+    }
+    @Override
+    @Transactional
+    public CrewResponse.ActivityImageListResponse uploadCrewImages(Long crewId, List<MultipartFile> images,Member member) {
+        // 크루 존재 확인
+        Crew crew = crewRepository.getCrew(crewId);
+        if (!crew.getLeader().getId().equals(member.getId())) {
+            throw new CustomException(CrewErrorCode.FORBIDDEN_ACCESS);
+        }
+        int currentImageCount = crewImageRepository.countByCrew(crew);
+
+        List<CrewImage> crewImages = saveImages(crew,images,currentImageCount+1);
+
+        return new CrewResponse.ActivityImageListResponse(crewResponseMapper.toCrewActivityImages(crewImages));
+    }
+
+    @Override
+    @Transactional
+    public List<CrewImage> saveImages(
+            Crew crew, List<MultipartFile> images, Integer orderNumber
+            ) {
+        AtomicInteger index = new AtomicInteger(orderNumber);
+        return images.stream()
+                .map(s3ImageService::upload)
+                .map(url -> CrewImage.builder()
+                        .crew(crew)
+                        .url(url)
+                        .orderNumber(index.getAndIncrement())
+                        .build())
+                .map(crewImageRepository::save)
+                .toList();
     }
 
     @Override

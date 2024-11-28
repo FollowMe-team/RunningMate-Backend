@@ -1,7 +1,6 @@
 package com.follow_me.running_mate.domain.crew.controller;
 
 import com.follow_me.running_mate.config.security.auth.PrincipalDetails;
-import com.follow_me.running_mate.domain.course.dto.response.CourseResponse;
 import com.follow_me.running_mate.domain.crew.dto.request.CrewRequest;
 import com.follow_me.running_mate.domain.crew.dto.response.CrewResponse;
 import com.follow_me.running_mate.domain.crew.service.CrewService;
@@ -177,5 +176,17 @@ public class CrewController {
             @PathVariable(value = "courseId") Long courseId
     ) {
         return BaseResponse.success("코스가 즐겨찾기에 추가되었습니다.", crewService.addFavoriteCourse(principalDetails.member(),crewId, courseId));
+    }
+
+    @PostMapping("/{crewId}/img")
+    @Operation(summary = "크루 활동 사진 업로드 API", description = "크루의 활동 사진을 여러 장 업로드합니다.")
+    @ApiResponse(responseCode = "200", description = "이미지 업로드 성공",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
+    public BaseResponse<CrewResponse.ActivityImageListResponse> uploadCrewImages(
+            @AuthenticationPrincipal PrincipalDetails principalDetails,
+            @PathVariable(value = "crewId") Long crewId,
+            @RequestPart(value = "activityImages" ) List<MultipartFile> activityImages
+    ) {
+        return BaseResponse.success("이미지 업로드가 완료되었습니다.",crewService.uploadCrewImages(crewId, activityImages,principalDetails.member()));
     }
 }

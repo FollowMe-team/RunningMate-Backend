@@ -6,8 +6,8 @@ import com.follow_me.running_mate.domain.crew.dto.request.CrewRequest;
 import com.follow_me.running_mate.domain.crew.dto.response.CrewResponse;
 import com.follow_me.running_mate.domain.crew.entity.Crew;
 import com.follow_me.running_mate.domain.crew.entity.CrewActivityTime;
+import com.follow_me.running_mate.domain.crew.entity.CrewImage;
 import com.follow_me.running_mate.domain.crew.entity.CrewLocation;
-import com.follow_me.running_mate.domain.enums.Status;
 import com.follow_me.running_mate.domain.member.dto.response.MemberResponse;
 import com.follow_me.running_mate.domain.member.entity.Member;
 import org.springframework.web.multipart.MultipartFile;
@@ -44,4 +44,6 @@ public interface CrewService {
     CrewResponse.UpdateCrewResponse updateCrew(Member member, Long crewId, CrewRequest.UpdateCrewRequest request);
     CrewResponse.CrewCourseListResponse getFavoriteCourses(Long crewId);
     CrewResponse.CrewCourseIdResponse addFavoriteCourse(Member member,Long crewId ,Long courseId);
+    CrewResponse.ActivityImageListResponse uploadCrewImages(Long crewId, List<MultipartFile> images,Member member);
+    List<CrewImage> saveImages(Crew crew, List<MultipartFile> images,Integer orderNumber);
 }
