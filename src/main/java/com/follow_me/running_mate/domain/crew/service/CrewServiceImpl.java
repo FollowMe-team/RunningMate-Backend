@@ -96,11 +96,11 @@ public class CrewServiceImpl implements CrewService {
 
     @Override
     @Transactional(readOnly = true)
-    public CourseResponse.MyCourseListResponse getCrewCourses(Crew crew) {
+    public CourseResponse.CourseListResponse getCrewCourses(Crew crew) {
 
         List<Course> myCourses = crewCourseRepository.findTop3CoursesByCrewOrderByCreatedAtDesc(crew);
 
-        List<CourseResponse.MyCourseInfo> courses = myCourses.stream().map(course ->
+        List<CourseResponse.SummaryInfo> courses = myCourses.stream().map(course ->
                 courseResponseMapper.toCrewCourseInfo(
                         course,
                         courseReviewService.getAverageRating(course),
@@ -109,7 +109,7 @@ public class CrewServiceImpl implements CrewService {
                         coursePointService.getCoursePoints(course)
                 )).toList();
 
-        return new CourseResponse.MyCourseListResponse(courses);
+        return new CourseResponse.CourseListResponse(courses);
     }
 
     @Override
@@ -135,15 +135,15 @@ public class CrewServiceImpl implements CrewService {
 
     @Override
     @Transactional(readOnly = true)
-    public CourseResponse.MyCourseListResponse getCrewScheduleCourses(Course course) {
+    public CourseResponse.CourseListResponse getCrewScheduleCourses(Course course) {
 
-        CourseResponse.MyCourseInfo courseInfo = courseResponseMapper.toCrewCourseInfo(
+        CourseResponse.SummaryInfo courseInfo = courseResponseMapper.toCrewCourseInfo(
                 course,
                 courseReviewService.getAverageRating(course),
                 course.getRunningCount(),
                 courseOptionService.getCourseOptions(course),
                 coursePointService.getCoursePoints(course));
-        return new CourseResponse.MyCourseListResponse(List.of(courseInfo));
+        return new CourseResponse.CourseListResponse(List.of(courseInfo));
     }
 
     @Override
@@ -339,4 +339,5 @@ public class CrewServiceImpl implements CrewService {
 //        crewActivityTimeRepository.saveAll(toUpdate);
 //        crewActivityTimeRepository.saveAll(toAdd);
     }
+
 }

@@ -144,7 +144,6 @@ public class MemberController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
     })
     public BaseResponse<MemberResponse.MyProfileResponse> getOtherProfile(
-            @AuthenticationPrincipal PrincipalDetails principalDetails,
             @PathVariable String email) {
 
         // 로그인한 사용자의 프로필 정보와 상대방 프로필 정보를 조회

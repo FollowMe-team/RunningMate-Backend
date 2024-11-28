@@ -29,7 +29,7 @@ public class CrewResponseMapper {
             Crew crew,
             List<CrewActivityTime> crewActivityTimes,
             List<CrewLocation> crewLocations,
-            CourseResponse.MyCourseListResponse myCourseListResponse
+            CourseResponse.CourseListResponse myCourseListResponse
     ) {
         return CrewResponse.CrewDetailResponse.builder()
                 .id(crew.getId())
@@ -77,7 +77,7 @@ public class CrewResponseMapper {
 
     public CrewResponse.CrewScheduleInfo toCrewScheduleInfo(
             CrewSchedule crewSchedules,
-            CourseResponse.MyCourseListResponse courseInfo
+            CourseResponse.CourseListResponse courseInfo
     ) {
         return CrewResponse.CrewScheduleInfo.builder()
                 .id(crewSchedules.getId())

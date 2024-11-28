@@ -26,11 +26,11 @@ public interface CrewService {
 
     List<CrewLocation> getCrewLocationInfo(Crew crew);
 
-    CourseResponse.MyCourseListResponse getCrewCourses(Crew crew);
+    CourseResponse.CourseListResponse getCrewCourses(Crew crew);
 
     CrewResponse.CrewScheduleListResponse getCrewScheduleByDate(Long crewId, LocalDate date);
 
-    CourseResponse.MyCourseListResponse getCrewScheduleCourses(Course course);
+    CourseResponse.CourseListResponse getCrewScheduleCourses(Course course);
 
     List<MemberResponse.FollowResponse> getMembersBySchedule(Long scheduleId);
 

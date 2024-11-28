@@ -47,7 +47,7 @@ public class MemberMapper {
                 .nickname(member.getNickname())
                 .gender(member.getGender())
                 .birth(member.getBirth())
-                .build(); //TODO: 주소 데이터 추가하기
+                .build();
     }
     // MemberBadge 리스트를 BadgeResponse 리스트로 변환
     public List<MemberResponse.BadgeResponse> toBadgeResponseList(List<MemberBadge> memberBadges) {

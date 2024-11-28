@@ -61,14 +61,14 @@ public class CourseResponseMapper {
             .build();
     }
     //크루 관련 코스 정보를 가져올때
-    public CourseResponse.MyCourseInfo toCrewCourseInfo(
+    public CourseResponse.SummaryInfo toCrewCourseInfo(
             Course course,
             Double rating,
             Integer runningCount,
             List<CourseOption> courseOptions,
             List<CoursePoint> coursePointInfos
     ) {
-        return CourseResponse.MyCourseInfo.builder()
+        return CourseResponse.SummaryInfo.builder()
                 .id(course.getId())
                 .name(course.getName())
                 .description(course.getDescription())
@@ -76,7 +76,6 @@ public class CourseResponseMapper {
                 .distance(course.getDistance())
                 .duration(FormatterUtil.formatDuration(course.getDuration()))
                 .difficulty(course.getDifficulty())
-                .status(course.getStatus())
                 .rating(FormatterUtil.formatRating(rating))
                 .runningCount(runningCount)
                 .courseOptionTypes(toCourseOptionTypes(courseOptions))

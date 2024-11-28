@@ -72,7 +72,7 @@ public class CrewResponse {
         private String profileImageUrl;
         private List<CrewActivityTime> crewActivityTimeList;
         private List<CrewLocationInfo> crewLocationInfos;
-        private CourseResponse.MyCourseListResponse crewCourses;
+        private CourseResponse.CourseListResponse crewCourses;
     }
     @Getter
     @Builder
@@ -125,7 +125,7 @@ public class CrewResponse {
         private LocalDateTime endTime;
         private Integer memberCount;
         private Integer memberMax;
-        private CourseResponse.MyCourseListResponse crewCourse;
+        private CourseResponse.CourseListResponse crewCourse;
     }
 
     @Getter
