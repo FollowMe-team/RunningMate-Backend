@@ -275,6 +275,24 @@ public class CrewServiceImpl implements CrewService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public CrewResponse.CrewCourseListResponse getFavoriteCourses(Long crewId) {
+        Crew crew = crewRepository.getCrew(crewId);
+        // CrewCourse 목록 조회
+        List<CrewCourse> crewCourses = crewCourseRepository.findByCrew(crew);
+        List<CourseResponse.SummaryInfo> courses = crewCourses.stream().map(course ->
+                courseResponseMapper.toCrewCourseInfo(
+                        course.getCourse(),
+                        courseReviewService.getAverageRating(course.getCourse()),
+                        course.getCourse().getRunningCount(),
+                        courseOptionService.getCourseOptions(course.getCourse()),
+                        coursePointService.getCoursePoints(course.getCourse())
+                )).toList();
+        return new CrewResponse.CrewCourseListResponse(crewId,courses);
+
+    }
+
+    @Override
     @Transactional
     public CrewResponse.UpdateCrewResponse updateCrew(Member member, Long crewId, CrewRequest.UpdateCrewRequest request) {
         // 크루 조회

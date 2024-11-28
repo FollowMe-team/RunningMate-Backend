@@ -157,4 +157,14 @@ public class CrewController {
         return BaseResponse.success("크루 수정에 성공했습니다.", crewService.updateCrew(principalDetails.member(), crewId, request));
         //TODO: 닉네임 중복 확인 마이프로필과 동일하게 해야할지 고민
     }
+
+    @GetMapping("/{crewId}/favorite")
+    @Operation(summary = "크루 즐겨찾기 코스 조회 API", description = "특정 크루의 즐겨찾기 코스를 조회합니다.")
+    @ApiResponse(responseCode = "200", description = "즐겨찾기 코스 조회 성공",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
+    public BaseResponse<CrewResponse.CrewCourseListResponse> getFavoriteCourses(
+            @PathVariable(value = "crewId") Long crewId
+    ) {
+        return BaseResponse.success("즐겨찾기 코스를 성공적으로 조회했습니다.", crewService.getFavoriteCourses(crewId));
+    }
 }

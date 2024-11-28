@@ -50,6 +50,12 @@ public class CrewResponse {
         List<MyCrewResponse> myCrews;
         List<MyCrewResponse> recommendedCrews;
     }
+    @Getter
+    @AllArgsConstructor
+    public static class CrewCourseListResponse {
+        private Long crewId;
+        private List<CourseResponse.SummaryInfo> courses;
+    }
 
     @Getter
     @Builder
