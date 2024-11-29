@@ -2,7 +2,6 @@ package com.follow_me.running_mate.domain.member.service;
 
 import com.follow_me.running_mate.domain.course.dto.response.CourseResponse;
 import com.follow_me.running_mate.domain.course.service.record.CourseRecordService;
-import com.follow_me.running_mate.domain.enums.BadgeType;
 import com.follow_me.running_mate.domain.member.dto.request.MemberRequest;
 import com.follow_me.running_mate.domain.member.dto.response.MemberResponse;
 import com.follow_me.running_mate.domain.member.entity.Member;
@@ -12,13 +11,11 @@ import com.follow_me.running_mate.domain.member.exception.MemberErrorCode;
 import com.follow_me.running_mate.domain.member.mapper.MemberMapper;
 import com.follow_me.running_mate.domain.member.repository.MemberBadgeRepository;
 import com.follow_me.running_mate.domain.member.repository.MemberFollowRepository;
+import com.follow_me.running_mate.domain.member.repository.MemberLocationRepository;
 import com.follow_me.running_mate.domain.member.repository.MemberRepository;
 import com.follow_me.running_mate.domain.token.repository.TokenRepository;
 import com.follow_me.running_mate.global.error.code.CommonErrorCode;
 import com.follow_me.running_mate.global.error.exception.CustomException;
-import java.util.Arrays;
-import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -39,12 +36,18 @@ public class MemberServiceImpl implements MemberService {
     private final CourseRecordService courseRecordService;
 
     private final MemberFollowRepository memberFollowRepository;
+    private final MemberLocationRepository memberLocationRepository;
 
     @Override
     public String signup(MemberRequest.SignUpRequest request) {
 
-        Member member = memberMapper.toEntity(request, passwordEncoder.encode(request.getPassword()));
-        return memberRepository.save(member).getEmail();
+        Member savedMember = memberRepository.save(
+            memberMapper.toEntity(request, passwordEncoder.encode(request.getPassword()))
+        );
+
+        memberLocationRepository.save(memberMapper.toMemberLocation(request.getLocationInfo(), savedMember));
+
+        return savedMember.getEmail();
     }
 
     @Override

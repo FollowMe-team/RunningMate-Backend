@@ -1,5 +1,6 @@
 package com.follow_me.running_mate.domain.member.dto.request;
 
+import com.follow_me.running_mate.domain.course.dto.request.CourseRequest;
 import com.follow_me.running_mate.domain.enums.Gender;
 import com.follow_me.running_mate.domain.enums.RunningCareer;
 import com.follow_me.running_mate.domain.member.validation.annotation.UniqueEmail;
@@ -48,6 +49,11 @@ public class MemberRequest {
         @Size(min = 2, max = 10, message = "닉네임은 2자 이상 10자 이하여야 합니다.")
         @UniqueNickname
         private String nickname;
+
+        private String introduce;
+
+        @NotNull(message = "주소는 필수입니다.")
+        private LocationInfo locationInfo;
 
         @NotNull(message = "러닝 경력은 필수입니다.")
         private RunningCareer runningCareer;
@@ -99,5 +105,13 @@ public class MemberRequest {
         @NotBlank(message = "확인용 비밀번호는 필수 입력 항목입니다.")
         private String confirmPassword;
 
+    }
+
+    @Getter
+    @AllArgsConstructor
+    public static class LocationInfo implements CourseRequest.GeoPoint {
+        private Double latitude;
+        private Double longitude;
+        private String address;
     }
 }

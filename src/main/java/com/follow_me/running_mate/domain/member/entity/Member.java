@@ -85,6 +85,8 @@ public class Member extends BaseEntity {
     @Builder.Default
     private Long footprint = 500L;
 
+    private String introduce;
+
     // 팔로워 수 증가
     public void incrementFollowerCount() {
         this.followerCount++;

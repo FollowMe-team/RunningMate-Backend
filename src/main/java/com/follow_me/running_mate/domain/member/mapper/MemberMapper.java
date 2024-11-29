@@ -7,6 +7,8 @@ import com.follow_me.running_mate.domain.member.dto.request.MemberRequest;
 import com.follow_me.running_mate.domain.member.dto.response.MemberResponse;
 import com.follow_me.running_mate.domain.member.entity.Member;
 import com.follow_me.running_mate.domain.member.entity.MemberBadge;
+import com.follow_me.running_mate.domain.member.entity.MemberLocation;
+import com.follow_me.running_mate.global.common.util.FormatterUtil;
 import java.util.Arrays;
 import java.util.Set;
 import org.springframework.stereotype.Component;
@@ -25,9 +27,18 @@ public class MemberMapper {
             .gender(request.getGender())
             .birth(request.getBirth())
             .nickname(request.getNickname())
+            .introduce(request.getIntroduce())
             .runningCareer(request.getRunningCareer())
             .role(Role.USER)
             .ranking(Ranking.JOGGER)
+            .build();
+    }
+
+    public MemberLocation toMemberLocation(MemberRequest.LocationInfo locationInfo, Member member) {
+        return MemberLocation.builder()
+            .member(member)
+            .address(locationInfo.getAddress())
+            .location(FormatterUtil.formatPoint(locationInfo))
             .build();
     }
 
