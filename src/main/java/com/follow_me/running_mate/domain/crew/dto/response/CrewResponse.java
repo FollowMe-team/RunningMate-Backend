@@ -152,6 +152,17 @@ public class CrewResponse {
         private Integer memberMax;
         private CourseResponse.CourseListResponse crewCourse;
     }
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class UpdateCrewSchedule {
+        private Long scheduleId;
+        private Long courseId;
+        private LocalDateTime startTime;
+        private LocalDateTime endTime;
+        private Integer memberMax;
+    }
 
     @Getter
     @Builder

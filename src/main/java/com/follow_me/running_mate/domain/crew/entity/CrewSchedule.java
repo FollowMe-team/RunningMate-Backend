@@ -53,4 +53,20 @@ public class CrewSchedule extends BaseEntity {
     public void increaseMemberCount() {
         this.memberCount++;
     }
+
+    public void setCourse(Course course) {
+        this.course = course;
+    }
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public void setEndTime(LocalDateTime endTime) {
+        this.endTime = endTime;
+    }
+
+    public void setMemberMax(Integer memberMax) {
+        this.memberMax = memberMax;
+    }
 }

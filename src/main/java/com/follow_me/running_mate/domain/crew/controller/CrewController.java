@@ -190,4 +190,16 @@ public class CrewController {
         return BaseResponse.success("이미지 업로드가 완료되었습니다.",crewService.uploadCrewImages(crewId, activityImages,principalDetails.member()));
     }
     //TODO: 크루 활동 사진 순서에 맞춰서 수정 메소드 짜기
+
+    @PatchMapping("/{crewId}/schedule/{scheduleId}")
+    @Operation(summary = "크루 일정 수정 API", description = "크루의 일정을 수정합니다.")
+    @ApiResponse(responseCode = "200", description = "일정 수정 성공")
+    public BaseResponse<CrewResponse.UpdateCrewSchedule> updateCrewSchedule(
+            @AuthenticationPrincipal PrincipalDetails principalDetails,
+            @PathVariable(value = "crewId") Long crewId,
+            @PathVariable(value = "scheduleId") Long scheduleId,
+            @RequestBody @Valid CrewRequest.createSchedule request
+    ) {
+        return BaseResponse.success("일정이 성공적으로 수정되었습니다.",crewService.updateSchedule(principalDetails.member(),crewId, scheduleId, request));
+    }
 }

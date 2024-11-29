@@ -350,6 +350,25 @@ public class CrewServiceImpl implements CrewService {
                 .map(crewImageRepository::save)
                 .toList();
     }
+    @Override
+    @Transactional
+    public CrewResponse.UpdateCrewSchedule updateSchedule(Member member,Long crewId, Long scheduleId, CrewRequest.createSchedule request) {
+        if(!member.getId().equals(crewRepository.getCrew(crewId).getLeader().getId())){
+            throw new CustomException(CrewErrorCode.FORBIDDEN_ACCESS);
+        }
+
+        CrewSchedule schedule = crewScheduleRepository.findById(scheduleId)
+                .orElseThrow(() -> new CustomException(CrewErrorCode.NOT_FOUND_SCHEDULE));
+
+        Course course = courseRepository.getCourse(request.getCourseId());
+
+        schedule.setCourse(course);
+        schedule.setStartTime(request.getStartTime());
+        schedule.setEndTime(request.getEndTime());
+        schedule.setMemberMax(request.getMemberMax());
+
+        return crewResponseMapper.toUpdateCrewSchedule(crewScheduleRepository.save(schedule));
+    }
 
     @Override
     @Transactional
