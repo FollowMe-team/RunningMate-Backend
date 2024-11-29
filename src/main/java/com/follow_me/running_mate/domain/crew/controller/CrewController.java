@@ -189,4 +189,5 @@ public class CrewController {
     ) {
         return BaseResponse.success("이미지 업로드가 완료되었습니다.",crewService.uploadCrewImages(crewId, activityImages,principalDetails.member()));
     }
+    //TODO: 크루 활동 사진 순서에 맞춰서 수정 메소드 짜기
 }

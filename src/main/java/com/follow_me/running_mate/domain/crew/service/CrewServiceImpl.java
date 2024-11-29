@@ -241,6 +241,7 @@ public class CrewServiceImpl implements CrewService {
             throw new CustomException(CrewErrorCode.ALREADY_EXISTS);
         }
         CrewScheduleApply crewScheduleApply = crewScheduleApplyRepository.save(crewEntityMapper.toCrewScheduleApply(crewSchedule, crewMember));
+        crewSchedule.increaseMemberCount();
         return new CrewResponse.CrewScheduleApplyIdResponse(crewScheduleApply.getId());
     }
 

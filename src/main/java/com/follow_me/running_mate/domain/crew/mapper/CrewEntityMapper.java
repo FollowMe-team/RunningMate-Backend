@@ -55,7 +55,7 @@ public class CrewEntityMapper {
         return CrewScheduleApply.builder()
                 .crewSchedule(crewSchedule)
                 .crewMember(crewMember)
-                .status(CrewScheduleApplyStatus.APPLY) // 상태를 신청으로 설정
+                .status(CrewScheduleApplyStatus.PARTICIPATE) // 상태를 참여로 설정
                 .build();
     }
 }
