@@ -138,7 +138,7 @@ public class CrewController {
     }
 
     @PatchMapping("/{memberId}")
-    @Operation(summary = "크루 신청 상태 업데이트 API", description = "크루 신청 상태를 수락하거나 거절합니다.")
+    @Operation(summary = "크루 신청 상태 업데이트 API", description = "크루 신청 상태를 수락하거나 거절합니다. , 크루 멤버 수정 가능")
     @ApiResponse(responseCode = "200", description = "상태 업데이트 성공",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
     public BaseResponse<Void> updateCrewMemberStatus(
@@ -250,4 +250,5 @@ public class CrewController {
         crewService.attendSchedule(principalDetails.member(), scheduleId, memberIds.getMemberIds());
         return BaseResponse.success("크루 일정 출석체크가 완료되었습니다.", null);
     }
+
 }

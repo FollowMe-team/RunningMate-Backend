@@ -263,10 +263,12 @@ public class CrewServiceImpl implements CrewService {
 
         try {
             Status newStatus = Status.valueOf(status.toUpperCase());
-            crewMember.updateStatus(newStatus);
             if (newStatus.equals(Status.COMPLETE)) {
                 crewMember.getCrew().increaseMemberCount();
+            } else if (crewMember.getStatus().equals(Status.COMPLETE) && newStatus.equals(Status.REJECT)) {
+                crewMember.getCrew().decreaseMemberCount();
             }
+            crewMember.updateStatus(newStatus);
         } catch (IllegalArgumentException e) {
             throw new CustomException(CrewErrorCode.INVALID_INPUT_VALUE);
         }
