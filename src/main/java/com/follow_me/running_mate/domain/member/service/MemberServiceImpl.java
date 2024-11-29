@@ -2,6 +2,7 @@ package com.follow_me.running_mate.domain.member.service;
 
 import com.follow_me.running_mate.domain.course.dto.response.CourseResponse;
 import com.follow_me.running_mate.domain.course.service.record.CourseRecordService;
+import com.follow_me.running_mate.domain.enums.BadgeType;
 import com.follow_me.running_mate.domain.member.dto.request.MemberRequest;
 import com.follow_me.running_mate.domain.member.dto.response.MemberResponse;
 import com.follow_me.running_mate.domain.member.entity.Member;
@@ -15,6 +16,9 @@ import com.follow_me.running_mate.domain.member.repository.MemberRepository;
 import com.follow_me.running_mate.domain.token.repository.TokenRepository;
 import com.follow_me.running_mate.global.error.code.CommonErrorCode;
 import com.follow_me.running_mate.global.error.exception.CustomException;
+import java.util.Arrays;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -114,25 +118,28 @@ public class MemberServiceImpl implements MemberService {
     //배지 조회
     @Override
     @Transactional(readOnly = true)
-    public List<MemberResponse.BadgeResponse> getMemberBadges(String email) {
-        // 이메일로 회원 조회
-        Member member = memberRepository.findByEmail(email)
-                .orElseThrow(() -> new CustomException(MemberErrorCode.NOT_FOUND)); // 회원이 없으면 예외 처리
+    public MemberResponse.BadgeListResponse getMemberBadges(Member member) {
 
         // 회원의 배지 목록 조회
         List<MemberBadge> memberBadges = memberBadgeRepository.findByMember(member);
-        return memberMapper.toBadgeResponseList(memberBadges);
+
+        return new MemberResponse.BadgeListResponse(
+                memberMapper.toBadgeResponses(memberBadges)
+        );
     }
+
     //닉네임 중복 확인
     @Override
     public boolean isNicknameDuplicate(String nickname) {
         return memberRepository.existsByNickname(nickname);
     }
+
     //이메일 중복 확인
     @Override
     public boolean isEmailDuplicate(String email) {
         return memberRepository.existsByEmail(email);
     }
+
     //상대방 프로필 조회
     @Override
     @Transactional(readOnly = true)

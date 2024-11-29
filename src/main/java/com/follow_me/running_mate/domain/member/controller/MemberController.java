@@ -24,7 +24,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/members")
 @RequiredArgsConstructor
-@Tag(name = "Profile", description = "마이 프로필 조회 API")
+@Tag(name = "Member", description = "마이 프로필 조회 API")
 public class MemberController {
 
     private final MemberService memberService;
@@ -93,9 +93,7 @@ public class MemberController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
     })
     public BaseResponse<MemberResponse.BadgeListResponse> getMemberBadges(@AuthenticationPrincipal PrincipalDetails principalDetails) {
-        List<MemberResponse.BadgeResponse> badges = memberService.getMemberBadges(principalDetails.getUsername());
-        MemberResponse.BadgeListResponse badgeListResponse = new MemberResponse.BadgeListResponse(badges);  // List를 BadgeListResponse로 감싸기
-        return BaseResponse.success("배지 조회에 성공했습니다.", badgeListResponse);  // 성공 응답으로 감싼 객체 반환
+        return BaseResponse.success("배지 조회에 성공했습니다.", memberService.getMemberBadges(principalDetails.member()));
     }
     @GetMapping("/check/nickname=")
     @Operation(summary = "닉네임 중복 확인 API", description = "입력된 닉네임이 중복되었는지 확인합니다. 존재시 true")

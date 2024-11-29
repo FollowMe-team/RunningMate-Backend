@@ -14,7 +14,6 @@ import java.util.List;
 
 public class MemberResponse {
 
-
     @Getter
     @Builder // 인자가 많아 생성자가 많이 필요할때 사용해 선택적으로 인자를 사용해 편하게 해주는 어노테이션
     @AllArgsConstructor // 모든 인자들을 포함하는 생성자 만들어주는 어노테이션
@@ -47,7 +46,8 @@ public class MemberResponse {
         private String name;
         private String description;
         private String iconUrl;
-        private String criteria;    // 배지를 획득한 기준
+        private String criteria;
+        private Boolean isAcquired;
     }
     @Getter
     @Builder
@@ -55,6 +55,7 @@ public class MemberResponse {
     public static class BadgeListResponse{
         private List<BadgeResponse> badges;
     }
+
     @Getter
     @Builder
     @AllArgsConstructor
@@ -63,12 +64,14 @@ public class MemberResponse {
         private String iconUrl;
         private Long footPrint;// 배지를 획득한 기준
     }
+
     @Getter
     @Builder
     @AllArgsConstructor
     public static class FollowListResponse{
         private List<FollowResponse> Follows;
     }
+
     @Getter
     @Builder
     @AllArgsConstructor
