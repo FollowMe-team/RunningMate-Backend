@@ -15,10 +15,9 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
-import com.follow_me.running_mate.domain.member.entity.MemberFollow;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -51,7 +50,7 @@ public class CourseRecordServiceImpl implements CourseRecordService {
         return new CourseResponse.CourseRecordIdResponse(courseRecord.getId());
     }
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public List<CourseResponse.CourseRecordInfo> getRecordsByDate(Member member, LocalDate date) {
         // 날짜의 시작과 끝을 설정
         LocalDateTime startOfDay = date.atStartOfDay();
@@ -64,5 +63,11 @@ public class CourseRecordServiceImpl implements CourseRecordService {
         return courseRecords.stream()
                 .map(CourseResponseMapper::toCourseRecordInfo) // CourseRecord -> CourserecordInfo 변환
                 .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<CourseRecord> getRecordsByMember(Member member) {
+        return courseRecordRepository.findAllByRunner(member);
     }
 }

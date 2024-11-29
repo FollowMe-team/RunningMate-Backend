@@ -62,6 +62,23 @@ public class MemberMapper {
             .build();
     }
 
+    public MemberResponse.OtherProfileResponse toOtherProfileResponse(
+        Member member, Double runningDistance, Long runningCount, Boolean isSameCrew
+    ) {
+        return MemberResponse.OtherProfileResponse.builder()
+            .profileImageUrl(member.getProfileImageUrl())
+            .nickname(member.getNickname())
+            .ranking(member.getRanking())
+            .introduce(member.getIntroduce())
+            .followerCount(FormatterUtil.formatMemberCount(member.getFollowerCount()))
+            .followingCount(FormatterUtil.formatMemberCount(member.getFollowingCount()))
+            .runningDistance(runningDistance)
+            .runningCount(runningCount)
+            .footPrint(member.getFootprint())
+            .isSameCrew(isSameCrew)
+            .build();
+    }
+
     public List<MemberResponse.BadgeResponse> toBadgeResponses(List<MemberBadge> memberBadges) {
         Set<BadgeType> acquiredBadges = memberBadges.stream()
                 .map(MemberBadge::getType)

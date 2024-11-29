@@ -22,7 +22,7 @@ public interface MemberService {
     MemberResponse.BadgeListResponse getMemberBadges(Member member);
     boolean isNicknameDuplicate(String nickname);
     boolean isEmailDuplicate(String email);
-    MemberResponse.MyProfileResponse getMemberProfileByEmail(String email);
+    MemberResponse.OtherProfileResponse getOtherProfile(Member member, Long memberId);
     List<CourseResponse.CourseRecordInfo> getMemberRunningRecords(Member member , LocalDate date);
     List<MemberResponse.FollowResponse> getFollowList(Member member);
     List<MemberResponse.FollowResponse> getFollowerList(Member member);

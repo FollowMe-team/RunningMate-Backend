@@ -36,6 +36,23 @@ public class MemberResponse {
     }
 
     @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class OtherProfileResponse {
+        private String profileImageUrl;
+        private String nickname;
+        private Ranking ranking;
+        private String introduce;
+        private String followerCount;
+        private String followingCount;
+        private Double runningDistance;
+        private Long runningCount;
+        private Long footPrint;
+        private Boolean isSameCrew;
+    }
+
+    @Getter
     @AllArgsConstructor
     public static class UpdateMyProfileResponse {
         private Long memberId;

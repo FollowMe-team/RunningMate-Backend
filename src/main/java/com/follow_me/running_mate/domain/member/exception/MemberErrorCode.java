@@ -13,6 +13,7 @@ public enum MemberErrorCode implements ResultCode {
     INCORRECT_CURRENT_PASSWORD("MEMBER003", "현재 비밀번호가 일치하지 않습니다."),
     SAME_AS_CURRENT_PASSWORD("MEMBER004", "새 비밀번호가 현재 비밀번호와 동일합니다."),
     PASSWORDS_DO_NOT_MATCH("MEMBER005", "입력한 비밀번호와 변경할 비밀번호가 일치하지 않습니다."),
+    INVALID_PROFILE_API("MEMBER006", "본인 프로필은 마이 프로필 조회 API를 통해 확인해주세요."),
     ;
 
     private final String code;

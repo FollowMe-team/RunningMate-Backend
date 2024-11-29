@@ -166,23 +166,36 @@ public class MemberServiceImpl implements MemberService {
         return memberRepository.existsByEmail(email);
     }
 
-    //상대방 프로필 조회
+    //타인 프로필 조회
     @Override
     @Transactional(readOnly = true)
-    public MemberResponse.MyProfileResponse getMemberProfileByEmail(String email) {
-        // 이메일로 회원 조회
-        Member member = memberRepository.findByEmail(email)
-                .orElseThrow(() -> new CustomException(MemberErrorCode.NOT_FOUND)); // 회원이 없으면 예외 처리
+    public MemberResponse.OtherProfileResponse getOtherProfile(Member member, Long memberId) {
 
-        // Member 엔티티를 MyProfileResponse DTO로 변환하여 반환
-        //TODO: Mapper를 따로 만들어 상대방이 볼 수 있는 정보를 분리하기
-        return memberMapper.toMyProfileResponse(member);
+        Member otherMember = memberRepository.getMember(memberId);
+
+        // 내 프로필 조회 시 예외 처리
+        if (otherMember.getId().equals(member.getId())) {
+            throw new CustomException(MemberErrorCode.INVALID_PROFILE_API);
+        }
+
+        List<CourseRecord> recordsByMember = courseRecordService.getRecordsByMember(otherMember);
+
+        // TODO: 같은 크루 소속 여부 체크
+
+        return memberMapper.toOtherProfileResponse(
+            otherMember,
+            calculateTotalDistance(recordsByMember),
+            (long) recordsByMember.size(),
+            false
+        );
     }
+
     @Override
     @Transactional(readOnly = true)
     public List<CourseResponse.CourseRecordInfo> getMemberRunningRecords(Member member, LocalDate date) {
         return courseRecordService.getRecordsByDate(member, date);
     }
+
     @Override
     @Transactional(readOnly = true)
     public List<MemberResponse.FollowResponse> getFollowList(Member member) {
@@ -192,6 +205,7 @@ public class MemberServiceImpl implements MemberService {
                 .map(memberMapper::toFollowResponse)
                 .toList();
     }
+
     @Override
     @Transactional(readOnly = true)
     public List<MemberResponse.FollowResponse> getFollowerList(Member member) {
@@ -201,6 +215,8 @@ public class MemberServiceImpl implements MemberService {
                 .map(memberMapper::toFollowResponse)
                 .toList();
     }
+
+    @Override
     @Transactional
     public void follow(Member member, Long targetMemberId) {
 
@@ -239,6 +255,7 @@ public class MemberServiceImpl implements MemberService {
         }
     }
 
+    @Override
     @Transactional
     public void unfollow(Member currentMember, Long targetMemberId) {
         // 자기 자신을 언팔로우하려는 경우 예외 처리
