@@ -321,9 +321,10 @@ public class CrewServiceImpl implements CrewService {
                 .build();
         return new CrewResponse.CrewCourseIdResponse(crewCourseRepository.save(crewCourse).getId());
     }
+
     @Override
     @Transactional
-    public CrewResponse.ActivityImageListResponse uploadCrewImages(Long crewId, List<MultipartFile> images,Member member) {
+    public CrewResponse.ActivityImageListResponse uploadCrewImages(Long crewId, List<MultipartFile> images, Member member) {
         // 크루 존재 확인
         Crew crew = crewRepository.getCrew(crewId);
         if (!crew.getLeader().getId().equals(member.getId())) {
@@ -331,7 +332,7 @@ public class CrewServiceImpl implements CrewService {
         }
         int currentImageCount = crewImageRepository.countByCrew(crew);
 
-        List<CrewImage> crewImages = saveImages(crew,images,currentImageCount+1);
+        List<CrewImage> crewImages = saveImages(crew, images, currentImageCount + 1);
 
         return new CrewResponse.ActivityImageListResponse(crewResponseMapper.toCrewActivityImages(crewImages));
     }
@@ -340,7 +341,7 @@ public class CrewServiceImpl implements CrewService {
     @Transactional
     public List<CrewImage> saveImages(
             Crew crew, List<MultipartFile> images, Integer orderNumber
-            ) {
+    ) {
         AtomicInteger index = new AtomicInteger(orderNumber);
         return images.stream()
                 .map(s3ImageService::upload)
@@ -352,10 +353,11 @@ public class CrewServiceImpl implements CrewService {
                 .map(crewImageRepository::save)
                 .toList();
     }
+
     @Override
     @Transactional
-    public CrewResponse.UpdateCrewSchedule updateSchedule(Member member,Long crewId, Long scheduleId, CrewRequest.createSchedule request) {
-        if(!member.getId().equals(crewRepository.getCrew(crewId).getLeader().getId())){
+    public CrewResponse.UpdateCrewSchedule updateSchedule(Member member, Long crewId, Long scheduleId, CrewRequest.createSchedule request) {
+        if (!member.getId().equals(crewRepository.getCrew(crewId).getLeader().getId())) {
             throw new CustomException(CrewErrorCode.FORBIDDEN_ACCESS);
         }
 
@@ -383,19 +385,20 @@ public class CrewServiceImpl implements CrewService {
                 .orElseThrow(() -> new CustomException(CrewErrorCode.FORBIDDEN_ACCESS));
         // 참여 신청 존재 여부 확인
         CrewScheduleApply crewScheduleApply = crewScheduleApplyRepository.findByCrewScheduleAndCrewMember(
-                        crewSchedule,crewMember)
+                        crewSchedule, crewMember)
                 .orElseThrow(() -> new CustomException(CrewErrorCode.APPLY_NOT_FOUND));
 
         crewScheduleApply.setStatus(CrewScheduleApplyStatus.CANCEL);
         crewSchedule.decreaseMemberCount();
         crewScheduleApply.delete();
     }
+
     @Override
     @Transactional
     public void attendSchedule(Member member, Long scheduleId, List<Long> memberIds) {
         CrewSchedule crewSchedule = crewScheduleRepository.findById(scheduleId)
                 .orElseThrow(() -> new CustomException(CrewErrorCode.NOT_FOUND_SCHEDULE));
-        if(member.getId().equals(crewSchedule.getCrew().getLeader().getId())){
+        if (member.getId().equals(crewSchedule.getCrew().getLeader().getId())) {
             throw new CustomException(CrewErrorCode.FORBIDDEN_ACCESS);
         }
         List<CrewScheduleApply> applyList = crewScheduleApplyRepository.findAllByCrewScheduleId(scheduleId);
@@ -409,17 +412,16 @@ public class CrewServiceImpl implements CrewService {
             }
         }
     }
+
     @Override
     @Transactional
     public void changeLeader(Member currentMember, Long newLeaderId) {
-        // 현재 멤버가 크루의 리더인지 확인
         Crew crew = crewRepository.findByLeader(currentMember)
                 .orElseThrow(() -> new CustomException(CrewErrorCode.FORBIDDEN_ACCESS));
 
-        // 새로운 리더가 유효한 멤버인지 확인
-        CrewMember crewMember = crewMemberRepository.findByMemberIdAndCrew(newLeaderId,crew)
+        CrewMember crewMember = crewMemberRepository.findByMemberIdAndCrew(newLeaderId, crew)
                 .orElseThrow(() -> new CustomException(CrewErrorCode.NOAPPLY_CREW));
-        if(!crewMember.getStatus().equals(Status.COMPLETE)){
+        if (!crewMember.getStatus().equals(Status.COMPLETE)) {
             throw new CustomException(CrewErrorCode.NOAPPLY_CREW);
         }
         Member newLeader = memberRepository.findById(newLeaderId)
@@ -427,18 +429,21 @@ public class CrewServiceImpl implements CrewService {
 
         crew.setLeader(newLeader);
     }
+
     @Override
     @Transactional
     public void cancelCrewApplication(Member member, Long crewId) {
         Crew crew = crewRepository.getCrew(crewId);
-        // 2. 현재 멤버가 크루에 신청한 상태인지 확인
+
         CrewMember crewMember = crewMemberRepository.findByCrewAndMember(crew, member)
                 .orElseThrow(() -> new CustomException(CrewErrorCode.NOAPPLY_CREW));
-        if(crew.getLeader().getId().equals(member.getId())){
+
+        if (crew.getLeader().getId().equals(member.getId())) {
             throw new CustomException(CrewErrorCode.CREW_LEADER);
         }
         crewMember.delete();
     }
+
     @Override
     @Transactional
     public void deleteCrew(Member member, Long crewId) {
@@ -448,13 +453,12 @@ public class CrewServiceImpl implements CrewService {
             throw new CustomException(CrewErrorCode.FORBIDDEN_ACCESS);
         }
 
-        // 3. 크루와 관련된 모든 엔티티 소프트 삭제
         crewActivityTimeRepository.findAllByCrew(crew).forEach(CrewActivityTime::delete);
         crewCourseRepository.findAllByCrew(crew).forEach(CrewCourse::delete);
         crewImageRepository.findAllByCrew(crew).forEach(CrewImage::delete);
         crewLocationRepository.findAllByCrew(crew).forEach(CrewLocation::delete);
         crewMemberRepository.findAllByCrew(crew).forEach(CrewMember::delete);
-        // 4. 크루의 모든 스케줄과 관련된 신청도 소프트 삭제
+
         List<CrewSchedule> schedules = crewScheduleRepository.findAllByCrew(crew);
         for (CrewSchedule schedule : schedules) {
             crewScheduleApplyRepository.findAllByCrewSchedule(schedule).forEach(CrewScheduleApply::delete);
