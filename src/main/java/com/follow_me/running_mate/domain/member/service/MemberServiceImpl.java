@@ -245,65 +245,58 @@ public class MemberServiceImpl implements MemberService {
     public void follow(Member member, Long targetMemberId) {
 
         // 자기 자신을 팔로우하려는 경우 예외 처리
-        if (member.getId().equals(targetMemberId)) {
-            throw new CustomException(CommonErrorCode.INVALID_INPUT_VALUE);
-        }
+        validateSelfFollow(member, targetMemberId);
 
         // 팔로우 대상 사용자 조회
-        Member targetMember = memberRepository.findById(targetMemberId)
-                .orElseThrow(() -> new CustomException(CommonErrorCode.ENTITY_NOT_FOUND));
+        Member targetMember = findTargetMember(targetMemberId);
 
         // 기존 팔로우 여부 확인
         MemberFollow existingFollow = memberFollowRepository.findByFollowerAndFollowing(member, targetMember)
-                .orElse(null);
+                .orElse(memberMapper.toMemberFollow(member, targetMember));
 
-        if (existingFollow != null) {
-            if (!existingFollow.getIsActive()) {
-                existingFollow.setActive(true);
-
-                targetMember.incrementFollowerCount();
-                member.incrementFollowingCount();
-                memberRepository.save(member);
-            }
-
-        } else {
-            MemberFollow newFollow = MemberFollow.builder()
-                    .follower(member)
-                    .following(targetMember)
-                    .isActive(true)
-                    .build();
-            memberFollowRepository.save(newFollow);
-            targetMember.incrementFollowerCount();
-            member.incrementFollowingCount();
-            memberRepository.save(member);
+        if (existingFollow.getIsActive()) {
+            throw new CustomException(MemberErrorCode.ALREADY_FOLLOWING);
         }
+
+        existingFollow.setActive(true);
+        targetMember.incrementFollowerCount();
+        member.incrementFollowingCount();
+        memberRepository.save(member);
+        memberFollowRepository.save(existingFollow);
     }
 
     @Override
     @Transactional
-    public void unfollow(Member currentMember, Long targetMemberId) {
+    public void unfollow(Member member, Long targetMemberId) {
         // 자기 자신을 언팔로우하려는 경우 예외 처리
-        if (currentMember.getId().equals(targetMemberId)) {
-            throw new CustomException(CommonErrorCode.INVALID_INPUT_VALUE, "자기 자신과의 팔로우 상태를 변경할 수 없습니다.");
-        }
+        validateSelfFollow(member, targetMemberId);
 
         // 팔로우 대상 사용자 조회
-        Member targetMember = memberRepository.findById(targetMemberId)
-                .orElseThrow(() -> new CustomException(CommonErrorCode.ENTITY_NOT_FOUND, "팔로우 대상 사용자가 존재하지 않습니다."));
+        Member targetMember = findTargetMember(targetMemberId);
 
         // 기존 팔로우 관계 확인
-        MemberFollow existingFollow = memberFollowRepository.findByFollowerAndFollowing(currentMember, targetMember)
-                .orElseThrow(() -> new CustomException(CommonErrorCode.ENTITY_NOT_FOUND, "팔로우 관계가 존재하지 않습니다."));
+        MemberFollow existingFollow = memberFollowRepository.findByFollowerAndFollowing(member, targetMember)
+                .orElseThrow(() -> new CustomException(MemberErrorCode.NOT_FOLLOWING));
 
-        if (existingFollow.getIsActive()) {
-
-            existingFollow.setActive(false);
-
-            targetMember.decrementFollowerCount();
-            currentMember.decrementFollowingCount();
-            memberRepository.save(currentMember);
-            existingFollow.delete();
+        if (!existingFollow.getIsActive()) {
+            throw new CustomException(MemberErrorCode.NOT_FOLLOWING);
         }
+
+        existingFollow.setActive(false);
+        targetMember.decrementFollowerCount();
+        member.decrementFollowingCount();
+        memberRepository.save(member);
+    }
+
+    private void validateSelfFollow(Member member, Long targetMemberId) {
+        if (member.getId().equals(targetMemberId)) {
+            throw new CustomException(MemberErrorCode.NOT_FOLLOW_SELF);
+        }
+    }
+
+    private Member findTargetMember(Long targetMemberId) {
+        return memberRepository.findById(targetMemberId)
+            .orElseThrow(() -> new CustomException(MemberErrorCode.NOT_FOUND_FOLLOWING));
     }
 
     public Double calculateTotalDistance(List<CourseRecord> records) {

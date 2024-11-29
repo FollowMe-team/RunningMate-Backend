@@ -34,7 +34,7 @@ public enum CommonErrorCode implements ResultCode {
     // 외부 서비스 연동 관련
     EXTERNAL_SERVICE_ERROR("COMMON016", "외부 서비스 연동 중 오류가 발생했습니다."),
     TIMEOUT("COMMON017", "요청 시간이 초과되었습니다."),
-    ENTITY_NOT_FOUND("COMMON018","해당 엔티티가 존재하지 않습니다." );
+    ;
 
     private final String code;
     private final String message;

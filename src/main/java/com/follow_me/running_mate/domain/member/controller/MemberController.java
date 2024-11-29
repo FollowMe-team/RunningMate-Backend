@@ -237,23 +237,24 @@ public class MemberController {
             memberService.getFollowerList(principalDetails.member())
         );
     }
-    //TODO:팔로우 화면 나오면 response 수정하기
 
-    @PostMapping("/follow/{id}")
+    @PostMapping("/follow/{memberId}")
     @Operation(summary = "팔로우 추가 API", description = "특정 사용자를 팔로우하거나, 기존에 팔로우했던 사용자를 활성화합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "팔로우 처리에 성공했습니다.",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
-            @ApiResponse(responseCode = "404", description = "해당 사용자를 찾을 수 없습니다.",
+            @ApiResponse(responseCode = "MEMBER001", description = "회원을 찾을 수 없습니다.",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
-            @ApiResponse(responseCode = "400", description = "자기 자신을 팔로우할 수 없습니다.",
+            @ApiResponse(responseCode = "MEMBER008", description = "존재하지 않는 팔로잉 사용자입니다.",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+            @ApiResponse(responseCode = "MEMBER009", description = "자신을 팔로우할 수 없습니다.",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
     })
     public BaseResponse<Void> follow(
             @AuthenticationPrincipal PrincipalDetails principalDetails,
-            @PathVariable(value = "id") Long id
+            @PathVariable(value = "memberId") Long memberId
     ) {
-        memberService.follow(principalDetails.member(), id);
+        memberService.follow(principalDetails.member(), memberId);
         return BaseResponse.success("팔로우 처리에 성공했습니다.", null);
     }
 

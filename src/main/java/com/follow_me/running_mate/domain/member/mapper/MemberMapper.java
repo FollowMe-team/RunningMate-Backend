@@ -7,6 +7,7 @@ import com.follow_me.running_mate.domain.member.dto.request.MemberRequest;
 import com.follow_me.running_mate.domain.member.dto.response.MemberResponse;
 import com.follow_me.running_mate.domain.member.entity.Member;
 import com.follow_me.running_mate.domain.member.entity.MemberBadge;
+import com.follow_me.running_mate.domain.member.entity.MemberFollow;
 import com.follow_me.running_mate.domain.member.entity.MemberLocation;
 import com.follow_me.running_mate.global.common.util.FormatterUtil;
 import java.util.Arrays;
@@ -40,6 +41,14 @@ public class MemberMapper {
             .member(member)
             .address(locationInfo.getAddress())
             .location(FormatterUtil.formatPoint(locationInfo))
+            .build();
+    }
+
+    public MemberFollow toMemberFollow(Member follower, Member following) {
+        return MemberFollow.builder()
+            .follower(follower)
+            .following(following)
+            .isActive(false)
             .build();
     }
 
