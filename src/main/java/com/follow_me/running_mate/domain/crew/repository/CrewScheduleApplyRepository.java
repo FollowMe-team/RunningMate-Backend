@@ -25,5 +25,6 @@ public interface CrewScheduleApplyRepository extends JpaRepository<CrewScheduleA
 
     Optional<CrewScheduleApply> findByCrewScheduleAndCrewMember(CrewSchedule crewSchedule, CrewMember crewMember);
     List<CrewScheduleApply> findAllByCrewScheduleId(Long scheduleId);
+    List<CrewScheduleApply> findAllByCrewSchedule(CrewSchedule schedule);
 }
 

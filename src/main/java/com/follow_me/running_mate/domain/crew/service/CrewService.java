@@ -51,4 +51,5 @@ public interface CrewService {
     void attendSchedule(Member member, Long scheduleId, List<Long> memberIds);
     void changeLeader(Member currentMember, Long newLeaderId);
     void cancelCrewApplication(Member member, Long crewId);
+    void deleteCrew(Member member, Long crewId);
 }

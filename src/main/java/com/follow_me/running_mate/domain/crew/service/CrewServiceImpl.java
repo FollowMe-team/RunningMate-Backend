@@ -285,7 +285,7 @@ public class CrewServiceImpl implements CrewService {
     public CrewResponse.CrewCourseListResponse getFavoriteCourses(Long crewId) {
         Crew crew = crewRepository.getCrew(crewId);
         // CrewCourse 목록 조회
-        List<CrewCourse> crewCourses = crewCourseRepository.findByCrew(crew);
+        List<CrewCourse> crewCourses = crewCourseRepository.findAllByCrew(crew);
         List<CourseResponse.SummaryInfo> courses = crewCourses.stream().map(course ->
                 courseResponseMapper.toCrewCourseInfo(
                         course.getCourse(),
@@ -438,6 +438,30 @@ public class CrewServiceImpl implements CrewService {
             throw new CustomException(CrewErrorCode.CREW_LEADER);
         }
         crewMember.delete();
+    }
+    @Override
+    @Transactional
+    public void deleteCrew(Member member, Long crewId) {
+        Crew crew = crewRepository.getCrew(crewId);
+
+        if (!crew.getLeader().getId().equals(member.getId())) {
+            throw new CustomException(CrewErrorCode.FORBIDDEN_ACCESS);
+        }
+
+        // 3. 크루와 관련된 모든 엔티티 소프트 삭제
+        crewActivityTimeRepository.findAllByCrew(crew).forEach(CrewActivityTime::delete);
+        crewCourseRepository.findAllByCrew(crew).forEach(CrewCourse::delete);
+        crewImageRepository.findAllByCrew(crew).forEach(CrewImage::delete);
+        crewLocationRepository.findAllByCrew(crew).forEach(CrewLocation::delete);
+        crewMemberRepository.findAllByCrew(crew).forEach(CrewMember::delete);
+        // 4. 크루의 모든 스케줄과 관련된 신청도 소프트 삭제
+        List<CrewSchedule> schedules = crewScheduleRepository.findAllByCrew(crew);
+        for (CrewSchedule schedule : schedules) {
+            crewScheduleApplyRepository.findAllByCrewSchedule(schedule).forEach(CrewScheduleApply::delete);
+            schedule.delete();
+        }
+        crew.delete();
+        crewRepository.save(crew);
     }
 
     @Override

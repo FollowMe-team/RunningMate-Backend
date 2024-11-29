@@ -8,4 +8,6 @@ import java.util.List;
 
 public interface CrewLocationRepository extends JpaRepository<CrewLocation,Long> {
     List<CrewLocation> findAllByCrew(Crew crew);
+
+    Iterable<CrewLocation> findByCrew(Crew crew);
 }

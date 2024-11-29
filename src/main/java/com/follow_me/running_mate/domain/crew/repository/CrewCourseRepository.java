@@ -16,8 +16,5 @@ public interface CrewCourseRepository extends JpaRepository<CrewCourse, Long> {
     @Query("SELECT cc.course FROM CrewCourse cc WHERE cc.crew = :crew ORDER BY cc.createdAt DESC")
     List<Course> findTop3CoursesByCrewOrderByCreatedAtDesc(@Param("crew") Crew crew);
     List<CrewCourse> findAllByCrew(Crew crew);
-
-    List<CrewCourse> findByCrew(Crew crew);
-
     boolean existsByCrewIdAndCourseId(Long crewId, Long courseId);
 }
