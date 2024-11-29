@@ -117,11 +117,13 @@ public class MemberMapper {
                 .collect(Collectors.toList());
     }
 
-    public MemberResponse.FollowResponse toFollowResponse(Member member) {
-        return MemberResponse.FollowResponse.builder()
-                .nickname(member.getNickname())
-                .iconUrl(member.getProfileImageUrl())
-                .footPrint(member.getFootprint())
-                .build();
+    public MemberResponse.FollowInfo toFollowResponse(Member member) {
+        return MemberResponse.FollowInfo.builder()
+            .memberId(member.getId())
+            .profileImageUrl(member.getProfileImageUrl())
+            .nickname(member.getNickname())
+            .footPrint(member.getFootprint())
+            .ranking(member.getRanking())
+            .build();
     }
 }

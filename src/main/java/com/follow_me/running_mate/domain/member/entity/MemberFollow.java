@@ -34,7 +34,7 @@ public class MemberFollow extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable = false)
-    private Member followed;
+    private Member following;
 
     @Column(nullable = false)
     private Boolean isActive;

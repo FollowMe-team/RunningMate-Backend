@@ -218,22 +218,26 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<MemberResponse.FollowResponse> getFollowList(Member member) {
-        List<Member> followMemberList = memberFollowRepository.findActiveFollowedsByFollower(member);
+    public MemberResponse.FollowingListResponse getFollowingList(Member member) {
+        List<Member> followingMembers = memberFollowRepository.findFollowingByFollower(member);
 
-        return followMemberList.stream()
-                .map(memberMapper::toFollowResponse)
-                .toList();
+        return new MemberResponse.FollowingListResponse(
+                followingMembers.stream()
+                        .map(memberMapper::toFollowResponse)
+                        .toList()
+        );
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<MemberResponse.FollowResponse> getFollowerList(Member member) {
-        List<Member> followerMemberList = memberFollowRepository.findActiveFollowersByFollowed(member);
+    public MemberResponse.FollowerListResponse getFollowerList(Member member) {
+        List<Member> followerMembers = memberFollowRepository.findFollowerByFollowing(member);
 
-        return followerMemberList.stream()
-                .map(memberMapper::toFollowResponse)
-                .toList();
+        return new MemberResponse.FollowerListResponse(
+                followerMembers.stream()
+                        .map(memberMapper::toFollowResponse)
+                        .toList()
+        );
     }
 
     @Override
@@ -250,7 +254,7 @@ public class MemberServiceImpl implements MemberService {
                 .orElseThrow(() -> new CustomException(CommonErrorCode.ENTITY_NOT_FOUND));
 
         // 기존 팔로우 여부 확인
-        MemberFollow existingFollow = memberFollowRepository.findByFollowerAndFollowed(member, targetMember)
+        MemberFollow existingFollow = memberFollowRepository.findByFollowerAndFollowing(member, targetMember)
                 .orElse(null);
 
         if (existingFollow != null) {
@@ -265,7 +269,7 @@ public class MemberServiceImpl implements MemberService {
         } else {
             MemberFollow newFollow = MemberFollow.builder()
                     .follower(member)
-                    .followed(targetMember)
+                    .following(targetMember)
                     .isActive(true)
                     .build();
             memberFollowRepository.save(newFollow);
@@ -288,7 +292,7 @@ public class MemberServiceImpl implements MemberService {
                 .orElseThrow(() -> new CustomException(CommonErrorCode.ENTITY_NOT_FOUND, "팔로우 대상 사용자가 존재하지 않습니다."));
 
         // 기존 팔로우 관계 확인
-        MemberFollow existingFollow = memberFollowRepository.findByFollowerAndFollowed(currentMember, targetMember)
+        MemberFollow existingFollow = memberFollowRepository.findByFollowerAndFollowing(currentMember, targetMember)
                 .orElseThrow(() -> new CustomException(CommonErrorCode.ENTITY_NOT_FOUND, "팔로우 관계가 존재하지 않습니다."));
 
         if (existingFollow.getIsActive()) {

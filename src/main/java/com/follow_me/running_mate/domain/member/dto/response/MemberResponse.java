@@ -78,6 +78,7 @@ public class MemberResponse {
         private String criteria;
         private Boolean isAcquired;
     }
+
     @Getter
     @Builder
     @AllArgsConstructor
@@ -88,24 +89,26 @@ public class MemberResponse {
     @Getter
     @Builder
     @AllArgsConstructor
-    public static class FollowResponse {
+    public static class FollowInfo {
+        private Long memberId;
+        private String profileImageUrl;
         private String nickname;
-        private String iconUrl;
-        private Long footPrint;// 배지를 획득한 기준
+        private Ranking ranking;
+        private Long footPrint;
     }
 
     @Getter
     @Builder
     @AllArgsConstructor
-    public static class FollowListResponse{
-        private List<FollowResponse> Follows;
+    public static class FollowingListResponse {
+        private List<FollowInfo> followings;
     }
 
     @Getter
     @Builder
     @AllArgsConstructor
     public static class FollowerListResponse{
-        private List<FollowResponse> Followers;
+        private List<FollowInfo> followers;
     }
 
     @Getter
