@@ -1,7 +1,9 @@
 package com.follow_me.running_mate.domain.crew.entity;
 
 import com.follow_me.running_mate.domain.course.entity.Course;
+import com.follow_me.running_mate.domain.crew.exception.CrewErrorCode;
 import com.follow_me.running_mate.global.common.BaseEntity;
+import com.follow_me.running_mate.global.error.exception.CustomException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -68,5 +70,12 @@ public class CrewSchedule extends BaseEntity {
 
     public void setMemberMax(Integer memberMax) {
         this.memberMax = memberMax;
+    }
+    public void decreaseMemberCount() {
+        if (this.memberCount > 0) {
+            this.memberCount--;
+        } else {
+            throw new CustomException(CrewErrorCode.INVALID_MEMBER_COUNT);
+        }
     }
 }

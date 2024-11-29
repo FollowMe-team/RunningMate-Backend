@@ -104,7 +104,8 @@ public class CrewController {
 
     @PostMapping("/{crewId}/apply")
     @Operation(summary = "크루 신청 API", description = "멤버가 특정 크루에 가입 신청합니다.")
-    @ApiResponse(responseCode = "200", description = "신청 성공")
+    @ApiResponse(responseCode = "200", description = "신청 성공",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
     public BaseResponse<Void> applyToCrew(
             @AuthenticationPrincipal PrincipalDetails principalDetails,
             @PathVariable(value = "crewId") Long crewId
@@ -115,7 +116,8 @@ public class CrewController {
 
     @PostMapping("/{crewId}/schedule")
     @Operation(summary = "크루 일정 등록 API", description = "특정 크루에 일정을 등록합니다.")
-    @ApiResponse(responseCode = "200", description = "일정 등록 성공")
+    @ApiResponse(responseCode = "200", description = "일정 등록 성공",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
     public BaseResponse<CrewResponse.CrewScheduleIdResponse> registerSchedule(
             @AuthenticationPrincipal PrincipalDetails principalDetails,
             @PathVariable(value = "crewId") Long crewId,
@@ -125,7 +127,8 @@ public class CrewController {
     }
     @PostMapping("/apply/{scheduleId}")
     @Operation(summary = "크루 일정 참여 신청 API", description = "특정 크루 일정에 참여 신청을 합니다.")
-    @ApiResponse(responseCode = "200", description = "참여 신청 성공")
+    @ApiResponse(responseCode = "200", description = "참여 신청 성공",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
     public BaseResponse<CrewResponse.CrewScheduleApplyIdResponse> applyToSchedule(
             @AuthenticationPrincipal PrincipalDetails principalDetails,
             @PathVariable(value = "scheduleId") Long scheduleId
@@ -134,7 +137,8 @@ public class CrewController {
     }
     @PatchMapping("/{memberId}")
     @Operation(summary = "크루 신청 상태 업데이트 API", description = "크루 신청 상태를 수락하거나 거절합니다.")
-    @ApiResponse(responseCode = "200", description = "상태 업데이트 성공")
+    @ApiResponse(responseCode = "200", description = "상태 업데이트 성공",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
     public BaseResponse<Void> updateCrewMemberStatus(
             @AuthenticationPrincipal PrincipalDetails principalDetails,
             @PathVariable(value = "memberId") Long memberId,
@@ -146,7 +150,8 @@ public class CrewController {
 
     @PatchMapping("/{crewId}/modify")
     @Operation(summary = "크루 수정 API", description = "크루장이 본인의 크루를 수정합니다.")
-    @ApiResponse(responseCode = "200", description = "크루 수정 성공")
+    @ApiResponse(responseCode = "200", description = "크루 수정 성공",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
     public BaseResponse<CrewResponse.UpdateCrewResponse> updateCrew(
             @AuthenticationPrincipal PrincipalDetails principalDetails,
             @PathVariable(value = "crewId") Long crewId,
@@ -193,7 +198,8 @@ public class CrewController {
 
     @PatchMapping("/{crewId}/schedule/{scheduleId}")
     @Operation(summary = "크루 일정 수정 API", description = "크루의 일정을 수정합니다.")
-    @ApiResponse(responseCode = "200", description = "일정 수정 성공")
+    @ApiResponse(responseCode = "200", description = "일정 수정 성공",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
     public BaseResponse<CrewResponse.UpdateCrewSchedule> updateCrewSchedule(
             @AuthenticationPrincipal PrincipalDetails principalDetails,
             @PathVariable(value = "crewId") Long crewId,
@@ -201,5 +207,24 @@ public class CrewController {
             @RequestBody @Valid CrewRequest.createSchedule request
     ) {
         return BaseResponse.success("일정이 성공적으로 수정되었습니다.",crewService.updateSchedule(principalDetails.member(),crewId, scheduleId, request));
+    }
+    @PatchMapping("/schedule/{scheduleId}/cancel")
+    @Operation(summary = "크루 일정 참여 취소 API", description = "크루원이 일정 참여를 취소합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "일정 참여 취소 성공",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+            @ApiResponse(responseCode = "CREW009", description = "해당 스케줄을 찾을 수 없음",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+            @ApiResponse(responseCode = "CREW004", description = "해당 사용자에게 권한이 없습니다.",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+            @ApiResponse(responseCode = "CREW011", description = "해당 일정에 신청한 적 없는 사용자입니다.",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
+    })
+    public BaseResponse<Void> cancelScheduleApply(
+            @AuthenticationPrincipal PrincipalDetails principalDetails,
+            @PathVariable(value = "scheduleId") Long scheduleId
+    ) {
+        crewService.cancelScheduleApply(principalDetails.member(), scheduleId);
+        return BaseResponse.success("일정 참여가 성공적으로 취소되었습니다.",null);
     }
 }

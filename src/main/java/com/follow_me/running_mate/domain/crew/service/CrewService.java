@@ -47,4 +47,5 @@ public interface CrewService {
     CrewResponse.ActivityImageListResponse uploadCrewImages(Long crewId, List<MultipartFile> images,Member member);
     List<CrewImage> saveImages(Crew crew, List<MultipartFile> images,Integer orderNumber);
     CrewResponse.UpdateCrewSchedule updateSchedule(Member member,Long crewId, Long scheduleId, CrewRequest.createSchedule request);
+    void cancelScheduleApply(Member member, Long scheduleId);
 }

@@ -372,6 +372,25 @@ public class CrewServiceImpl implements CrewService {
 
     @Override
     @Transactional
+    public void cancelScheduleApply(Member member, Long scheduleId) {
+        // 일정 존재 여부 확인
+        CrewSchedule crewSchedule = crewScheduleRepository.findById(scheduleId)
+                .orElseThrow(() -> new CustomException(CrewErrorCode.NOT_FOUND_SCHEDULE));
+        // 크루에 이미 가입된 멤버인지 확인
+        CrewMember crewMember = crewMemberRepository.findByCrewAndMember(crewSchedule.getCrew(), member)
+                .orElseThrow(() -> new CustomException(CrewErrorCode.FORBIDDEN_ACCESS));
+        // 참여 신청 존재 여부 확인
+        CrewScheduleApply crewScheduleApply = crewScheduleApplyRepository.findByCrewScheduleAndCrewMember(
+                        crewSchedule,crewMember)
+                .orElseThrow(() -> new CustomException(CrewErrorCode.APPLY_NOT_FOUND));
+
+        crewScheduleApply.setStatus(CrewScheduleApplyStatus.CANCEL);
+        crewSchedule.decreaseMemberCount();
+        crewScheduleApply.delete();
+    }
+
+    @Override
+    @Transactional
     public CrewResponse.UpdateCrewResponse updateCrew(Member member, Long crewId, CrewRequest.UpdateCrewRequest request) {
         // 크루 조회
         Crew crew = crewRepository.findById(crewId)

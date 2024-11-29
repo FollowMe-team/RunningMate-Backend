@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface CrewScheduleApplyRepository extends JpaRepository<CrewScheduleApply, Long> {
 
@@ -21,5 +22,7 @@ public interface CrewScheduleApplyRepository extends JpaRepository<CrewScheduleA
             @Param("status") CrewScheduleApplyStatus status);
 
     boolean existsByCrewScheduleAndCrewMember(CrewSchedule crewSchedule, CrewMember crewMember);
+
+    Optional<CrewScheduleApply> findByCrewScheduleAndCrewMember(CrewSchedule crewSchedule, CrewMember crewMember);
 }
 

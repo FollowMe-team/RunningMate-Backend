@@ -15,7 +15,11 @@ public enum CrewErrorCode implements ResultCode {
     INVALID_INPUT_VALUE("CREW006","유효하지 않은 상태 값입니다." ),
     NOAPPLY_CREW("CREW007", "해당 크루에 신청하지 않은 사용자입니다."),
     DUPLICATE_RESOURCE("CREW008","이미 즐겨찾기된 코스입니다." ),
-    NOT_FOUND_SCHEDULE("CREW009", "해당 스케줄을 찾을 수 없습니다.");
+    NOT_FOUND_SCHEDULE("CREW009", "해당 스케줄을 찾을 수 없습니다."),
+    INVALID_MEMBER_COUNT("CREW010", "크루 참여 인원이 음수입니다."),
+    APPLY_NOT_FOUND("CREW011", "해당 일정에 신청한 적 없는 사용자입니다."),
+    ALREADY_CANCELLED("CREW012", "이미 취소한 신청입니다.");
+
     private final String code;
     private final String message;
 }

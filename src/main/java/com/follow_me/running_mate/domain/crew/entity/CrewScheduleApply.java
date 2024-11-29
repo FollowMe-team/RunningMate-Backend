@@ -42,4 +42,8 @@ public class CrewScheduleApply extends BaseEntity {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private CrewScheduleApplyStatus status;
+
+    public void setStatus(CrewScheduleApplyStatus status) {
+        this.status = status;
+    }
 }
