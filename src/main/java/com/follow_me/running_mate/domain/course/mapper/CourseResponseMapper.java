@@ -187,11 +187,11 @@ public class CourseResponseMapper {
             .ranking(member.getRanking())
             .build();
     }
-    public CourseResponse.CourseRecordInfo toCourseRecordInfo(CourseRecord courseRecord) {
+    public CourseResponse.CourseRecordInfo toCourseRecordInfo(CourseRecord courseRecord, Boolean isMine) {
         return CourseResponse.CourseRecordInfo.builder()
             .recordId(courseRecord.getId())
             .startTime(courseRecord.getStartTime())
-            .course(toCourseInfo(courseRecord.getCourse()))
+            .course(toCourseInfo(courseRecord.getCourse(), isMine))
             .distance(courseRecord.getDistance())
             .caloriesBurned(courseRecord.getCaloriesBurned())
             .duration(FormatterUtil.formatDuration(courseRecord.getStartTime(), courseRecord.getEndTime()))
@@ -199,10 +199,13 @@ public class CourseResponseMapper {
             .build();
     }
 
-    private CourseResponse.CourseInfo toCourseInfo(Course course) {
-        return CourseResponse.CourseInfo.builder()
+    private CourseResponse.CourseInfo toCourseInfo(Course course, Boolean isMine) {
+        if (isMine) {
+            return CourseResponse.CourseInfo.builder()
                 .courseId(course.getId())
                 .courseName(course.getName())
                 .build();
+        }
+        return null;
     }
 }

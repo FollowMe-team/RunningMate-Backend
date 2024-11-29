@@ -200,7 +200,20 @@ public class MemberServiceImpl implements MemberService {
     @Transactional(readOnly = true)
     public CourseResponse.CourseRecordInfoList getMyCourseRecords(Member member, YearMonth yearMonth) {
 
-        return courseRecordService.getRecordsByMonth(member, yearMonth);
+        return courseRecordService.getRecordsByMonth(member, yearMonth, true);
+    }
+
+    @Override
+    public CourseResponse.CourseRecordInfoList getOtherCourseRecords(
+        Member member, Long memberId, YearMonth yearMonth
+    ) {
+        if (member.getId().equals(memberId)) {
+            throw new CustomException(MemberErrorCode.INVALID_COURSE_RECORD_API);
+        }
+
+        Member otherMember = memberRepository.getMember(memberId);
+
+        return courseRecordService.getRecordsByMonth(otherMember, yearMonth, false);
     }
 
     @Override

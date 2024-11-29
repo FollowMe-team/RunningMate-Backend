@@ -15,6 +15,6 @@ public interface CourseRecordService {
     CourseResponse.CourseRecordIdResponse createCourseRecord(
         Member member, Course course, CourseRequest.CreateCourseRecordRequest request
     );
-    CourseResponse.CourseRecordInfoList getRecordsByMonth(Member member, YearMonth yearMonth);
+    CourseResponse.CourseRecordInfoList getRecordsByMonth(Member member, YearMonth yearMonth, Boolean isMine);
     List<CourseRecord> getRecordsByMember(Member member);
 }

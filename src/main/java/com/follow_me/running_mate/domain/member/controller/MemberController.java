@@ -178,7 +178,7 @@ public class MemberController {
     }
 
     @GetMapping("/records/monthly")
-    @Operation(summary = "나의 러닝 기록 조회(월별)", description = "월별 러닝 기록을 조회합니다.")
+    @Operation(summary = "나의 러닝 기록 조회(월별)", description = "나의 월별 러닝 기록을 조회합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "나의 월별 러닝 기록 조회에 성공했습니다.",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
@@ -190,6 +190,22 @@ public class MemberController {
         return BaseResponse.success(
             "나의 월별 러닝 기록 조회에 성공했습니다.",
             memberService.getMyCourseRecords(principalDetails.member(), yearMonth));
+    }
+
+    @GetMapping("/{memberId}/records/monthly")
+    @Operation(summary = "타인 러닝 기록 조회(월별)", description = "타인의 월별 러닝 기록을 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "타인의 월별 러닝 기록 조회에 성공했습니다.",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
+    })
+    public BaseResponse<CourseResponse.CourseRecordInfoList> getOtherCourseRecords(
+            @AuthenticationPrincipal PrincipalDetails principalDetails,
+            @PathVariable Long memberId,
+            @RequestParam(value = "yearMonth") YearMonth yearMonth
+    ) {
+        return BaseResponse.success(
+            "타인의 월별 러닝 기록 조회에 성공했습니다.",
+            memberService.getOtherCourseRecords(principalDetails.member(), memberId, yearMonth));
     }
 
     @GetMapping("/follow")

@@ -52,7 +52,10 @@ public class CourseRecordServiceImpl implements CourseRecordService {
     }
     @Override
     @Transactional(readOnly = true)
-    public CourseResponse.CourseRecordInfoList getRecordsByMonth(Member member, YearMonth yearMonth) {
+    public CourseResponse.CourseRecordInfoList getRecordsByMonth(
+        Member member, YearMonth yearMonth, Boolean isMine
+    ) {
+
         // 날짜의 시작과 끝을 설정
         LocalDateTime startOfMonth = yearMonth.atDay(1).atStartOfDay();
         LocalDateTime endOfMonth = yearMonth.atEndOfMonth().atTime(LocalTime.MAX);
@@ -63,7 +66,9 @@ public class CourseRecordServiceImpl implements CourseRecordService {
         );
 
         return new CourseResponse.CourseRecordInfoList(
-            courseRecords.stream().map(courseResponseMapper::toCourseRecordInfo).toList()
+            courseRecords.stream().map(courseRecord ->
+                courseResponseMapper.toCourseRecordInfo(courseRecord, isMine)
+            ).toList()
         );
     }
 

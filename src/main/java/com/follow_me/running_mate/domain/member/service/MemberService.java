@@ -25,6 +25,7 @@ public interface MemberService {
     boolean isEmailDuplicate(String email);
     MemberResponse.OtherProfileResponse getOtherProfile(Member member, Long memberId);
     CourseResponse.CourseRecordInfoList getMyCourseRecords(Member member , YearMonth yearMonth);
+    CourseResponse.CourseRecordInfoList getOtherCourseRecords(Member member , Long memberId , YearMonth yearMonth);
     List<MemberResponse.FollowResponse> getFollowList(Member member);
     List<MemberResponse.FollowResponse> getFollowerList(Member member);
     void follow(Member member , Long id);
