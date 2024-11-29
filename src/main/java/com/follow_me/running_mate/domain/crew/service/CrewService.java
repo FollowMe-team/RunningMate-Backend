@@ -49,4 +49,5 @@ public interface CrewService {
     CrewResponse.UpdateCrewSchedule updateSchedule(Member member,Long crewId, Long scheduleId, CrewRequest.createSchedule request);
     void cancelScheduleApply(Member member, Long scheduleId);
     void attendSchedule(Member member, Long scheduleId, List<Long> memberIds);
+    void changeLeader(Member currentMember, Long newLeaderId);
 }

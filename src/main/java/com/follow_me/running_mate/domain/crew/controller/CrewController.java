@@ -250,5 +250,25 @@ public class CrewController {
         crewService.attendSchedule(principalDetails.member(), scheduleId, memberIds.getMemberIds());
         return BaseResponse.success("크루 일정 출석체크가 완료되었습니다.", null);
     }
-
+    @PatchMapping("/leader/{memberId}")
+    @Operation(summary = "러닝 크루 리더 변경 API", description = "주어진 멤버 ID로 크루 리더를 변경합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "리더 변경 성공",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+            @ApiResponse(responseCode = "CREW009", description = "해당 크루를 찾을 수 없음",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+            @ApiResponse(responseCode = "CREW004", description = "해당 사용자에게 권한이 없습니다.",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+            @ApiResponse(responseCode = "CREW007", description = "해당 멤버 아이디는 크루에 존재하지 않습니다.",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+            @ApiResponse(responseCode = "MEMBER001", description = "해당 멤버 아이디는 존재하지 않는 회원입니다.",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
+    })
+    public BaseResponse<Void> changeLeader(
+            @AuthenticationPrincipal PrincipalDetails principalDetails,
+            @PathVariable(value = "memberId") Long memberId
+    ) {
+        crewService.changeLeader(principalDetails.member(), memberId);
+        return BaseResponse.success("리더가 성공적으로 변경되었습니다.", null);
+    }
 }

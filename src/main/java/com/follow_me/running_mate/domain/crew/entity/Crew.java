@@ -65,5 +65,9 @@ public class Crew extends BaseEntity {
         this.detailDescription = detailDescription;
         this.openChatUrl = openChatUrl;
     }
+
+    public void setLeader(Member newLeader) {
+        this.leader = newLeader;
+    }
     //TODO: 크루 조건 엔티티에 추가하기
 }

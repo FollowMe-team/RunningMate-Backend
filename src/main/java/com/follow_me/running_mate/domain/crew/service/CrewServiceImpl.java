@@ -409,6 +409,24 @@ public class CrewServiceImpl implements CrewService {
             }
         }
     }
+    @Override
+    @Transactional
+    public void changeLeader(Member currentMember, Long newLeaderId) {
+        // 현재 멤버가 크루의 리더인지 확인
+        Crew crew = crewRepository.findByLeader(currentMember)
+                .orElseThrow(() -> new CustomException(CrewErrorCode.FORBIDDEN_ACCESS));
+
+        // 새로운 리더가 유효한 멤버인지 확인
+        CrewMember crewMember = crewMemberRepository.findByMemberIdAndCrew(newLeaderId,crew)
+                .orElseThrow(() -> new CustomException(CrewErrorCode.NOAPPLY_CREW));
+        if(!crewMember.getStatus().equals(Status.COMPLETE)){
+            throw new CustomException(CrewErrorCode.NOAPPLY_CREW);
+        }
+        Member newLeader = memberRepository.findById(newLeaderId)
+                .orElseThrow(() -> new CustomException(MemberErrorCode.NOT_FOUND));
+
+        crew.setLeader(newLeader);
+    }
 
     @Override
     @Transactional
