@@ -3,22 +3,24 @@ package com.follow_me.running_mate.domain.member.service;
 import com.follow_me.running_mate.domain.course.dto.response.CourseResponse;
 import com.follow_me.running_mate.domain.course.entity.CourseRecord;
 import com.follow_me.running_mate.domain.course.service.record.CourseRecordService;
+import com.follow_me.running_mate.domain.enums.FootprintType;
 import com.follow_me.running_mate.domain.member.dto.request.MemberRequest;
 import com.follow_me.running_mate.domain.member.dto.response.MemberResponse;
 import com.follow_me.running_mate.domain.member.entity.Member;
 import com.follow_me.running_mate.domain.member.entity.MemberBadge;
 import com.follow_me.running_mate.domain.member.entity.MemberFollow;
+import com.follow_me.running_mate.domain.member.entity.MemberFootprint;
 import com.follow_me.running_mate.domain.member.entity.MemberLocation;
 import com.follow_me.running_mate.domain.member.exception.MemberErrorCode;
 import com.follow_me.running_mate.domain.member.mapper.MemberMapper;
 import com.follow_me.running_mate.domain.member.repository.MemberBadgeRepository;
 import com.follow_me.running_mate.domain.member.repository.MemberFollowRepository;
+import com.follow_me.running_mate.domain.member.repository.MemberFootprintRepository;
 import com.follow_me.running_mate.domain.member.repository.MemberLocationRepository;
 import com.follow_me.running_mate.domain.member.repository.MemberRepository;
 import com.follow_me.running_mate.domain.token.repository.TokenRepository;
 import com.follow_me.running_mate.global.common.service.S3ImageService;
 import com.follow_me.running_mate.global.common.util.FormatterUtil;
-import com.follow_me.running_mate.global.error.code.CommonErrorCode;
 import com.follow_me.running_mate.global.error.exception.CustomException;
 import java.time.YearMonth;
 import java.util.Optional;
@@ -44,6 +46,7 @@ public class MemberServiceImpl implements MemberService {
 
     private final MemberFollowRepository memberFollowRepository;
     private final MemberLocationRepository memberLocationRepository;
+    private final MemberFootprintRepository memberFootprintRepository;
 
     @Override
     public void signup(MemberRequest.SignUpRequest request, MultipartFile profileImage) {
@@ -288,21 +291,41 @@ public class MemberServiceImpl implements MemberService {
         memberRepository.save(member);
     }
 
+    @Override
+    @Transactional
+    public void createFootprint(Member member, Long memberId, MemberRequest.FootprintRequest request) {
+        validateSelfFollow(member, memberId);
+        Member targetMember = findTargetMember(memberId);
+
+        memberFootprintRepository.save(
+            memberMapper.toMemberFootprint(member, targetMember, request)
+        );
+        updateFootprint(targetMember, request.getType());
+    }
+
     private void validateSelfFollow(Member member, Long targetMemberId) {
         if (member.getId().equals(targetMemberId)) {
-            throw new CustomException(MemberErrorCode.NOT_FOLLOW_SELF);
+            throw new CustomException(MemberErrorCode.NOT_SELF_TARGET);
         }
     }
 
     private Member findTargetMember(Long targetMemberId) {
         return memberRepository.findById(targetMemberId)
-            .orElseThrow(() -> new CustomException(MemberErrorCode.NOT_FOUND_FOLLOWING));
+            .orElseThrow(() -> new CustomException(MemberErrorCode.NOT_FOUND_TARGET));
     }
 
     public Double calculateTotalDistance(List<CourseRecord> records) {
         return records.isEmpty() ? 0L : records.stream()
             .mapToDouble(CourseRecord::getDistance)
             .sum();
+    }
+
+    private void updateFootprint(Member targetMember, FootprintType type) {
+        if (type == FootprintType.GOOD) {
+            targetMember.incrementFootprint();
+        } else if (type == FootprintType.BAD) {
+            targetMember.decrementFootprint();
+        }
     }
 }
 

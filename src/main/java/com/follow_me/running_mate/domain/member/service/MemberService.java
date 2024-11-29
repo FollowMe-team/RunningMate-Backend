@@ -27,6 +27,7 @@ public interface MemberService {
     CourseResponse.CourseRecordInfoList getOtherCourseRecords(Member member , Long memberId , YearMonth yearMonth);
     MemberResponse.FollowingListResponse getFollowingList(Member member);
     MemberResponse.FollowerListResponse getFollowerList(Member member);
-    void follow(Member member , Long id);
-    void unfollow(Member member , Long id);
+    void follow(Member member , Long memberId);
+    void unfollow(Member member , Long memberId);
+    void createFootprint(Member member, Long memberId, MemberRequest.FootprintRequest request);
 }

@@ -19,7 +19,6 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
@@ -247,7 +246,9 @@ public class MemberController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
             @ApiResponse(responseCode = "MEMBER008", description = "존재하지 않는 팔로잉 사용자입니다.",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
-            @ApiResponse(responseCode = "MEMBER009", description = "자신을 팔로우할 수 없습니다.",
+            @ApiResponse(responseCode = "MEMBER009", description = "본인을 대상으로 할 수 없습니다.",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+            @ApiResponse(responseCode = "MEMBER010", description = "이미 팔로우 중인 사용자입니다.",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
     })
     public BaseResponse<Void> follow(
@@ -258,22 +259,46 @@ public class MemberController {
         return BaseResponse.success("팔로우 처리에 성공했습니다.", null);
     }
 
-    @PatchMapping("/follow/{id}")
+    @DeleteMapping("/follow/{memberId}")
     @Operation(summary = "팔로우 취소 API", description = "특정 사용자의 팔로우 상태를 비활성화합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "팔로우 취소에 성공했습니다.",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
-            @ApiResponse(responseCode = "404", description = "팔로우 대상이 존재하지 않습니다.",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
-            @ApiResponse(responseCode = "400", description = "자기 자신과의 팔로우 상태를 변경할 수 없습니다.",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+            @ApiResponse(responseCode = "MEMBER001", description = "회원을 찾을 수 없습니다.",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+            @ApiResponse(responseCode = "MEMBER008", description = "존재하지 않는 대상 사용자입니다.",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+            @ApiResponse(responseCode = "MEMBER009", description = "본인을 대상으로 할 수 없습니다.",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+            @ApiResponse(responseCode = "MEMBER011", description = "팔로우 중이 아닌 사용자입니다.",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
     })
     public BaseResponse<Void> unfollow(
             @AuthenticationPrincipal PrincipalDetails principalDetails,
-            @PathVariable(value = "id") Long id
+            @PathVariable(value = "memberId") Long memberId
     ) {
-        memberService.unfollow(principalDetails.member(), id);
+        memberService.unfollow(principalDetails.member(), memberId);
         return BaseResponse.success("팔로우 취소에 성공했습니다.", null);
     }
 
+    @PostMapping("/footprint/{memberId}")
+    @Operation(summary = "발자국 남기기 API", description = "특정 사용자에게 발자국을 남깁니다.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "발자국 남기기에 성공했습니다.",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+        @ApiResponse(responseCode = "MEMBER001", description = "회원을 찾을 수 없습니다.",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+        @ApiResponse(responseCode = "MEMBER008", description = "존재하지 않는 대상 사용자입니다.",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+        @ApiResponse(responseCode = "MEMBER009", description = "본인을 대상으로 할 수 없습니다.",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+    })
+    public BaseResponse<Void> createFootprint(
+        @AuthenticationPrincipal PrincipalDetails principalDetails,
+        @PathVariable(value = "memberId") Long memberId,
+        @RequestBody @Valid MemberRequest.FootprintRequest request
+    ) {
+        memberService.createFootprint(principalDetails.member(), memberId, request);
+        return BaseResponse.success("발자국 남기기에 성공했습니다.", null);
+    }
 }

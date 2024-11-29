@@ -1,6 +1,7 @@
 package com.follow_me.running_mate.domain.member.dto.request;
 
 import com.follow_me.running_mate.domain.course.dto.request.CourseRequest;
+import com.follow_me.running_mate.domain.enums.FootprintType;
 import com.follow_me.running_mate.domain.enums.Gender;
 import com.follow_me.running_mate.domain.enums.RunningCareer;
 import com.follow_me.running_mate.domain.member.validation.annotation.UniqueEmail;
@@ -116,5 +117,16 @@ public class MemberRequest {
         private Double latitude;
         @NotNull(message = "경도는 필수입니다.")
         private Double longitude;
+    }
+
+    @Getter
+    @AllArgsConstructor
+    public static class FootprintRequest {
+        @NotBlank(message = "평가 사유는 필수입니다.")
+        private String content;
+        @NotNull(message = "평가 타입은 필수입니다.")
+        private FootprintType type;
+        @NotNull(message = "익명 여부는 필수입니다.")
+        private Boolean isAnonymous;
     }
 }

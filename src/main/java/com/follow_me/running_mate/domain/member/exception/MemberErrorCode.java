@@ -15,8 +15,8 @@ public enum MemberErrorCode implements ResultCode {
     PASSWORDS_DO_NOT_MATCH("MEMBER005", "입력한 비밀번호와 변경할 비밀번호가 일치하지 않습니다."),
     INVALID_PROFILE_API("MEMBER006", "본인 프로필은 마이 프로필 조회 API를 통해 확인해주세요."),
     INVALID_COURSE_RECORD_API("MEMBER007", "본인 코스 기록은 마이 코스 기록 조회 API를 통해 확인해주세요."),
-    NOT_FOUND_FOLLOWING("MEMBER008", "존재하지 않는 팔로잉 사용자입니다."),
-    NOT_FOLLOW_SELF("MEMBER009", "자신을 팔로우할 수 없습니다."),
+    NOT_FOUND_TARGET("MEMBER008", "존재하지 않는 대상 사용자입니다."),
+    NOT_SELF_TARGET("MEMBER009", "본인을 대상으로 할 수 없습니다."),
     ALREADY_FOLLOWING("MEMBER010", "이미 팔로우 중인 사용자입니다."),
     NOT_FOLLOWING("MEMBER011", "팔로우 중이 아닌 사용자입니다."),
     ;

@@ -129,5 +129,16 @@ public class Member extends BaseEntity {
         this.password = encodedNewPassword;
     }
 
+    // 발자국 증가
+    public void incrementFootprint() {
+        this.footprint += 50L;
+    }
+
+    // 발자국 감소
+    public void decrementFootprint() {
+        if (this.footprint > 0) {
+            this.footprint -= 50L;
+        }
+    }
 
 }
