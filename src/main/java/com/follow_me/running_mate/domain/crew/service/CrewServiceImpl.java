@@ -427,6 +427,18 @@ public class CrewServiceImpl implements CrewService {
 
         crew.setLeader(newLeader);
     }
+    @Override
+    @Transactional
+    public void cancelCrewApplication(Member member, Long crewId) {
+        Crew crew = crewRepository.getCrew(crewId);
+        // 2. 현재 멤버가 크루에 신청한 상태인지 확인
+        CrewMember crewMember = crewMemberRepository.findByCrewAndMember(crew, member)
+                .orElseThrow(() -> new CustomException(CrewErrorCode.NOAPPLY_CREW));
+        if(crew.getLeader().getId().equals(member.getId())){
+            throw new CustomException(CrewErrorCode.CREW_LEADER);
+        }
+        crewMember.delete();
+    }
 
     @Override
     @Transactional

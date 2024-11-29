@@ -271,4 +271,25 @@ public class CrewController {
         crewService.changeLeader(principalDetails.member(), memberId);
         return BaseResponse.success("리더가 성공적으로 변경되었습니다.", null);
     }
+    @DeleteMapping("/{crewId}/cancel")
+    @Operation(summary = "러닝 크루 신청 취소 API", description = "주어진 크루 ID에 대해 신청을 취소합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "신청 취소 성공",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+            @ApiResponse(responseCode = "CREW009", description = "해당 크루를 찾을 수 없음",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+            @ApiResponse(responseCode = "CREW004", description = "해당 사용자에게 권한이 없습니다.",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+            @ApiResponse(responseCode = "CREW007", description = "해당 크루에 신청한 적 없는 사용자입니다.",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+            @ApiResponse(responseCode = "CREW013", description = "해당 크루의 크루장입니다. 크루장을 변경해주세요",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
+    })
+    public BaseResponse<Void> cancelCrewApplication(
+            @AuthenticationPrincipal PrincipalDetails principalDetails,
+            @PathVariable(value = "crewId") Long crewId
+    ) {
+        crewService.cancelCrewApplication(principalDetails.member(), crewId);
+        return BaseResponse.success("신청이 성공적으로 취소되었습니다.", null);
+    }
 }
