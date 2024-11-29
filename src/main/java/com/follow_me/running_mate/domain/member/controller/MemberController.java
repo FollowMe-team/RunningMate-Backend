@@ -47,6 +47,22 @@ public class MemberController {
         );
     }
 
+    @GetMapping("/summary")
+    @Operation(summary = "마이 프로필 요약 조회 API", description = "마이 프로필 변경 시, 필요한 요약 정보를 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "프로필 요약 조회에 성공했습니다.",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+            @ApiResponse(responseCode = "AUTH001", description = "인증되지 않은 사용자입니다.",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
+    })
+    public BaseResponse<MemberResponse.MyProfileSummaryResponse> getMyProfileSummary(
+        @AuthenticationPrincipal PrincipalDetails principalDetails
+    ) {
+        return BaseResponse.success(
+            "마이 프로필 요약 조회에 성공했습니다.", memberService.getMyProfileSummary(principalDetails.member())
+        );
+    }
+
     @PatchMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "마이 프로필 수정 API" , description = "로그인한 사용자의 프로필을 수정합니다.")
     @ApiResponses(value = {

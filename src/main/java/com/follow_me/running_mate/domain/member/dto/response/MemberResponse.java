@@ -2,14 +2,11 @@ package com.follow_me.running_mate.domain.member.dto.response;
 
 import com.follow_me.running_mate.domain.enums.Gender;
 import com.follow_me.running_mate.domain.enums.Ranking;
-import com.follow_me.running_mate.domain.enums.RunningCareer;
-import com.follow_me.running_mate.domain.enums.RunningGoal;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.awt.*;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -33,6 +30,19 @@ public class MemberResponse {
         private Double runningDistance;
         private Long runningCount;
         private Long footPrint;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class MyProfileSummaryResponse {
+        private String profileImageUrl;
+        private String nickname;
+        private String introduce;
+        private LocalDate birth;
+        private Gender gender;
+        private LocationInfo locationInfo;
     }
 
     @Getter
@@ -97,4 +107,15 @@ public class MemberResponse {
     public static class FollowerListResponse{
         private List<FollowResponse> Followers;
     }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class LocationInfo {
+        private String address;
+        private Double latitude;
+        private Double longitude;
+    }
+
 }

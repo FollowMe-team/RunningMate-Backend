@@ -90,6 +90,17 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public MemberResponse.MyProfileSummaryResponse getMyProfileSummary(Member member) {
+        Optional<MemberLocation> memberLocation = memberLocationRepository.findByMember(member);
+
+        return memberMapper.toMyProfileSummaryResponse(
+            member,
+            memberLocation
+        );
+    }
+
+    @Override
     @Transactional
     public MemberResponse.UpdateMyProfileResponse updateProfile(
         Member member, MemberRequest.UpdateProfileRequest request, MultipartFile profileImage

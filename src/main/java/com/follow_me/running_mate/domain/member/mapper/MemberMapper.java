@@ -10,6 +10,7 @@ import com.follow_me.running_mate.domain.member.entity.MemberBadge;
 import com.follow_me.running_mate.domain.member.entity.MemberLocation;
 import com.follow_me.running_mate.global.common.util.FormatterUtil;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.Set;
 import org.springframework.stereotype.Component;
 
@@ -60,6 +61,27 @@ public class MemberMapper {
             .runningCount(runningCount)
             .footPrint(member.getFootprint())
             .build();
+    }
+
+    public MemberResponse.MyProfileSummaryResponse toMyProfileSummaryResponse(
+        Member member, Optional<MemberLocation> location
+    ) {
+        return MemberResponse.MyProfileSummaryResponse.builder()
+            .profileImageUrl(member.getProfileImageUrl())
+            .nickname(member.getNickname())
+            .introduce(member.getIntroduce())
+            .birth(member.getBirth())
+            .gender(member.getGender())
+            .locationInfo(toLocationInfo(location))
+            .build();
+    }
+
+    private MemberResponse.LocationInfo toLocationInfo(Optional<MemberLocation> location) {
+        return location.map(memberLocation -> MemberResponse.LocationInfo.builder()
+            .address(memberLocation.getAddress())
+            .latitude(memberLocation.getLocation().getY())
+            .longitude(memberLocation.getLocation().getX())
+            .build()).orElse(null);
     }
 
     public MemberResponse.OtherProfileResponse toOtherProfileResponse(
