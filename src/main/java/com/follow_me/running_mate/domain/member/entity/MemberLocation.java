@@ -38,4 +38,9 @@ public class MemberLocation extends BaseEntity {
 
     @Column(columnDefinition = "geography(Point, 4326)")
     private Point location;
+
+    public void updateLocation(String address, Point location) {
+        this.address = address;
+        this.location = location;
+    }
 }

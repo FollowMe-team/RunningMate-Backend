@@ -29,14 +29,9 @@ public class MemberResponse {
     }
 
     @Getter
-    @Builder
     @AllArgsConstructor
-    @NoArgsConstructor // 생성자에 모든 인자를 포함하지 않아도 되는 어노테이션
     public static class UpdateMyProfileResponse {
-        private String nickname;
-        private Gender gender; // Gender enum
-        private LocalDate birth; // LocalDate for birth
-        private Point address; //주소지
+        private Long memberId;
     }
 
     @Getter

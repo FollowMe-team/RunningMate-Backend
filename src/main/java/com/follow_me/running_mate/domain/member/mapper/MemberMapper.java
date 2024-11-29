@@ -52,13 +52,6 @@ public class MemberMapper {
                 .footPrint(member.getFootprint())
                 .build();
     }
-    public MemberResponse.UpdateMyProfileResponse toUpdateMyProfileResponse(Member member) {
-        return MemberResponse.UpdateMyProfileResponse.builder()
-                .nickname(member.getNickname())
-                .gender(member.getGender())
-                .birth(member.getBirth())
-                .build(); //TODO: 주소 데이터 추가하기
-    }
 
     public List<MemberResponse.BadgeResponse> toBadgeResponses(List<MemberBadge> memberBadges) {
         Set<BadgeType> acquiredBadges = memberBadges.stream()

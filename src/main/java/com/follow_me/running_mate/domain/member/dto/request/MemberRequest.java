@@ -87,8 +87,11 @@ public class MemberRequest {
         @NotNull(message = "생년월일은 필수입니다.")
         @Past(message = "생년월일은 과거 날짜여야 합니다.")
         private LocalDate birth;
-        //TODO : 주소 데이터 추가하기
 
+        private String introduce;
+
+        @NotNull(message = "주소는 필수입니다.")
+        private LocationInfo locationInfo;
     }
     @Getter
     @Builder
@@ -110,8 +113,11 @@ public class MemberRequest {
     @Getter
     @AllArgsConstructor
     public static class LocationInfo implements CourseRequest.GeoPoint {
-        private Double latitude;
-        private Double longitude;
+        @NotBlank(message = "주소는 필수입니다.")
         private String address;
+        @NotNull(message = "위도는 필수입니다.")
+        private Double latitude;
+        @NotNull(message = "경도는 필수입니다.")
+        private Double longitude;
     }
 }

@@ -15,11 +15,13 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/members")
@@ -37,13 +39,15 @@ public class MemberController {
             @ApiResponse(responseCode = "AUTH001", description = "인증되지 않은 사용자입니다.",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
     })
-    public BaseResponse<MemberResponse.MyProfileResponse> getMyProfile(@AuthenticationPrincipal PrincipalDetails principalDetails) {
+    public BaseResponse<MemberResponse.MyProfileResponse> getMyProfile(
+        @AuthenticationPrincipal PrincipalDetails principalDetails
+    ) {
         MemberResponse.MyProfileResponse memberProfile = memberService.getMyProfile(principalDetails.getUsername());
         // 이메일을 기반으로 사용자 프로필 조회
         return BaseResponse.success("마이 프로필 조회에 성공했습니다.", memberProfile);
     }
     //마이프로필 수정 api
-    @PatchMapping
+    @PatchMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "마이 프로필 수정 API" , description = "로그인한 사용자의 프로필을 수정합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "프로필 수정에 성공했습니다.",
@@ -55,11 +59,15 @@ public class MemberController {
             @ApiResponse(responseCode = "MEMBER002", description = "변경할 프로필 정보가 없습니다.",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
     })
-    public BaseResponse<MemberResponse.UpdateMyProfileResponse> updateMyProfile(@AuthenticationPrincipal PrincipalDetails principalDetails ,
-        @RequestBody @Valid MemberRequest.UpdateProfileRequest request) {
-        MemberResponse.UpdateMyProfileResponse memberProfile = memberService.updateProfile(request , principalDetails.getUsername());
-        // 이메일을 기반으로 사용자 프로필 조회
-        return BaseResponse.success("마이 프로필 수정에 성공했습니다.", memberProfile);
+    public BaseResponse<MemberResponse.UpdateMyProfileResponse> updateMyProfile(
+        @AuthenticationPrincipal PrincipalDetails principalDetails ,
+        @RequestPart(name = "request") @Valid MemberRequest.UpdateProfileRequest request,
+        @RequestPart(name = "profileImage", required = false) MultipartFile profileImage
+    ) {
+        return BaseResponse.success(
+            "마이 프로필 수정에 성공했습니다.",
+            memberService.updateProfile(principalDetails.member(), request, profileImage)
+        );
     }
     //비밀번호 변경 api
     @PatchMapping("/password")
@@ -76,11 +84,14 @@ public class MemberController {
             @ApiResponse(responseCode = "MEMBER004", description = "새 비밀번호가 현재 비밀번호와 동일합니다.",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
     })
-    public BaseResponse<Void> changePassword(@AuthenticationPrincipal PrincipalDetails principalDetails,
-                                               @RequestBody @Valid MemberRequest.ChangePasswordRequest request) {
+    public BaseResponse<Void> changePassword(
+        @AuthenticationPrincipal PrincipalDetails principalDetails,
+        @RequestBody @Valid MemberRequest.ChangePasswordRequest request
+    ) {
         memberService.changePassword(request, principalDetails.getUsername());
         return BaseResponse.success("비밀번호 변경에 성공했습니다.",null);
     }
+
     // 배지 조회 API
     @GetMapping("/badges")
     @Operation(summary = "멤버 배지 조회 API", description = "로그인한 사용자의 배지 정보를 조회합니다.")
@@ -92,7 +103,9 @@ public class MemberController {
             @ApiResponse(responseCode = "MEMBER001", description = "회원을 찾을 수 없습니다.",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
     })
-    public BaseResponse<MemberResponse.BadgeListResponse> getMemberBadges(@AuthenticationPrincipal PrincipalDetails principalDetails) {
+    public BaseResponse<MemberResponse.BadgeListResponse> getMemberBadges(
+        @AuthenticationPrincipal PrincipalDetails principalDetails
+    ) {
         return BaseResponse.success("배지 조회에 성공했습니다.", memberService.getMemberBadges(principalDetails.member()));
     }
     @GetMapping("/check/nickname=")

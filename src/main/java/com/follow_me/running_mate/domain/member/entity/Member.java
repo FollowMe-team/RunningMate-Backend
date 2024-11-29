@@ -4,6 +4,7 @@ import com.follow_me.running_mate.domain.enums.Gender;
 import com.follow_me.running_mate.domain.enums.Ranking;
 import com.follow_me.running_mate.domain.enums.Role;
 import com.follow_me.running_mate.domain.enums.RunningCareer;
+import com.follow_me.running_mate.domain.member.dto.request.MemberRequest;
 import com.follow_me.running_mate.global.common.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -111,10 +112,11 @@ public class Member extends BaseEntity {
         }
     }
     // 프로필 변경
-    public void updateProfile(String nickname, Gender gender, LocalDate birth) {
-        this.nickname = nickname;
-        this.gender = gender;
-        this.birth = birth;
+    public void updateProfile(MemberRequest.UpdateProfileRequest request) {
+        this.nickname = request.getNickname();
+        this.gender = request.getGender();
+        this.birth = request.getBirth();
+        this.introduce = request.getIntroduce();
     }
 
     // 프로필 이미지 변경

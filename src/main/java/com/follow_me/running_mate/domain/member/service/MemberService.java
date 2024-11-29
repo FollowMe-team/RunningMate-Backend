@@ -15,7 +15,9 @@ public interface MemberService {
     void logout(String email);
     void withdraw(Member member);
     MemberResponse.MyProfileResponse getMyProfile(String email);
-    MemberResponse.UpdateMyProfileResponse updateProfile(MemberRequest.UpdateProfileRequest request , Member member);
+    MemberResponse.UpdateMyProfileResponse updateProfile(
+        Member member, MemberRequest.UpdateProfileRequest request, MultipartFile profileImage
+    );
     void changePassword(MemberRequest.ChangePasswordRequest request, String email);
     MemberResponse.BadgeListResponse getMemberBadges(Member member);
     boolean isNicknameDuplicate(String nickname);

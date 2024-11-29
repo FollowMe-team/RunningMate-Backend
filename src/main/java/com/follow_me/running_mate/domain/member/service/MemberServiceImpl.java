@@ -15,6 +15,7 @@ import com.follow_me.running_mate.domain.member.repository.MemberLocationReposit
 import com.follow_me.running_mate.domain.member.repository.MemberRepository;
 import com.follow_me.running_mate.domain.token.repository.TokenRepository;
 import com.follow_me.running_mate.global.common.service.S3ImageService;
+import com.follow_me.running_mate.global.common.util.FormatterUtil;
 import com.follow_me.running_mate.global.error.code.CommonErrorCode;
 import com.follow_me.running_mate.global.error.exception.CustomException;
 import lombok.RequiredArgsConstructor;
@@ -81,25 +82,33 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     @Transactional
-    public MemberResponse.UpdateMyProfileResponse updateProfile(MemberRequest.UpdateProfileRequest request, String email) {
-        // 이메일로 회원 조회
-        Member member = memberRepository.findByEmail(email)
-                .orElseThrow(() -> new CustomException(MemberErrorCode.NOT_FOUND)); // 회원이 없으면 예외 처리
-        //이전과 동일해 바꿀필요가 없는경우
-        if (request.getNickname().equals(member.getNickname()) || request.getBirth() == member.getBirth() || request.getGender() == member.getGender()) {
-            throw new CustomException(MemberErrorCode.NO_CHANGES_DETECTED);
-        }
-        // 프로필 정보 업데이트
-        member.updateProfile(
-                request.getNickname(),
-                request.getGender(),
-                request.getBirth()
-        );
-        // 변경된 정보를 저장
-        memberRepository.save(member);
+    public MemberResponse.UpdateMyProfileResponse updateProfile(
+        Member member, MemberRequest.UpdateProfileRequest request, MultipartFile profileImage
+    ) {
+        member.updateProfile(request);
 
-        return memberMapper.toUpdateMyProfileResponse(member);
-        //TODO: 이미지 변경도 추가하기
+        if (profileImage != null) {
+            // 기존 이미지 삭제
+            String oldProfileImageUrl = member.getProfileImageUrl();
+            s3ImageService.deleteImageFromS3(oldProfileImageUrl);
+
+            // 새로운 이미지로 교체
+            String profileImageUrl = s3ImageService.upload(profileImage);
+            member.updateProfileImage(profileImageUrl);
+        }
+
+        Member savedMember = memberRepository.save(member);
+
+        // 거주지 정보 업데이트
+        memberLocationRepository.findByMember(savedMember)
+                .ifPresent(memberLocation -> {
+                    memberLocation.updateLocation(
+                        request.getIntroduce(), FormatterUtil.formatPoint(request.getLocationInfo())
+                    );
+                    memberLocationRepository.save(memberLocation);
+                });
+
+        return new MemberResponse.UpdateMyProfileResponse(savedMember.getId());
     }
 
     @Override
