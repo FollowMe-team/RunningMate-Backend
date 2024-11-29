@@ -125,6 +125,7 @@ public class CrewController {
     ) {
         return BaseResponse.success("일정이 등록되었습니다.", crewService.registerSchedule(principalDetails.member(), crewId, request));
     }
+
     @PostMapping("/apply/{scheduleId}")
     @Operation(summary = "크루 일정 참여 신청 API", description = "특정 크루 일정에 참여 신청을 합니다.")
     @ApiResponse(responseCode = "200", description = "참여 신청 성공",
@@ -133,8 +134,9 @@ public class CrewController {
             @AuthenticationPrincipal PrincipalDetails principalDetails,
             @PathVariable(value = "scheduleId") Long scheduleId
     ) {
-        return BaseResponse.success("일정 참여 신청이 완료되었습니다.",crewService.applyToSchedule(principalDetails.member(), scheduleId));
+        return BaseResponse.success("일정 참여 신청이 완료되었습니다.", crewService.applyToSchedule(principalDetails.member(), scheduleId));
     }
+
     @PatchMapping("/{memberId}")
     @Operation(summary = "크루 신청 상태 업데이트 API", description = "크루 신청 상태를 수락하거나 거절합니다.")
     @ApiResponse(responseCode = "200", description = "상태 업데이트 성공",
@@ -171,6 +173,7 @@ public class CrewController {
     ) {
         return BaseResponse.success("즐겨찾기 코스를 성공적으로 조회했습니다.", crewService.getFavoriteCourses(crewId));
     }
+
     @PostMapping("{crewId}/courses/{courseId}/favorite")
     @Operation(summary = "크루 코스 즐겨찾기 추가 API", description = "특정 크루의 즐겨찾기 코스에 추가합니다.")
     @ApiResponse(responseCode = "200", description = "즐겨찾기 추가 성공",
@@ -180,7 +183,7 @@ public class CrewController {
             @PathVariable(value = "crewId") Long crewId,
             @PathVariable(value = "courseId") Long courseId
     ) {
-        return BaseResponse.success("코스가 즐겨찾기에 추가되었습니다.", crewService.addFavoriteCourse(principalDetails.member(),crewId, courseId));
+        return BaseResponse.success("코스가 즐겨찾기에 추가되었습니다.", crewService.addFavoriteCourse(principalDetails.member(), crewId, courseId));
     }
 
     @PostMapping("/{crewId}/img")
@@ -190,9 +193,9 @@ public class CrewController {
     public BaseResponse<CrewResponse.ActivityImageListResponse> uploadCrewImages(
             @AuthenticationPrincipal PrincipalDetails principalDetails,
             @PathVariable(value = "crewId") Long crewId,
-            @RequestPart(value = "activityImages" ) List<MultipartFile> activityImages
+            @RequestPart(value = "activityImages") List<MultipartFile> activityImages
     ) {
-        return BaseResponse.success("이미지 업로드가 완료되었습니다.",crewService.uploadCrewImages(crewId, activityImages,principalDetails.member()));
+        return BaseResponse.success("이미지 업로드가 완료되었습니다.", crewService.uploadCrewImages(crewId, activityImages, principalDetails.member()));
     }
     //TODO: 크루 활동 사진 순서에 맞춰서 수정 메소드 짜기
 
@@ -206,8 +209,9 @@ public class CrewController {
             @PathVariable(value = "scheduleId") Long scheduleId,
             @RequestBody @Valid CrewRequest.createSchedule request
     ) {
-        return BaseResponse.success("일정이 성공적으로 수정되었습니다.",crewService.updateSchedule(principalDetails.member(),crewId, scheduleId, request));
+        return BaseResponse.success("일정이 성공적으로 수정되었습니다.", crewService.updateSchedule(principalDetails.member(), crewId, scheduleId, request));
     }
+
     @PatchMapping("/schedule/{scheduleId}/cancel")
     @Operation(summary = "크루 일정 참여 취소 API", description = "크루원이 일정 참여를 취소합니다.")
     @ApiResponses(value = {
@@ -225,6 +229,25 @@ public class CrewController {
             @PathVariable(value = "scheduleId") Long scheduleId
     ) {
         crewService.cancelScheduleApply(principalDetails.member(), scheduleId);
-        return BaseResponse.success("일정 참여가 성공적으로 취소되었습니다.",null);
+        return BaseResponse.success("일정 참여가 성공적으로 취소되었습니다.", null);
+    }
+
+    @PatchMapping("/schedule/{scheduleId}/attend") //TODO: 크루 멤버 아이디로 값을 받을지 고민 갑슬 바로 보기 애매함
+    @Operation(summary = "크루 일정 출석 체크 API", description = "크루원이 일정에 출석 여부를 체크합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "출석 체크 성공",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+            @ApiResponse(responseCode = "CREW009", description = "해당 스케줄을 찾을 수 없음",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+            @ApiResponse(responseCode = "CREW004", description = "해당 사용자에게 권한이 없습니다.",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
+    })
+    public BaseResponse<Void> attendSchedule(
+            @AuthenticationPrincipal PrincipalDetails principalDetails,
+            @PathVariable(value = "scheduleId") Long scheduleId,
+            @RequestBody @Valid CrewRequest.attendCrewSchedule memberIds
+    ) {
+        crewService.attendSchedule(principalDetails.member(), scheduleId, memberIds.getMemberIds());
+        return BaseResponse.success("크루 일정 출석체크가 완료되었습니다.", null);
     }
 }

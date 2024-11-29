@@ -24,5 +24,6 @@ public interface CrewScheduleApplyRepository extends JpaRepository<CrewScheduleA
     boolean existsByCrewScheduleAndCrewMember(CrewSchedule crewSchedule, CrewMember crewMember);
 
     Optional<CrewScheduleApply> findByCrewScheduleAndCrewMember(CrewSchedule crewSchedule, CrewMember crewMember);
+    List<CrewScheduleApply> findAllByCrewScheduleId(Long scheduleId);
 }
 

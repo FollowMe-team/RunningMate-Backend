@@ -34,6 +34,13 @@ public class CrewRequest {
         @Size(min = 1, message = "최소 1개의 활동 시간을 입력해주세요.")
         private List<ActivityTime> activityTimes;
     }
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class attendCrewSchedule {
+        @NotNull(message = "출석 체크 할 인원들을 보내주세요 출석한 인원이 없다면 빈 배열을 보내주세요")
+        private List<Long> memberIds;
+    }
 
     @Getter
     @AllArgsConstructor

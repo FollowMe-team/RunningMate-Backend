@@ -388,16 +388,35 @@ public class CrewServiceImpl implements CrewService {
         crewSchedule.decreaseMemberCount();
         crewScheduleApply.delete();
     }
+    @Override
+    @Transactional
+    public void attendSchedule(Member member, Long scheduleId, List<Long> memberIds) {
+        CrewSchedule crewSchedule = crewScheduleRepository.findById(scheduleId)
+                .orElseThrow(() -> new CustomException(CrewErrorCode.NOT_FOUND_SCHEDULE));
+        if(member.getId().equals(crewSchedule.getCrew().getLeader().getId())){
+            throw new CustomException(CrewErrorCode.FORBIDDEN_ACCESS);
+        }
+        List<CrewScheduleApply> applyList = crewScheduleApplyRepository.findAllByCrewScheduleId(scheduleId);
+
+        for (CrewScheduleApply apply : applyList) {
+            Long existingMemberId = apply.getCrewMember().getMember().getId();
+            if (memberIds.contains(existingMemberId)) {
+                apply.setStatus(CrewScheduleApplyStatus.PARTICIPATE);
+            } else {
+                apply.setStatus(CrewScheduleApplyStatus.ABSENCE);
+            }
+        }
+    }
 
     @Override
     @Transactional
     public CrewResponse.UpdateCrewResponse updateCrew(Member member, Long crewId, CrewRequest.UpdateCrewRequest request) {
         // 크루 조회
         Crew crew = crewRepository.findById(crewId)
-                .orElseThrow(() -> new CustomException(CrewErrorCode.NOT_FOUND, "크루를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(CrewErrorCode.NOT_FOUND));
 
         if (!crew.getLeader().getId().equals(member.getId())) {
-            throw new CustomException(CrewErrorCode.FORBIDDEN_ACCESS, "크루를 수정할 권한이 없습니다.");
+            throw new CustomException(CrewErrorCode.FORBIDDEN_ACCESS);
         }
 
         // 크루 정보 수정
