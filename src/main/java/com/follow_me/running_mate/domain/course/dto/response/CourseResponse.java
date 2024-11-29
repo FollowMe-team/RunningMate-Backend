@@ -206,7 +206,7 @@ public class CourseResponse {
         private String nickname;
         private String profileImageUrl;
         private Ranking ranking;
-        // 러닝 발자국 추가
+        private Long footPrint;
     }
 
     @Getter

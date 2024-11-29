@@ -63,6 +63,28 @@ public class MemberMapper {
             .build();
     }
 
+    public MemberResponse.FootprintInfo toFootprintInfo(MemberFootprint footprint) {
+
+        MemberResponse.FootprintInfo.FootprintInfoBuilder builder = MemberResponse.FootprintInfo.builder()
+            .footprintId(footprint.getId())
+            .memberId(footprint.getWriter().getId())
+            .content(footprint.getContent())
+            .footprintType(footprint.getType())
+            .createdAt(FormatterUtil.formatTime(footprint.getCreatedAt()));
+
+        if (footprint.getIsAnonymous()) {
+            builder
+                .profileImageUrl(null)
+                .nickname("익명");
+        } else {
+            builder
+                .profileImageUrl(footprint.getWriter().getProfileImageUrl())
+                .nickname(footprint.getWriter().getNickname());
+        }
+
+        return builder.build();
+    }
+
     public MemberResponse.MyProfileResponse toMyProfileResponse(
         Member member, String address, Double runningDistance, Long runningCount
     ) {

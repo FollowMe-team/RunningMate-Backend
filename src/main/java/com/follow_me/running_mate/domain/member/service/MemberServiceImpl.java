@@ -303,6 +303,24 @@ public class MemberServiceImpl implements MemberService {
         updateFootprint(targetMember, request.getType());
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public MemberResponse.FootprintListResponse getFootprints(Member member, Long memberId) {
+        if (memberId == null) {
+            memberId = member.getId();
+        }
+
+        Member targetMember = findTargetMember(memberId);
+
+        List<MemberFootprint> footprints = memberFootprintRepository.findAllByTargetOrderByCreatedAtDesc(targetMember);
+
+        return new MemberResponse.FootprintListResponse(
+            footprints.stream()
+                .map(memberMapper::toFootprintInfo)
+                .toList()
+        );
+    }
+
     private void validateSelfFollow(Member member, Long targetMemberId) {
         if (member.getId().equals(targetMemberId)) {
             throw new CustomException(MemberErrorCode.NOT_SELF_TARGET);

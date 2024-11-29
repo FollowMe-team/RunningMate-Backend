@@ -185,6 +185,7 @@ public class CourseResponseMapper {
             .nickname(member.getNickname())
             .profileImageUrl(member.getProfileImageUrl())
             .ranking(member.getRanking())
+            .footPrint(member.getFootprint())
             .build();
     }
     public CourseResponse.CourseRecordInfo toCourseRecordInfo(CourseRecord courseRecord, Boolean isMine) {

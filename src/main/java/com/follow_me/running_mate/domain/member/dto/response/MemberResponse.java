@@ -1,5 +1,6 @@
 package com.follow_me.running_mate.domain.member.dto.response;
 
+import com.follow_me.running_mate.domain.enums.FootprintType;
 import com.follow_me.running_mate.domain.enums.Gender;
 import com.follow_me.running_mate.domain.enums.Ranking;
 import lombok.AllArgsConstructor;
@@ -121,4 +122,23 @@ public class MemberResponse {
         private Double longitude;
     }
 
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class FootprintInfo {
+        private Long footprintId;
+        private Long memberId;
+        private String profileImageUrl;
+        private String nickname;
+        private FootprintType footprintType;
+        private String content;
+        private String createdAt;
+    }
+
+    @Getter
+    @AllArgsConstructor
+    public static class FootprintListResponse {
+        private List<FootprintInfo> footprints;
+    }
 }

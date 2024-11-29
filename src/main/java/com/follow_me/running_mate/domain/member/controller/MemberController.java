@@ -7,6 +7,7 @@ import com.follow_me.running_mate.domain.member.dto.response.MemberResponse;
 import com.follow_me.running_mate.domain.member.service.MemberService;
 import com.follow_me.running_mate.global.common.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -300,5 +301,25 @@ public class MemberController {
     ) {
         memberService.createFootprint(principalDetails.member(), memberId, request);
         return BaseResponse.success("발자국 남기기에 성공했습니다.", null);
+    }
+
+    @GetMapping("/footprint/{memberId}")
+    @Operation(summary = "발자국 조회 API", description = "특정 사용자에게 남긴 발자국을 조회합니다.(memberId가 없을 시 자신의 발자국 조회)")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "발자국 조회에 성공했습니다.",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+        @ApiResponse(responseCode = "MEMBER001", description = "회원을 찾을 수 없습니다.",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+        @ApiResponse(responseCode = "MEMBER008", description = "존재하지 않는 대상 사용자입니다.",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+    })
+    public BaseResponse<MemberResponse.FootprintListResponse> getFootprints(
+        @AuthenticationPrincipal PrincipalDetails principalDetails,
+        @PathVariable(value = "memberId", required = false) Long memberId
+    ) {
+        return BaseResponse.success(
+            "발자국 조회에 성공했습니다.",
+            memberService.getFootprints(principalDetails.member(), memberId)
+        );
     }
 }
