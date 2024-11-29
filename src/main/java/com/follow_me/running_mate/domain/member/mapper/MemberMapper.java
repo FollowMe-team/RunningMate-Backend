@@ -42,15 +42,24 @@ public class MemberMapper {
             .build();
     }
 
-    public MemberResponse.MyProfileResponse toMyProfileResponse(Member member) {
+    public MemberResponse.MyProfileResponse toMyProfileResponse(
+        Member member, String address, Double runningDistance, Long runningCount
+    ) {
         return MemberResponse.MyProfileResponse.builder()
-                .name(member.getName())
-                .nickname(member.getNickname())
-                .gender(member.getGender())
-                .birth(member.getBirth())
-                .runningCareer(member.getRunningCareer())
-                .footPrint(member.getFootprint())
-                .build();
+            .profileImageUrl(member.getProfileImageUrl())
+            .nickname(member.getNickname())
+            .ranking(member.getRanking())
+            .introduce(member.getIntroduce())
+            .followerCount(FormatterUtil.formatMemberCount(member.getFollowerCount()))
+            .followingCount(FormatterUtil.formatMemberCount(member.getFollowingCount()))
+            .name(member.getName())
+            .gender(member.getGender())
+            .birth(member.getBirth())
+            .address(address)
+            .runningDistance(runningDistance)
+            .runningCount(runningCount)
+            .footPrint(member.getFootprint())
+            .build();
     }
 
     public List<MemberResponse.BadgeResponse> toBadgeResponses(List<MemberBadge> memberBadges) {

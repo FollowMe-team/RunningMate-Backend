@@ -1,6 +1,7 @@
 package com.follow_me.running_mate.domain.member.dto.response;
 
 import com.follow_me.running_mate.domain.enums.Gender;
+import com.follow_me.running_mate.domain.enums.Ranking;
 import com.follow_me.running_mate.domain.enums.RunningCareer;
 import com.follow_me.running_mate.domain.enums.RunningGoal;
 import lombok.AllArgsConstructor;
@@ -15,16 +16,22 @@ import java.util.List;
 public class MemberResponse {
 
     @Getter
-    @Builder // 인자가 많아 생성자가 많이 필요할때 사용해 선택적으로 인자를 사용해 편하게 해주는 어노테이션
-    @AllArgsConstructor // 모든 인자들을 포함하는 생성자 만들어주는 어노테이션
+    @Builder
+    @AllArgsConstructor
     @NoArgsConstructor
     public static class MyProfileResponse {
-        private String name;
+        private String profileImageUrl;
         private String nickname;
-        private Gender gender; // Gender enum
-        private LocalDate birth; // LocalDate for birth
-        private RunningGoal runningGoal; // RunningGoal enum
-        private RunningCareer runningCareer; // RunningCareer enum
+        private Ranking ranking;
+        private String introduce;
+        private String followerCount;
+        private String followingCount;
+        private String name;
+        private Gender gender;
+        private LocalDate birth;
+        private String address;
+        private Double runningDistance;
+        private Long runningCount;
         private Long footPrint;
     }
 

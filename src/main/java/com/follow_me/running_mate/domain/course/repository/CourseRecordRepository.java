@@ -14,4 +14,5 @@ public interface CourseRecordRepository extends JpaRepository<CourseRecord, Long
 
     List<CourseRecord> findAllByRunnerAndStartTimeBetween(Member runner, LocalDateTime startOfDay, LocalDateTime endOfDay);
 
+    List<CourseRecord> findAllByRunner(Member runner);
 }

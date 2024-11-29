@@ -45,6 +45,23 @@ public class FormatterUtil {
         }
     }
 
+    // MemberCount 포맷팅
+    public static String formatMemberCount(Long count) {
+        if (count == null) {
+            return "0";
+        }
+
+        if (count < 1000) {
+            return count.toString();
+        } else if (count < 1000000) {
+            return String.format("%.1fK", count / 1000.0).replaceAll("\\.0K$", "K");
+        } else if (count < 1000000000) {
+            return String.format("%.1fM", count / 1000000.0).replaceAll("\\.0M$", "M");
+        } else {
+            return String.format("%.1fB", count / 1000000000.0).replaceAll("\\.0B$", "B");
+        }
+    }
+
     // Rating 포맷팅
     public static Double formatRating(Double rating) {
         return rating != null ? Double.parseDouble(String.format("%.1f", rating)) : 0.0;

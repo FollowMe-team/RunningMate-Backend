@@ -42,11 +42,11 @@ public class MemberController {
     public BaseResponse<MemberResponse.MyProfileResponse> getMyProfile(
         @AuthenticationPrincipal PrincipalDetails principalDetails
     ) {
-        MemberResponse.MyProfileResponse memberProfile = memberService.getMyProfile(principalDetails.getUsername());
-        // 이메일을 기반으로 사용자 프로필 조회
-        return BaseResponse.success("마이 프로필 조회에 성공했습니다.", memberProfile);
+        return BaseResponse.success(
+            "마이 프로필 조회에 성공했습니다.", memberService.getMyProfile(principalDetails.member())
+        );
     }
-    //마이프로필 수정 api
+
     @PatchMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "마이 프로필 수정 API" , description = "로그인한 사용자의 프로필을 수정합니다.")
     @ApiResponses(value = {
@@ -69,7 +69,7 @@ public class MemberController {
             memberService.updateProfile(principalDetails.member(), request, profileImage)
         );
     }
-    //비밀번호 변경 api
+
     @PatchMapping("/password")
     @Operation(summary = "비밀번호 변경 API", description = "로그인한 사용자의 비밀번호를 변경합니다.")
     @ApiResponses(value = {
@@ -108,6 +108,7 @@ public class MemberController {
     ) {
         return BaseResponse.success("배지 조회에 성공했습니다.", memberService.getMemberBadges(principalDetails.member()));
     }
+
     @GetMapping("/check/nickname=")
     @Operation(summary = "닉네임 중복 확인 API", description = "입력된 닉네임이 중복되었는지 확인합니다. 존재시 true")
     @ApiResponses(value = {

@@ -1,12 +1,14 @@
 package com.follow_me.running_mate.domain.member.service;
 
 import com.follow_me.running_mate.domain.course.dto.response.CourseResponse;
+import com.follow_me.running_mate.domain.course.entity.CourseRecord;
 import com.follow_me.running_mate.domain.course.service.record.CourseRecordService;
 import com.follow_me.running_mate.domain.member.dto.request.MemberRequest;
 import com.follow_me.running_mate.domain.member.dto.response.MemberResponse;
 import com.follow_me.running_mate.domain.member.entity.Member;
 import com.follow_me.running_mate.domain.member.entity.MemberBadge;
 import com.follow_me.running_mate.domain.member.entity.MemberFollow;
+import com.follow_me.running_mate.domain.member.entity.MemberLocation;
 import com.follow_me.running_mate.domain.member.exception.MemberErrorCode;
 import com.follow_me.running_mate.domain.member.mapper.MemberMapper;
 import com.follow_me.running_mate.domain.member.repository.MemberBadgeRepository;
@@ -18,6 +20,7 @@ import com.follow_me.running_mate.global.common.service.S3ImageService;
 import com.follow_me.running_mate.global.common.util.FormatterUtil;
 import com.follow_me.running_mate.global.error.code.CommonErrorCode;
 import com.follow_me.running_mate.global.error.exception.CustomException;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -71,13 +74,19 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     @Transactional(readOnly = true)
-    public MemberResponse.MyProfileResponse getMyProfile(String email) {
-        // 이메일로 회원 조회
-        Member member = memberRepository.findByEmail(email)
-                .orElseThrow(() -> new CustomException(MemberErrorCode.NOT_FOUND)); // 회원이 없으면 예외 처리
+    public MemberResponse.MyProfileResponse getMyProfile(Member member) {
 
-        // Member 엔티티를 MyProfileResponse DTO로 변환하여 반환
-        return memberMapper.toMyProfileResponse(member);
+        Optional<MemberLocation> memberLocation = memberLocationRepository.findByMember(member);
+        String address = memberLocation.map(MemberLocation::getAddress).orElse(null);
+
+        List<CourseRecord> recordsByMember = courseRecordService.getRecordsByMember(member);
+
+        return memberMapper.toMyProfileResponse(
+            member,
+            address,
+            calculateTotalDistance(recordsByMember),
+            (long) recordsByMember.size()
+        );
     }
 
     @Override
@@ -254,6 +263,12 @@ public class MemberServiceImpl implements MemberService {
             memberRepository.save(currentMember);
             existingFollow.delete();
         }
+    }
+
+    public Double calculateTotalDistance(List<CourseRecord> records) {
+        return records.isEmpty() ? 0L : records.stream()
+            .mapToDouble(CourseRecord::getDistance)
+            .sum();
     }
 }
 

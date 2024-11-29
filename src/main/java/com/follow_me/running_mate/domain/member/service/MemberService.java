@@ -14,7 +14,7 @@ public interface MemberService {
     void signup(MemberRequest.SignUpRequest request, MultipartFile profileImage);
     void logout(String email);
     void withdraw(Member member);
-    MemberResponse.MyProfileResponse getMyProfile(String email);
+    MemberResponse.MyProfileResponse getMyProfile(Member member);
     MemberResponse.UpdateMyProfileResponse updateProfile(
         Member member, MemberRequest.UpdateProfileRequest request, MultipartFile profileImage
     );

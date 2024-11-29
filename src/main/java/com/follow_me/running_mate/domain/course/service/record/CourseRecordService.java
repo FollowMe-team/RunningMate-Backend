@@ -3,6 +3,7 @@ package com.follow_me.running_mate.domain.course.service.record;
 import com.follow_me.running_mate.domain.course.dto.request.CourseRequest;
 import com.follow_me.running_mate.domain.course.dto.response.CourseResponse;
 import com.follow_me.running_mate.domain.course.entity.Course;
+import com.follow_me.running_mate.domain.course.entity.CourseRecord;
 import com.follow_me.running_mate.domain.member.entity.Member;
 
 import java.time.LocalDate;
@@ -15,4 +16,5 @@ public interface CourseRecordService {
         Member member, Course course, CourseRequest.CreateCourseRecordRequest request
     );
     List<CourseResponse.CourseRecordInfo> getRecordsByDate(Member member, LocalDate date);
+    List<CourseRecord> getRecordsByMember(Member member);
 }

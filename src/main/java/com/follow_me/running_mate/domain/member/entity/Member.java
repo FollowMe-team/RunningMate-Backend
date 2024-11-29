@@ -76,11 +76,11 @@ public class Member extends BaseEntity {
 
     @Column(nullable = false)
     @Builder.Default
-    private Integer followerCount = 0;
+    private Long followerCount = 0L;
 
     @Column(nullable = false)
     @Builder.Default
-    private Integer followingCount = 0;
+    private Long followingCount = 0L;
 
     @Column(nullable = false)
     @Builder.Default
