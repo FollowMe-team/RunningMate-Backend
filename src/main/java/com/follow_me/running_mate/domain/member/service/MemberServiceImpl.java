@@ -14,6 +14,7 @@ import com.follow_me.running_mate.domain.member.repository.MemberFollowRepositor
 import com.follow_me.running_mate.domain.member.repository.MemberLocationRepository;
 import com.follow_me.running_mate.domain.member.repository.MemberRepository;
 import com.follow_me.running_mate.domain.token.repository.TokenRepository;
+import com.follow_me.running_mate.global.common.service.S3ImageService;
 import com.follow_me.running_mate.global.error.code.CommonErrorCode;
 import com.follow_me.running_mate.global.error.exception.CustomException;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -34,20 +36,23 @@ public class MemberServiceImpl implements MemberService {
     private final TokenRepository tokenRepository;
     private final MemberBadgeRepository memberBadgeRepository;
     private final CourseRecordService courseRecordService;
+    private final S3ImageService s3ImageService;
 
     private final MemberFollowRepository memberFollowRepository;
     private final MemberLocationRepository memberLocationRepository;
 
     @Override
-    public String signup(MemberRequest.SignUpRequest request) {
+    public void signup(MemberRequest.SignUpRequest request, MultipartFile profileImage) {
 
-        Member savedMember = memberRepository.save(
-            memberMapper.toEntity(request, passwordEncoder.encode(request.getPassword()))
-        );
+        Member member = memberMapper.toEntity(request, passwordEncoder.encode(request.getPassword()));
 
+        if (profileImage != null) {
+            String profileImageUrl = s3ImageService.upload(profileImage);
+            member.updateProfileImage(profileImageUrl);
+        }
+
+        Member savedMember = memberRepository.save(member);
         memberLocationRepository.save(memberMapper.toMemberLocation(request.getLocationInfo(), savedMember));
-
-        return savedMember.getEmail();
     }
 
     @Override

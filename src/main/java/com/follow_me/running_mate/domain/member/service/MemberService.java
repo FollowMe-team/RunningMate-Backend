@@ -7,14 +7,15 @@ import com.follow_me.running_mate.domain.member.entity.Member;
 
 import java.time.LocalDate;
 import java.util.List;
+import org.springframework.web.multipart.MultipartFile;
 
 public interface MemberService {
 
-    String signup(MemberRequest.SignUpRequest request);
+    void signup(MemberRequest.SignUpRequest request, MultipartFile profileImage);
     void logout(String email);
     void withdraw(Member member);
     MemberResponse.MyProfileResponse getMyProfile(String email);
-    MemberResponse.UpdateMyProfileResponse updateProfile(MemberRequest.UpdateProfileRequest request , String email);
+    MemberResponse.UpdateMyProfileResponse updateProfile(MemberRequest.UpdateProfileRequest request , Member member);
     void changePassword(MemberRequest.ChangePasswordRequest request, String email);
     MemberResponse.BadgeListResponse getMemberBadges(Member member);
     boolean isNicknameDuplicate(String nickname);

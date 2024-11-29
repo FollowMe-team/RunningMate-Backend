@@ -15,9 +15,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/auth")
@@ -58,7 +60,7 @@ public class AuthController {
         // 실제 구현은 필터에서 처리되므로 빈 메서드
     }
 
-    @PostMapping("/signup")
+    @PostMapping(value = "/signup", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "회원 가입 API")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "회원 가입에 성공했습니다.",
@@ -66,8 +68,11 @@ public class AuthController {
         @ApiResponse(responseCode = "VALID001", description = "잘못된 입력값입니다",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
     })
-    public BaseResponse<Void> signup(@RequestBody @Valid MemberRequest.SignUpRequest request) {
-        memberService.signup(request);
+    public BaseResponse<Void> signup(
+        @RequestPart(name = "request") @Valid MemberRequest.SignUpRequest request,
+        @RequestPart(name = "profileImage", required = false)MultipartFile profileImage
+    ) {
+        memberService.signup(request, profileImage);
         return BaseResponse.success("회원 가입에 성공했습니다.", null);
     }
 

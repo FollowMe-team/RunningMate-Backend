@@ -116,9 +116,16 @@ public class Member extends BaseEntity {
         this.gender = gender;
         this.birth = birth;
     }
+
+    // 프로필 이미지 변경
+    public void updateProfileImage(String profileImageUrl) {
+        this.profileImageUrl = profileImageUrl;
+    }
+
     //비밀번호 변경
     public void changePassword(String encodedNewPassword) {
         this.password = encodedNewPassword;
     }
+
 
 }
