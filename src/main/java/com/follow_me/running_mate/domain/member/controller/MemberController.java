@@ -13,13 +13,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.time.YearMonth;
 import lombok.RequiredArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -108,7 +107,6 @@ public class MemberController {
         return BaseResponse.success("비밀번호 변경에 성공했습니다.",null);
     }
 
-    // 배지 조회 API
     @GetMapping("/badges")
     @Operation(summary = "멤버 배지 조회 API", description = "로그인한 사용자의 배지 정보를 조회합니다.")
     @ApiResponses(value = {
@@ -179,24 +177,22 @@ public class MemberController {
         );
     }
 
-    @GetMapping("/record")
-    @Operation(summary = "마이 기록 조회 (캘린더)", description = "자신이 선택한 날짜의 코스 기록을 확인합니다.")
+    @GetMapping("/records/monthly")
+    @Operation(summary = "나의 러닝 기록 조회(월별)", description = "월별 러닝 기록을 조회합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "코스 기록 조회에 성공했습니다.",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
-            @ApiResponse(responseCode = "400", description = "입력 값이 유효하지 않습니다.",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
-            @ApiResponse(responseCode = "500", description = "서버 오류입니다.",
+            @ApiResponse(responseCode = "200", description = "나의 월별 러닝 기록 조회에 성공했습니다.",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
     })
-    public BaseResponse<CourseResponse.CourseRecordInfoList> getMyRunningRecord(
+    public BaseResponse<CourseResponse.CourseRecordInfoList> getMyCourseRecords(
             @AuthenticationPrincipal PrincipalDetails principalDetails,
-            @RequestParam(value = "date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date) {
-
-        List<CourseResponse.CourseRecordInfo> response = memberService.getMemberRunningRecords(principalDetails.member(), date);
-        return BaseResponse.success("해당 일자의 코스 조회에 성공했습니다.", new CourseResponse.CourseRecordInfoList(response));
+            @RequestParam(value = "yearMonth") YearMonth yearMonth
+    ) {
+        return BaseResponse.success(
+            "나의 월별 러닝 기록 조회에 성공했습니다.",
+            memberService.getMyCourseRecords(principalDetails.member(), yearMonth));
     }
-    @GetMapping("/follow") // 내 팔로우 목록 조회 API
+
+    @GetMapping("/follow")
     @Operation(summary = "사용자 팔로우 조회 API", description = "로그인한 사용자가 팔로우한 사용자 목록을 조회합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "팔로우 목록 조회에 성공했습니다.",
@@ -205,14 +201,15 @@ public class MemberController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
     })
     public BaseResponse<MemberResponse.FollowListResponse> getFollowList(
-            @AuthenticationPrincipal PrincipalDetails principalDetails) {
-
+            @AuthenticationPrincipal PrincipalDetails principalDetails
+    ) {
         // 로그인한 사용자의 팔로우 목록 조회
         List<MemberResponse.FollowResponse> followList = memberService.getFollowList(principalDetails.member());
         // 팔로우 목록 조회 성공
         return BaseResponse.success("팔로우 목록 조회에 성공했습니다.", new MemberResponse.FollowListResponse(followList));
     }
-    @GetMapping("/follower") // 사용자 팔로워 목록 조회 API
+
+    @GetMapping("/follower")
     @Operation(summary = "사용자 팔로워 조회 API", description = "로그인한 사용자를 팔로우한 사용자 목록을 조회합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "팔로워 목록 조회에 성공했습니다.",
@@ -242,8 +239,8 @@ public class MemberController {
     })
     public BaseResponse<Void> follow(
             @AuthenticationPrincipal PrincipalDetails principalDetails,
-            @PathVariable(value = "id") Long id) {
-
+            @PathVariable(value = "id") Long id
+    ) {
         memberService.follow(principalDetails.member(), id);
         return BaseResponse.success("팔로우 처리에 성공했습니다.", null);
     }
@@ -260,8 +257,8 @@ public class MemberController {
     })
     public BaseResponse<Void> unfollow(
             @AuthenticationPrincipal PrincipalDetails principalDetails,
-            @PathVariable(value = "id") Long id) {
-
+            @PathVariable(value = "id") Long id
+    ) {
         memberService.unfollow(principalDetails.member(), id);
         return BaseResponse.success("팔로우 취소에 성공했습니다.", null);
     }

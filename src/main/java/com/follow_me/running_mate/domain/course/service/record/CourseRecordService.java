@@ -6,7 +6,7 @@ import com.follow_me.running_mate.domain.course.entity.Course;
 import com.follow_me.running_mate.domain.course.entity.CourseRecord;
 import com.follow_me.running_mate.domain.member.entity.Member;
 
-import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 
 public interface CourseRecordService {
@@ -15,6 +15,6 @@ public interface CourseRecordService {
     CourseResponse.CourseRecordIdResponse createCourseRecord(
         Member member, Course course, CourseRequest.CreateCourseRecordRequest request
     );
-    List<CourseResponse.CourseRecordInfo> getRecordsByDate(Member member, LocalDate date);
+    CourseResponse.CourseRecordInfoList getRecordsByMonth(Member member, YearMonth yearMonth);
     List<CourseRecord> getRecordsByMember(Member member);
 }

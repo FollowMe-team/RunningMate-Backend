@@ -10,9 +10,9 @@ import com.follow_me.running_mate.domain.course.repository.CourseRecordPointRepo
 import com.follow_me.running_mate.domain.course.repository.CourseRecordRepository;
 import com.follow_me.running_mate.domain.member.entity.Member;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.YearMonth;
 import java.util.List;
 
 import lombok.RequiredArgsConstructor;
@@ -26,6 +26,7 @@ public class CourseRecordServiceImpl implements CourseRecordService {
     private final CourseEntityMapper courseEntityMapper;
     private final CourseRecordRepository courseRecordRepository;
     private final CourseRecordPointRepository courseRecordPointRepository;
+    private final CourseResponseMapper courseResponseMapper;
 
     @Override
     public List<Course> getRecentCourses(Member member) {
@@ -51,18 +52,19 @@ public class CourseRecordServiceImpl implements CourseRecordService {
     }
     @Override
     @Transactional(readOnly = true)
-    public List<CourseResponse.CourseRecordInfo> getRecordsByDate(Member member, LocalDate date) {
+    public CourseResponse.CourseRecordInfoList getRecordsByMonth(Member member, YearMonth yearMonth) {
         // 날짜의 시작과 끝을 설정
-        LocalDateTime startOfDay = date.atStartOfDay();
-        LocalDateTime endOfDay = date.atTime(LocalTime.MAX);
+        LocalDateTime startOfMonth = yearMonth.atDay(1).atStartOfDay();
+        LocalDateTime endOfMonth = yearMonth.atEndOfMonth().atTime(LocalTime.MAX);
 
         // 해당 날짜와 회원의 코스 기록을 조회
-        List<CourseRecord> courseRecords = courseRecordRepository.findAllByRunnerAndStartTimeBetween(member, startOfDay, endOfDay);
+        List<CourseRecord> courseRecords = courseRecordRepository.findAllByRunnerAndStartTimeBetween(
+            member, startOfMonth, endOfMonth
+        );
 
-        // 각 코스 기록을 CourserecordInfo로 변환
-        return courseRecords.stream()
-                .map(CourseResponseMapper::toCourseRecordInfo) // CourseRecord -> CourserecordInfo 변환
-                .toList();
+        return new CourseResponse.CourseRecordInfoList(
+            courseRecords.stream().map(courseResponseMapper::toCourseRecordInfo).toList()
+        );
     }
 
     @Override

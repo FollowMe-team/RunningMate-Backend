@@ -20,13 +20,13 @@ import com.follow_me.running_mate.global.common.service.S3ImageService;
 import com.follow_me.running_mate.global.common.util.FormatterUtil;
 import com.follow_me.running_mate.global.error.code.CommonErrorCode;
 import com.follow_me.running_mate.global.error.exception.CustomException;
+import java.time.YearMonth;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -198,8 +198,9 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<CourseResponse.CourseRecordInfo> getMemberRunningRecords(Member member, LocalDate date) {
-        return courseRecordService.getRecordsByDate(member, date);
+    public CourseResponse.CourseRecordInfoList getMyCourseRecords(Member member, YearMonth yearMonth) {
+
+        return courseRecordService.getRecordsByMonth(member, yearMonth);
     }
 
     @Override

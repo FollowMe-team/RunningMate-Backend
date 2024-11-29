@@ -5,7 +5,7 @@ import com.follow_me.running_mate.domain.member.dto.request.MemberRequest;
 import com.follow_me.running_mate.domain.member.dto.response.MemberResponse;
 import com.follow_me.running_mate.domain.member.entity.Member;
 
-import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -24,7 +24,7 @@ public interface MemberService {
     boolean isNicknameDuplicate(String nickname);
     boolean isEmailDuplicate(String email);
     MemberResponse.OtherProfileResponse getOtherProfile(Member member, Long memberId);
-    List<CourseResponse.CourseRecordInfo> getMemberRunningRecords(Member member , LocalDate date);
+    CourseResponse.CourseRecordInfoList getMyCourseRecords(Member member , YearMonth yearMonth);
     List<MemberResponse.FollowResponse> getFollowList(Member member);
     List<MemberResponse.FollowResponse> getFollowerList(Member member);
     void follow(Member member , Long id);
