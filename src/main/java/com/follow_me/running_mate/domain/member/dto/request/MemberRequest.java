@@ -102,11 +102,8 @@ public class MemberRequest {
         private String currentPassword;
 
         @NotBlank(message = "새 비밀번호는 필수 입력 항목입니다.")
-        @Password // 비밀번호 유효성 검사를 위한 커스텀 어노테이션
+        @Password
         private String newPassword;
-
-        @NotBlank(message = "확인용 비밀번호는 필수 입력 항목입니다.")
-        private String confirmPassword;
 
     }
 

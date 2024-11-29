@@ -104,7 +104,7 @@ public class MemberController {
         @AuthenticationPrincipal PrincipalDetails principalDetails,
         @RequestBody @Valid MemberRequest.ChangePasswordRequest request
     ) {
-        memberService.changePassword(request, principalDetails.getUsername());
+        memberService.changePassword(request, principalDetails.member());
         return BaseResponse.success("비밀번호 변경에 성공했습니다.",null);
     }
 

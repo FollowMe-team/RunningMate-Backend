@@ -19,7 +19,7 @@ public interface MemberService {
     MemberResponse.UpdateMyProfileResponse updateProfile(
         Member member, MemberRequest.UpdateProfileRequest request, MultipartFile profileImage
     );
-    void changePassword(MemberRequest.ChangePasswordRequest request, String email);
+    void changePassword(MemberRequest.ChangePasswordRequest request, Member member);
     MemberResponse.BadgeListResponse getMemberBadges(Member member);
     boolean isNicknameDuplicate(String nickname);
     boolean isEmailDuplicate(String email);

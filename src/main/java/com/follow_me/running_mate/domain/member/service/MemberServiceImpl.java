@@ -133,9 +133,8 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     @Transactional
-    public void changePassword(MemberRequest.ChangePasswordRequest request, String email) {
-        Member member = memberRepository.findByEmail(email)
-                .orElseThrow(() -> new CustomException(MemberErrorCode.NOT_FOUND));
+    public void changePassword(MemberRequest.ChangePasswordRequest request, Member member) {
+
         //현재 비밀번호가 일치하는지
         if (!passwordEncoder.matches(request.getCurrentPassword(), member.getPassword())) {
             throw new CustomException(MemberErrorCode.INCORRECT_CURRENT_PASSWORD);
@@ -143,10 +142,6 @@ public class MemberServiceImpl implements MemberService {
         //현재 비밀번호와 변경할 비밀번호가 일치하는지
         if (passwordEncoder.matches(request.getNewPassword(), member.getPassword())) {
             throw new CustomException(MemberErrorCode.SAME_AS_CURRENT_PASSWORD);
-        }
-        // 새 비밀번호와 확인용 비밀번호가 일치하는지 확인
-        if (!request.getNewPassword().equals(request.getConfirmPassword())) {
-            throw new CustomException(MemberErrorCode.PASSWORDS_DO_NOT_MATCH);
         }
         member.changePassword(passwordEncoder.encode(request.getNewPassword()));
         memberRepository.save(member);
