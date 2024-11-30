@@ -75,15 +75,14 @@ public class Crew extends BaseEntity {
 
     private int getRankingValue(Ranking ranking) {
         return switch (ranking) {
-            case BRONZE -> 1;
-            case SILVER -> 2;
-            case GOLD -> 3;
-            case PLATINUM -> 4;
-            case DIAMOND -> 5;
-            case ELITE -> 6;
-            case LEGEND -> 7;
-            default -> 0; // 유효하지 않은 경우
+            case JOGGER -> 1;            // 조깅러
+            case RUNNER -> 2;           // 러너
+            case RACER -> 3;            // 레이서
+            case SPRINTER -> 4;         // 스프린터
+            case MARATHONER -> 5;       // 마라토너
+            case ULTRA_RUNNER -> 6;     // 울트라 러너
+            case IRON_LEGS -> 7;        // 아이언 레그
+            case SPEED_DEMON -> 8;      // 스피드 데몬
         };
     }
-    //TODO: 크루 조건 엔티티에 추가하기
 }

@@ -337,7 +337,7 @@ public class CourseServiceImpl implements CourseService {
     // 사용자 ranking에 따른 기본 난이도 설정
     private Difficulty getDefaultDifficultyByRanking(Ranking ranking) {
         return switch (ranking) {
-            case JOGGER, RUNNER,BRONZE,SILVER,NO_RANK,GOLD,PLATINUM,DIAMOND,ELITE,LEGEND -> Difficulty.EASY;
+            case JOGGER, RUNNER -> Difficulty.EASY;
             case RACER, SPRINTER -> Difficulty.NORMAL;
             case MARATHONER, ULTRA_RUNNER, IRON_LEGS, SPEED_DEMON -> Difficulty.HARD;
         };
