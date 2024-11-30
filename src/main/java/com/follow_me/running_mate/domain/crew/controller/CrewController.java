@@ -59,6 +59,22 @@ public class CrewController {
                 crewService.getCrewDetail(crewId)
         );
     }
+    @GetMapping("/{crewId}/select")
+    @Operation(summary = "크루 선택 조회 API", description = "선택한 크루의 상세 정보를 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "크루 선택 조회에 성공했습니다.",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+            @ApiResponse(responseCode = "CREW001", description = "크루를 찾을 수 없습니다.")
+    })
+    public BaseResponse<CrewResponse.CrewSelectResponse> getCrewSelectList(
+            @AuthenticationPrincipal PrincipalDetails principalDetails,
+            @PathVariable(value = "crewId") Long crewId
+    ) {
+        return BaseResponse.success(
+                "크루 선택 조회에 성공했습니다.",
+                crewService.getCrewSelectDetail(principalDetails.member(),crewId)
+        );
+    }
 
     @GetMapping("/{crewId}/schedule")
     @Operation(summary = "특정 크루의 월간 스케줄 조회", description = "크루의 ID와 해당 월을 기준으로 스케줄을 조회합니다.")
@@ -71,9 +87,10 @@ public class CrewController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
     })
     public BaseResponse<CrewResponse.CrewScheduleListResponse> getCrewSchedule(
+            @AuthenticationPrincipal PrincipalDetails principalDetails,
             @PathVariable(value = "crewId") Long crewId,
             @RequestParam(value = "date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date) {
-        return BaseResponse.success("크루의 월간 스케줄 조회에 성공했습니다.", crewService.getCrewScheduleByDate(crewId, date));
+        return BaseResponse.success("크루의 월간 스케줄 조회에 성공했습니다.", crewService.getCrewScheduleByDate(principalDetails.member(),crewId, date));
     }
 
     @GetMapping("/members/{scheduleId}")
@@ -171,9 +188,10 @@ public class CrewController {
     @ApiResponse(responseCode = "200", description = "즐겨찾기 코스 조회 성공",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
     public BaseResponse<CrewResponse.CrewCourseListResponse> getFavoriteCourses(
+            @AuthenticationPrincipal PrincipalDetails principalDetails,
             @PathVariable(value = "crewId") Long crewId
     ) {
-        return BaseResponse.success("즐겨찾기 코스를 성공적으로 조회했습니다.", crewService.getFavoriteCourses(crewId));
+        return BaseResponse.success("즐겨찾기 코스를 성공적으로 조회했습니다.", crewService.getFavoriteCourses(principalDetails.member(),crewId));
     }
 
     @PostMapping("{crewId}/courses/{courseId}/favorite")

@@ -9,4 +9,5 @@ import java.util.List;
 public interface CrewImageRepository extends JpaRepository<CrewImage,Long> {
     int countByCrew(Crew crew);
     List<CrewImage> findAllByCrew(Crew crew);
+    List<CrewImage> findAllByCrewOrderByOrderNumberAsc(Crew crew);
 }

@@ -116,8 +116,7 @@ public class CrewServiceImpl implements CrewService {
 
     @Override
     @Transactional(readOnly = true)
-    public CrewResponse.CrewScheduleListResponse getCrewScheduleByDate(Long crewId, LocalDate date) {
-
+    public CrewResponse.CrewScheduleListResponse getCrewScheduleByDate(Member member, Long crewId, LocalDate date) {
         LocalDateTime startOfDay = date.atStartOfDay();
         LocalDateTime endOfDay = date.atTime(23, 59, 59);
         Crew crew = crewRepository.getCrew(crewId);
@@ -132,6 +131,7 @@ public class CrewServiceImpl implements CrewService {
         return CrewResponse.CrewScheduleListResponse.builder()
                 .crewId(crew.getId())
                 .crewSchedule(scheduleInfos)
+                .IsCrewLeader(isUserLeaderOfCrew(member, crew))
                 .build();
     }
 
@@ -283,7 +283,7 @@ public class CrewServiceImpl implements CrewService {
 
     @Override
     @Transactional(readOnly = true)
-    public CrewResponse.CrewCourseListResponse getFavoriteCourses(Long crewId) {
+    public CrewResponse.CrewCourseListResponse getFavoriteCourses(Member member, Long crewId) {
         Crew crew = crewRepository.getCrew(crewId);
         // CrewCourse 목록 조회
         List<CrewCourse> crewCourses = crewCourseRepository.findAllByCrew(crew);
@@ -295,7 +295,8 @@ public class CrewServiceImpl implements CrewService {
                         courseOptionService.getCourseOptions(course.getCourse()),
                         coursePointService.getCoursePoints(course.getCourse())
                 )).toList();
-        return new CrewResponse.CrewCourseListResponse(crewId, courses);
+
+        return new CrewResponse.CrewCourseListResponse(crewId, isUserLeaderOfCrew(member, crew), courses);
 
     }
 
@@ -468,13 +469,14 @@ public class CrewServiceImpl implements CrewService {
         crew.delete();
         crewRepository.save(crew);
     }
+
     @Override
     @Transactional
     public void deleteCrewSchedule(Member member, Long scheduleId) {
         CrewSchedule crewSchedule = crewScheduleRepository.findById(scheduleId)
                 .orElseThrow(() -> new CustomException(CrewErrorCode.NOT_FOUND_SCHEDULE));
 
-        if (isUserLeaderOfCrew(member, crewSchedule.getCrew())) {
+        if (!isUserLeaderOfCrew(member, crewSchedule.getCrew())) {
             throw new CustomException(CrewErrorCode.FORBIDDEN_ACCESS);
         }
 
@@ -483,14 +485,34 @@ public class CrewServiceImpl implements CrewService {
         crewSchedule.delete();
     }
 
-    private boolean isUserLeaderOfCrew(Member member, Crew crew) {
-        return !crew.getLeader().getId().equals(member.getId());
-    }
     @Override
     @Transactional
-    public void deleteFavoriteCourse(Member member, Long courseId,Long crewId) {
+    public CrewResponse.CrewSelectResponse getCrewSelectDetail(Member member, Long crewId) {
         Crew crew = crewRepository.getCrew(crewId);
-        if (isUserLeaderOfCrew(member, crew)) {
+        List<CrewImage> crewImages = crewImageRepository.findAllByCrewOrderByOrderNumberAsc(crew);
+
+        return CrewResponse.CrewSelectResponse.builder()
+                .id(crew.getId())
+                .name(crew.getName())
+                .openChatUrl(crew.getOpenChatUrl())
+                .images(crewImages.stream().map(crewImage -> CrewResponse.CrewImageInfo.builder()
+                        .openChatUrl(crewImage.getUrl())
+                        .orderNumber(crewImage.getOrderNumber())
+                        .build())
+                        .toList())
+                .IsCrewLeader(isUserLeaderOfCrew(member, crew))
+                .build();
+    }
+
+    private boolean isUserLeaderOfCrew(Member member, Crew crew) {
+        return crew.getLeader().getId().equals(member.getId());
+    }
+
+    @Override
+    @Transactional
+    public void deleteFavoriteCourse(Member member, Long courseId, Long crewId) {
+        Crew crew = crewRepository.getCrew(crewId);
+        if (!isUserLeaderOfCrew(member, crew)) {
             throw new CustomException(CrewErrorCode.FORBIDDEN_ACCESS);
         }
 
@@ -498,6 +520,7 @@ public class CrewServiceImpl implements CrewService {
                 .orElseThrow(() -> new CustomException(CrewErrorCode.NOT_FOUND_CREWCOURSE));
         crewCourse.delete();
     }
+
     @Override
     @Transactional(readOnly = true)
     public CrewResponse.MyCrewListResponse searchCrews(
@@ -512,17 +535,19 @@ public class CrewServiceImpl implements CrewService {
         List<Crew> searchCrews = crewRepository.searchCrews(
                 keyword, city, district, activityTimeList
         );
-        return new CrewResponse.MyCrewListResponse(crewResponseMapper.toCrewInfoResponse(myCrewMembers),crewResponseMapper.toCrewInfoResponse(searchCrews));
+        return new CrewResponse.MyCrewListResponse(crewResponseMapper.toCrewInfoResponse(myCrewMembers), crewResponseMapper.toCrewInfoResponse(searchCrews));
     }
+
     @Override
     @Transactional(readOnly = true)
-    public boolean canMemberJoinCrew(Member currentUser,Long crewId) {
+    public boolean canMemberJoinCrew(Member currentUser, Long crewId) {
 
         Crew crew = crewRepository.getCrew(crewId);
         // 3. 크루의 가입 조건을 확인
 
         return crew.canJoin(currentUser);
     }
+
     @Override
     @Transactional
     public CrewResponse.UpdateCrewResponse updateCrew(Member member, Long crewId, CrewRequest.UpdateCrewRequest request) {

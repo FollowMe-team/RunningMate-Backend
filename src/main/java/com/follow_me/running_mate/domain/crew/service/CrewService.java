@@ -29,7 +29,7 @@ public interface CrewService {
 
     CourseResponse.CourseListResponse getCrewCourses(Crew crew);
 
-    CrewResponse.CrewScheduleListResponse getCrewScheduleByDate(Long crewId, LocalDate date);
+    CrewResponse.CrewScheduleListResponse getCrewScheduleByDate(Member member,Long crewId, LocalDate date);
 
     CourseResponse.CourseListResponse getCrewScheduleCourses(Course course);
 
@@ -43,7 +43,7 @@ public interface CrewService {
     CrewResponse.CrewScheduleApplyIdResponse applyToSchedule(Member member, Long scheduleId);
     void updateCrewMemberStatus(Member currentUser, Long memberId, String status);
     CrewResponse.UpdateCrewResponse updateCrew(Member member, Long crewId, CrewRequest.UpdateCrewRequest request);
-    CrewResponse.CrewCourseListResponse getFavoriteCourses(Long crewId);
+    CrewResponse.CrewCourseListResponse getFavoriteCourses(Member member,Long crewId);
     CrewResponse.CrewCourseIdResponse addFavoriteCourse(Member member,Long crewId ,Long courseId);
     CrewResponse.ActivityImageListResponse uploadCrewImages(Long crewId, List<MultipartFile> images,Member member);
     List<CrewImage> saveImages(Crew crew, List<MultipartFile> images,Integer orderNumber);
@@ -60,4 +60,5 @@ public interface CrewService {
             String district, List<ActivityTimeType> activityTimes
     );
     boolean canMemberJoinCrew(Member currentUser,Long crewId);
+    CrewResponse.CrewSelectResponse getCrewSelectDetail(Member member, Long crewId);
 }

@@ -1,6 +1,7 @@
 package com.follow_me.running_mate.domain.crew.dto.response;
 
 import com.follow_me.running_mate.domain.course.dto.response.CourseResponse;
+import com.follow_me.running_mate.domain.crew.entity.CrewImage;
 import com.follow_me.running_mate.domain.enums.ActivityTimeType;
 import com.follow_me.running_mate.domain.enums.CourseImageType;
 import com.follow_me.running_mate.domain.member.dto.response.MemberResponse;
@@ -79,6 +80,7 @@ public class CrewResponse {
     @AllArgsConstructor
     public static class CrewCourseListResponse {
         private Long crewId;
+        private boolean IsCrewLeader;
         private List<CourseResponse.SummaryInfo> courses;
     }
 
@@ -104,6 +106,25 @@ public class CrewResponse {
         private List<CrewActivityTime> crewActivityTimeList;
         private List<CrewLocationInfo> crewLocationInfos;
         private CourseResponse.CourseListResponse crewCourses;
+    }
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class CrewSelectResponse {
+        private Long id;
+        private boolean IsCrewLeader;
+        private String name;
+        private String openChatUrl;
+        private List<CrewImageInfo> images;
+    }
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class CrewImageInfo {
+        private Integer orderNumber;
+        private String openChatUrl;
     }
     @Getter
     @Builder
@@ -143,6 +164,7 @@ public class CrewResponse {
     @NoArgsConstructor
     public static class CrewScheduleListResponse {
         private Long crewId;
+        private boolean IsCrewLeader;
         private List<CrewScheduleInfo> crewSchedule;
     }
 
