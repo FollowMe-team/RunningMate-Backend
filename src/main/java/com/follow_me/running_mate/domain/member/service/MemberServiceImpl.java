@@ -18,6 +18,7 @@ import com.follow_me.running_mate.domain.member.repository.MemberFollowRepositor
 import com.follow_me.running_mate.domain.member.repository.MemberFootprintRepository;
 import com.follow_me.running_mate.domain.member.repository.MemberLocationRepository;
 import com.follow_me.running_mate.domain.member.repository.MemberRepository;
+import com.follow_me.running_mate.domain.member.repository.MemberWithdrawRepository;
 import com.follow_me.running_mate.domain.token.repository.TokenRepository;
 import com.follow_me.running_mate.global.common.service.S3ImageService;
 import com.follow_me.running_mate.global.common.util.FormatterUtil;
@@ -47,6 +48,7 @@ public class MemberServiceImpl implements MemberService {
     private final MemberFollowRepository memberFollowRepository;
     private final MemberLocationRepository memberLocationRepository;
     private final MemberFootprintRepository memberFootprintRepository;
+    private final MemberWithdrawRepository memberWithdrawRepository;
 
     @Override
     public void signup(MemberRequest.SignUpRequest request, MultipartFile profileImage) {
@@ -69,7 +71,8 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     @Transactional
-    public void withdraw(Member member) {
+    public void withdraw(Member member, MemberRequest.WithdrawRequest request) {
+        memberWithdrawRepository.save(memberMapper.toMemberWithdraw(member, request));
         tokenRepository.deleteById(member.getEmail()); //토큰 삭제
         member.delete();
         memberRepository.save(member);

@@ -10,6 +10,7 @@ import com.follow_me.running_mate.domain.member.entity.MemberBadge;
 import com.follow_me.running_mate.domain.member.entity.MemberFollow;
 import com.follow_me.running_mate.domain.member.entity.MemberFootprint;
 import com.follow_me.running_mate.domain.member.entity.MemberLocation;
+import com.follow_me.running_mate.domain.member.entity.MemberWithdraw;
 import com.follow_me.running_mate.global.common.util.FormatterUtil;
 import java.util.Arrays;
 import java.util.Optional;
@@ -60,6 +61,14 @@ public class MemberMapper {
             .content(request.getContent())
             .type(request.getType())
             .isAnonymous(request.getIsAnonymous())
+            .build();
+    }
+
+    public MemberWithdraw toMemberWithdraw(Member member, MemberRequest.WithdrawRequest request) {
+        return MemberWithdraw.builder()
+            .member(member)
+            .type(request.getType())
+            .reason(request.getReason())
             .build();
     }
 

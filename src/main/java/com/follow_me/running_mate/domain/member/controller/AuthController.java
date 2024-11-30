@@ -93,8 +93,11 @@ public class AuthController {
         @ApiResponse(responseCode = "200", description = "회원 탈퇴에 성공했습니다.",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
     })
-    public BaseResponse<Void> withdraw(@AuthenticationPrincipal PrincipalDetails principalDetails) {
-        memberService.withdraw(principalDetails.member());
+    public BaseResponse<Void> withdraw(
+        @AuthenticationPrincipal PrincipalDetails principalDetails,
+        @RequestBody MemberRequest.WithdrawRequest request
+    ) {
+        memberService.withdraw(principalDetails.member(), request);
         return BaseResponse.success("회원 탈퇴에 성공했습니다.", null);
     }
 }

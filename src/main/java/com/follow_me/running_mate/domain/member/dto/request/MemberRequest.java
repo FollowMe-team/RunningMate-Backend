@@ -4,6 +4,7 @@ import com.follow_me.running_mate.domain.course.dto.request.CourseRequest;
 import com.follow_me.running_mate.domain.enums.FootprintType;
 import com.follow_me.running_mate.domain.enums.Gender;
 import com.follow_me.running_mate.domain.enums.RunningCareer;
+import com.follow_me.running_mate.domain.enums.WithdrawType;
 import com.follow_me.running_mate.domain.member.validation.annotation.UniqueEmail;
 import com.follow_me.running_mate.domain.member.validation.annotation.UniqueNickname;
 import com.follow_me.running_mate.global.validation.annotation.Password;
@@ -128,5 +129,13 @@ public class MemberRequest {
         private FootprintType type;
         @NotNull(message = "익명 여부는 필수입니다.")
         private Boolean isAnonymous;
+    }
+
+    @Getter
+    @AllArgsConstructor
+    public static class WithdrawRequest {
+        @NotNull(message = "탈퇴 타입은 필수입니다.")
+        private WithdrawType type;
+        private String reason;
     }
 }

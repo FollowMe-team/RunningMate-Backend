@@ -12,7 +12,7 @@ public interface MemberService {
 
     void signup(MemberRequest.SignUpRequest request, MultipartFile profileImage);
     void logout(String email);
-    void withdraw(Member member);
+    void withdraw(Member member, MemberRequest.WithdrawRequest request);
     MemberResponse.MyProfileResponse getMyProfile(Member member);
     MemberResponse.MyProfileSummaryResponse getMyProfileSummary(Member member);
     MemberResponse.UpdateMyProfileResponse updateProfile(
