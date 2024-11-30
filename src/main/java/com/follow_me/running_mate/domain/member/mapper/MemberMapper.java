@@ -67,22 +67,28 @@ public class MemberMapper {
 
         MemberResponse.FootprintInfo.FootprintInfoBuilder builder = MemberResponse.FootprintInfo.builder()
             .footprintId(footprint.getId())
-            .memberId(footprint.getWriter().getId())
             .content(footprint.getContent())
             .footprintType(footprint.getType())
             .createdAt(FormatterUtil.formatTime(footprint.getCreatedAt()));
 
         if (footprint.getIsAnonymous()) {
             builder
-                .profileImageUrl(null)
-                .nickname("익명");
+                .memberInfo(null);
         } else {
             builder
-                .profileImageUrl(footprint.getWriter().getProfileImageUrl())
-                .nickname(footprint.getWriter().getNickname());
+                .memberInfo(toMemberInfo(footprint.getWriter()));
         }
-
         return builder.build();
+    }
+
+    private MemberResponse.MemberInfo toMemberInfo(Member member) {
+        return MemberResponse.MemberInfo.builder()
+            .memberId(member.getId())
+            .profileImageUrl(member.getProfileImageUrl())
+            .nickname(member.getNickname())
+            .ranking(member.getRanking())
+            .footPrint(member.getFootprint())
+            .build();
     }
 
     public MemberResponse.MyProfileResponse toMyProfileResponse(

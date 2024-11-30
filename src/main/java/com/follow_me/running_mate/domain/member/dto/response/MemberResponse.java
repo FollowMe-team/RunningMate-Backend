@@ -126,11 +126,21 @@ public class MemberResponse {
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class FootprintInfo {
-        private Long footprintId;
+    public static class MemberInfo {
         private Long memberId;
         private String profileImageUrl;
         private String nickname;
+        private Ranking ranking;
+        private Long footPrint;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class FootprintInfo {
+        private Long footprintId;
+        private MemberInfo memberInfo;
         private FootprintType footprintType;
         private String content;
         private String createdAt;
