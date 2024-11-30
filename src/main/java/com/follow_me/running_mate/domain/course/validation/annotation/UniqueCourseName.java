@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = UniqueCourseNameValidator.class)
 public @interface UniqueCourseName {
-    String message() default "이미 사용 중인 이메일입니다.";
+    String message() default "이미 사용 중인 코스명입니다..";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }

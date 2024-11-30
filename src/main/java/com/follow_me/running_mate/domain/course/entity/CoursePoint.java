@@ -16,6 +16,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.SQLRestriction;
 import org.locationtech.jts.geom.Point;
 
@@ -42,6 +43,7 @@ public class CoursePoint extends BaseEntity {
 
     private Integer sequenceNumber;
 
+    @Setter
     @Enumerated(EnumType.STRING)
     private CoursePointVoice voice;
 }

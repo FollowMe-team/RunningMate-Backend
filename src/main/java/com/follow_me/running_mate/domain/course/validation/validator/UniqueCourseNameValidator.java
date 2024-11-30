@@ -15,6 +15,6 @@ public class UniqueCourseNameValidator implements ConstraintValidator<UniqueCour
 
     @Override
     public boolean isValid(String name, ConstraintValidatorContext context) {
-        return courseRepository.existsByName(name);
+        return !courseRepository.existsByName(name);
     }
 }
