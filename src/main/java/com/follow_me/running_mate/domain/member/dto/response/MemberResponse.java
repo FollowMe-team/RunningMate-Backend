@@ -141,4 +141,10 @@ public class MemberResponse {
     public static class FootprintListResponse {
         private List<FootprintInfo> footprints;
     }
+
+    @Getter
+    @AllArgsConstructor
+    public static class DuplicateCheckResponse {
+        private Boolean isDuplicated;
+    }
 }

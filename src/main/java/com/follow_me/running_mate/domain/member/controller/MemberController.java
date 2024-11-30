@@ -124,7 +124,7 @@ public class MemberController {
     }
 
     @GetMapping("/check/nickname=")
-    @Operation(summary = "닉네임 중복 확인 API", description = "입력된 닉네임이 중복되었는지 확인합니다. 존재시 true")
+    @Operation(summary = "닉네임 중복 확인 API", description = "입력된 닉네임이 중복되었는지 확인합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "닉네임 중복 확인에 성공했습니다.",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
@@ -133,15 +133,14 @@ public class MemberController {
             @ApiResponse(responseCode = "500", description = "서버 오류입니다.",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
     })
-    public BaseResponse<Boolean> checkNicknameDuplicate(
+    public BaseResponse<MemberResponse.DuplicateCheckResponse> checkNicknameDuplicate(
             @RequestParam(value = "nickname") String nickname
     ) {
-        boolean isDuplicate = memberService.isNicknameDuplicate(nickname); // 중복 닉네임 존재 시
-        return BaseResponse.success("닉네임 중복 확인에 성공했습니다.", isDuplicate);
+        return BaseResponse.success("닉네임 중복 확인에 성공했습니다.", memberService.isNicknameDuplicate(nickname));
     }
 
     @GetMapping("/check/email=")
-    @Operation(summary = "이메일 중복 확인 API", description = "입력된 이메일이 중복되었는지 확인합니다. 존재시 true")
+    @Operation(summary = "이메일 중복 확인 API", description = "입력된 이메일이 중복되었는지 확인합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "이메일 중복 확인에 성공했습니다.",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
@@ -150,11 +149,10 @@ public class MemberController {
             @ApiResponse(responseCode = "500", description = "서버 오류입니다.",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
     })
-    public BaseResponse<Boolean> checkEmailDuplicate(
+    public BaseResponse<MemberResponse.DuplicateCheckResponse> checkEmailDuplicate(
             @RequestParam(value = "email") String email
     ) {
-        boolean isDuplicate = memberService.isEmailDuplicate(email);
-        return BaseResponse.success("이메일 중복 확인에 성공했습니다.", isDuplicate);
+        return BaseResponse.success("이메일 중복 확인에 성공했습니다.", memberService.isEmailDuplicate(email));
     }
 
     @GetMapping("/{memberId}")

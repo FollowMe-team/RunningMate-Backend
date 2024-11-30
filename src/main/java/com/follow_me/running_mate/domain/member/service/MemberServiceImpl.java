@@ -175,14 +175,18 @@ public class MemberServiceImpl implements MemberService {
 
     //닉네임 중복 확인
     @Override
-    public boolean isNicknameDuplicate(String nickname) {
-        return memberRepository.existsByNickname(nickname);
+    public MemberResponse.DuplicateCheckResponse isNicknameDuplicate(String nickname) {
+        return new MemberResponse.DuplicateCheckResponse(
+            memberRepository.existsByNickname(nickname)
+        );
     }
 
     //이메일 중복 확인
     @Override
-    public boolean isEmailDuplicate(String email) {
-        return memberRepository.existsByEmail(email);
+    public MemberResponse.DuplicateCheckResponse isEmailDuplicate(String email) {
+        return new MemberResponse.DuplicateCheckResponse(
+            memberRepository.existsByEmail(email)
+        );
     }
 
     //타인 프로필 조회

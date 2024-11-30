@@ -20,8 +20,8 @@ public interface MemberService {
     );
     void changePassword(MemberRequest.ChangePasswordRequest request, Member member);
     MemberResponse.BadgeListResponse getMemberBadges(Member member);
-    boolean isNicknameDuplicate(String nickname);
-    boolean isEmailDuplicate(String email);
+    MemberResponse.DuplicateCheckResponse isNicknameDuplicate(String nickname);
+    MemberResponse.DuplicateCheckResponse isEmailDuplicate(String email);
     MemberResponse.OtherProfileResponse getOtherProfile(Member member, Long memberId);
     CourseResponse.CourseRecordInfoList getMyCourseRecords(Member member , YearMonth yearMonth);
     CourseResponse.CourseRecordInfoList getOtherCourseRecords(Member member , Long memberId , YearMonth yearMonth);
