@@ -473,7 +473,7 @@ public class CrewServiceImpl implements CrewService {
         CrewSchedule crewSchedule = crewScheduleRepository.findById(scheduleId)
                 .orElseThrow(() -> new CustomException(CrewErrorCode.NOT_FOUND_SCHEDULE));
 
-        if (!isUserLeaderOfCrew(member, crewSchedule.getCrew())) {
+        if (isUserLeaderOfCrew(member, crewSchedule.getCrew())) {
             throw new CustomException(CrewErrorCode.FORBIDDEN_ACCESS);
         }
 
@@ -483,8 +483,22 @@ public class CrewServiceImpl implements CrewService {
     }
 
     private boolean isUserLeaderOfCrew(Member member, Crew crew) {
-        return crew.getLeader().getId().equals(member.getId());
+        return !crew.getLeader().getId().equals(member.getId());
     }
+    @Override
+    @Transactional
+    public void deleteFavoriteCourse(Member member, Long courseId,Long crewId) {
+        Crew crew = crewRepository.getCrew(crewId);
+        if (isUserLeaderOfCrew(member, crew)) {
+            throw new CustomException(CrewErrorCode.FORBIDDEN_ACCESS);
+        }
+
+        CrewCourse crewCourse = crewCourseRepository.findByCrewAndCourseId(crew, courseId)
+                .orElseThrow(() -> new CustomException(CrewErrorCode.NOT_FOUND_CREWCOURSE));
+
+        crewCourse.delete();
+    }
+
 
     @Override
     @Transactional

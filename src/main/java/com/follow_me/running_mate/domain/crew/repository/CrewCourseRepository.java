@@ -5,6 +5,7 @@ import com.follow_me.running_mate.domain.crew.entity.Crew;
 import com.follow_me.running_mate.domain.crew.entity.CrewCourse;
 import io.lettuce.core.dynamic.annotation.Param;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -17,4 +18,5 @@ public interface CrewCourseRepository extends JpaRepository<CrewCourse, Long> {
     List<Course> findTop3CoursesByCrewOrderByCreatedAtDesc(@Param("crew") Crew crew);
     List<CrewCourse> findAllByCrew(Crew crew);
     boolean existsByCrewIdAndCourseId(Long crewId, Long courseId);
+    Optional<CrewCourse> findByCrewAndCourseId(Crew crew, Long courseId);
 }

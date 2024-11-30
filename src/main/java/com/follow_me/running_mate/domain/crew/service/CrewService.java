@@ -53,4 +53,5 @@ public interface CrewService {
     void cancelCrewApplication(Member member, Long crewId);
     void deleteCrew(Member member, Long crewId);
     void deleteCrewSchedule(Member member, Long scheduleId);
+    void deleteFavoriteCourse(Member member, Long courseId,Long crewId);
 }

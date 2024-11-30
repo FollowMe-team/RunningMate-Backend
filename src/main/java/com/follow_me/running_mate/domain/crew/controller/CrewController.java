@@ -250,6 +250,7 @@ public class CrewController {
         crewService.attendSchedule(principalDetails.member(), scheduleId, memberIds.getMemberIds());
         return BaseResponse.success("크루 일정 출석체크가 완료되었습니다.", null);
     }
+
     @PatchMapping("/leader/{memberId}")
     @Operation(summary = "러닝 크루 리더 변경 API", description = "주어진 멤버 ID로 크루 리더를 변경합니다.")
     @ApiResponses(value = {
@@ -271,6 +272,7 @@ public class CrewController {
         crewService.changeLeader(principalDetails.member(), memberId);
         return BaseResponse.success("리더가 성공적으로 변경되었습니다.", null);
     }
+
     @DeleteMapping("/{crewId}/cancel")
     @Operation(summary = "러닝 크루 신청 취소 API", description = "주어진 크루 ID에 대해 신청을 취소합니다.")
     @ApiResponses(value = {
@@ -292,6 +294,7 @@ public class CrewController {
         crewService.cancelCrewApplication(principalDetails.member(), crewId);
         return BaseResponse.success("신청이 성공적으로 취소되었습니다.", null);
     }
+
     @DeleteMapping("/{crewId}")
     @Operation(summary = "러닝 크루 삭제 API", description = "주어진 크루 ID에 대해 크루를 삭제합니다.")
     @ApiResponses(value = {
@@ -309,6 +312,7 @@ public class CrewController {
         crewService.deleteCrew(principalDetails.member(), crewId);
         return BaseResponse.success("크루가 성공적으로 삭제되었습니다.", null);
     }
+
     @DeleteMapping("/schedule/{scheduleId}")
     @Operation(summary = "러닝 크루 일정 삭제 API", description = "주어진 크루 일정 Id에 대해 크루 일정을 삭제합니다.")
     @ApiResponses(value = {
@@ -327,4 +331,26 @@ public class CrewController {
         return BaseResponse.success("크루 일정이 성공적으로 삭제되었습니다.", null);
     }
 
+    @DeleteMapping("/{crewId}/course/{courseId}/favorite")
+    @Operation(summary = "크루 코스 즐겨찾기 삭제 API", description = "주어진 코스 ID에 대해 크루의 즐겨찾기를 삭제합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "즐겨찾기 삭제 성공",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+            @ApiResponse(responseCode = "CREW014", description = "해당 코스는 즐겨찾기에 존재하지 않습니다.",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+            @ApiResponse(responseCode = "CREW004", description = "해당 사용자에게 권한이 없습니다.",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+            @ApiResponse(responseCode = "CREW001", description = "해당 크루를 찾을 수 없음",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
+    })
+    public BaseResponse<Void> deleteFavoriteCourse(
+            @AuthenticationPrincipal PrincipalDetails principalDetails,
+            @PathVariable(value = "crewId") Long crewId,
+            @PathVariable(value = "courseId") Long courseId
+    ) {
+        crewService.deleteFavoriteCourse(principalDetails.member(), courseId,crewId);
+        return BaseResponse.success("즐겨찾기가 성공적으로 삭제되었습니다.", null);
+
+
+    }
 }
