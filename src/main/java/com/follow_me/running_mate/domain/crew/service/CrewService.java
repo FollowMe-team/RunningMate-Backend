@@ -33,7 +33,7 @@ public interface CrewService {
 
     CourseResponse.CourseListResponse getCrewScheduleCourses(Course course);
 
-    List<MemberResponse.FollowInfo> getMembersBySchedule(Long scheduleId);
+    List<CrewResponse.CrewMemberinfo> getMembersBySchedule(Long scheduleId);
 
     CrewResponse.CrewIdResponse createCrew(Member member, CrewRequest.createCrew request, MultipartFile representativeImage);
 

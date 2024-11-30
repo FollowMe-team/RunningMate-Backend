@@ -3,6 +3,7 @@ package com.follow_me.running_mate.domain.crew.mapper;
 import com.follow_me.running_mate.domain.course.dto.response.CourseResponse;
 import com.follow_me.running_mate.domain.crew.dto.response.CrewResponse;
 import com.follow_me.running_mate.domain.crew.entity.*;
+import com.follow_me.running_mate.domain.member.entity.Member;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -108,5 +109,14 @@ public class CrewResponseMapper {
                                 .OrderNumber(crewImage.getOrderNumber())
                                 .build()
                 ) .toList();
+    }
+    public CrewResponse.CrewMemberinfo toCrewMemberInfo(Member member){
+        return CrewResponse.CrewMemberinfo.builder()
+                .memberId(member.getId())
+                .profileImageUrl(member.getProfileImageUrl())
+                .nickname(member.getNickname())
+                .footPrint(member.getFootprint())
+                .ranking(member.getRanking())
+                .build();
     }
 }

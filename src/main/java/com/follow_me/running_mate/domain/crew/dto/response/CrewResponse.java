@@ -4,6 +4,7 @@ import com.follow_me.running_mate.domain.course.dto.response.CourseResponse;
 import com.follow_me.running_mate.domain.crew.entity.CrewImage;
 import com.follow_me.running_mate.domain.enums.ActivityTimeType;
 import com.follow_me.running_mate.domain.enums.CourseImageType;
+import com.follow_me.running_mate.domain.enums.Ranking;
 import com.follow_me.running_mate.domain.member.dto.response.MemberResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -196,6 +197,16 @@ public class CrewResponse {
     @Builder
     @AllArgsConstructor
     public static class CrewScheduleMemberListResponse {
-        private List<MemberResponse.FollowInfo> CrewScheduleMembers;
+        private List<CrewMemberinfo> CrewScheduleMembers;
+    }
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    public static class CrewMemberinfo {
+        private Long memberId;
+        private String profileImageUrl;
+        private String nickname;
+        private Ranking ranking;
+        private Long footPrint;
     }
 }
