@@ -309,4 +309,22 @@ public class CrewController {
         crewService.deleteCrew(principalDetails.member(), crewId);
         return BaseResponse.success("크루가 성공적으로 삭제되었습니다.", null);
     }
+    @DeleteMapping("/schedule/{scheduleId}")
+    @Operation(summary = "러닝 크루 일정 삭제 API", description = "주어진 크루 일정 Id에 대해 크루 일정을 삭제합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "크루 일정 삭제 성공",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+            @ApiResponse(responseCode = "CREW009", description = "해당 크루일정을 찾을 수 없음",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+            @ApiResponse(responseCode = "CREW004", description = "해당 사용자에게 권한이 없습니다.",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
+    })
+    public BaseResponse<Void> deleteCrewSchedule(
+            @AuthenticationPrincipal PrincipalDetails principalDetails,
+            @PathVariable(value = "scheduleId") Long scheduleId
+    ) {
+        crewService.deleteCrewSchedule(principalDetails.member(), scheduleId);
+        return BaseResponse.success("크루 일정이 성공적으로 삭제되었습니다.", null);
+    }
+
 }

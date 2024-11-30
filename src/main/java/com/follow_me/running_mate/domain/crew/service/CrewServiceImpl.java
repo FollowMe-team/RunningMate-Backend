@@ -467,6 +467,24 @@ public class CrewServiceImpl implements CrewService {
         crew.delete();
         crewRepository.save(crew);
     }
+    @Override
+    @Transactional
+    public void deleteCrewSchedule(Member member, Long scheduleId) {
+        CrewSchedule crewSchedule = crewScheduleRepository.findById(scheduleId)
+                .orElseThrow(() -> new CustomException(CrewErrorCode.NOT_FOUND_SCHEDULE));
+
+        if (!isUserLeaderOfCrew(member, crewSchedule.getCrew())) {
+            throw new CustomException(CrewErrorCode.FORBIDDEN_ACCESS);
+        }
+
+        crewScheduleApplyRepository.findAllByCrewSchedule(crewSchedule).forEach(CrewScheduleApply::delete);
+
+        crewSchedule.delete();
+    }
+
+    private boolean isUserLeaderOfCrew(Member member, Crew crew) {
+        return crew.getLeader().getId().equals(member.getId());
+    }
 
     @Override
     @Transactional
