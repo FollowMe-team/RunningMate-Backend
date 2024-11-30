@@ -6,7 +6,10 @@ import com.follow_me.running_mate.domain.enums.CoursePointVoice;
 import com.follow_me.running_mate.domain.enums.Difficulty;
 import com.follow_me.running_mate.domain.enums.Ranking;
 import com.follow_me.running_mate.domain.enums.Status;
+
+import java.time.LocalDateTime;
 import java.util.List;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -203,6 +206,36 @@ public class CourseResponse {
         private String nickname;
         private String profileImageUrl;
         private Ranking ranking;
-        // 러닝 발자국 추가
+        private Long footPrint;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class CourseRecordInfo {
+        private Long recordId;
+        private LocalDateTime startTime;
+        private CourseInfo course;
+        private Double distance;
+        private String duration;
+        private Integer caloriesBurned;
+        private Double averagePace;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class CourseInfo {
+        private Long courseId;
+        private String courseName;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    public static class CourseRecordInfoList {
+        private List<CourseRecordInfo> records;
     }
 }

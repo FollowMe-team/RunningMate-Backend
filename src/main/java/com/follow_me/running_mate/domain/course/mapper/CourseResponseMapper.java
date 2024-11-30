@@ -1,12 +1,7 @@
 package com.follow_me.running_mate.domain.course.mapper;
 
 import com.follow_me.running_mate.domain.course.dto.response.CourseResponse;
-import com.follow_me.running_mate.domain.course.entity.Course;
-import com.follow_me.running_mate.domain.course.entity.CourseImage;
-import com.follow_me.running_mate.domain.course.entity.CourseOption;
-import com.follow_me.running_mate.domain.course.entity.CoursePoint;
-import com.follow_me.running_mate.domain.course.entity.CourseReview;
-import com.follow_me.running_mate.domain.course.entity.CourseReviewImage;
+import com.follow_me.running_mate.domain.course.entity.*;
 import com.follow_me.running_mate.domain.crew.entity.Crew;
 import com.follow_me.running_mate.domain.enums.CourseOptionType;
 import com.follow_me.running_mate.domain.member.entity.Member;
@@ -190,6 +185,28 @@ public class CourseResponseMapper {
             .nickname(member.getNickname())
             .profileImageUrl(member.getProfileImageUrl())
             .ranking(member.getRanking())
+            .footPrint(member.getFootprint())
             .build();
+    }
+    public CourseResponse.CourseRecordInfo toCourseRecordInfo(CourseRecord courseRecord, Boolean isMine) {
+        return CourseResponse.CourseRecordInfo.builder()
+            .recordId(courseRecord.getId())
+            .startTime(courseRecord.getStartTime())
+            .course(toCourseInfo(courseRecord.getCourse(), isMine))
+            .distance(courseRecord.getDistance())
+            .caloriesBurned(courseRecord.getCaloriesBurned())
+            .duration(FormatterUtil.formatDuration(courseRecord.getStartTime(), courseRecord.getEndTime()))
+            .averagePace(courseRecord.getAveragePace())
+            .build();
+    }
+
+    private CourseResponse.CourseInfo toCourseInfo(Course course, Boolean isMine) {
+        if (isMine) {
+            return CourseResponse.CourseInfo.builder()
+                .courseId(course.getId())
+                .courseName(course.getName())
+                .build();
+        }
+        return null;
     }
 }

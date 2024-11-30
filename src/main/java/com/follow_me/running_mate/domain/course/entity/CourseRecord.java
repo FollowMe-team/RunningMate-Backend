@@ -57,7 +57,7 @@ public class CourseRecord extends BaseEntity {
     private Double distance;
 
     @Column(nullable = false)
-    private Integer averagePace;
+    private Double averagePace;
 
     @Column(nullable = false)
     private Integer caloriesBurned;
