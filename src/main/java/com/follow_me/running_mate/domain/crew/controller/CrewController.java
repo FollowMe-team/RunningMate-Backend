@@ -5,7 +5,6 @@ import com.follow_me.running_mate.domain.crew.dto.request.CrewRequest;
 import com.follow_me.running_mate.domain.crew.dto.response.CrewResponse;
 import com.follow_me.running_mate.domain.crew.service.CrewService;
 import com.follow_me.running_mate.domain.enums.ActivityTimeType;
-import com.follow_me.running_mate.domain.member.dto.response.MemberResponse;
 import com.follow_me.running_mate.global.common.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -16,12 +15,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
 

@@ -16,7 +16,6 @@ import com.follow_me.running_mate.domain.crew.mapper.CrewEntityMapper;
 import com.follow_me.running_mate.domain.crew.mapper.CrewResponseMapper;
 import com.follow_me.running_mate.domain.crew.repository.*;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.YearMonth;
@@ -26,7 +25,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.follow_me.running_mate.domain.enums.ActivityTimeType;
 import com.follow_me.running_mate.domain.enums.CrewScheduleApplyStatus;
 import com.follow_me.running_mate.domain.enums.Status;
-import com.follow_me.running_mate.domain.member.dto.response.MemberResponse;
 import com.follow_me.running_mate.domain.member.entity.Member;
 import com.follow_me.running_mate.domain.member.exception.MemberErrorCode;
 import com.follow_me.running_mate.domain.member.mapper.MemberMapper;
@@ -54,7 +52,6 @@ public class CrewServiceImpl implements CrewService {
     private final CoursePointService coursePointService;
     private final CrewScheduleRepository crewScheduleRepository;
     private final CrewScheduleApplyRepository crewScheduleApplyRepository;
-    private final MemberMapper memberMapper;
     private final CrewEntityMapper crewEntityMapper;
     private final S3ImageService s3ImageService;
     private final CourseRepository courseRepository;

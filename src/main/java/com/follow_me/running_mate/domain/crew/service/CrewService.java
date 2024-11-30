@@ -9,11 +9,9 @@ import com.follow_me.running_mate.domain.crew.entity.CrewActivityTime;
 import com.follow_me.running_mate.domain.crew.entity.CrewImage;
 import com.follow_me.running_mate.domain.crew.entity.CrewLocation;
 import com.follow_me.running_mate.domain.enums.ActivityTimeType;
-import com.follow_me.running_mate.domain.member.dto.response.MemberResponse;
 import com.follow_me.running_mate.domain.member.entity.Member;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
 
