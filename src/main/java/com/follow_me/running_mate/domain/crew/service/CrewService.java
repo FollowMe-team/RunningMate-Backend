@@ -59,4 +59,5 @@ public interface CrewService {
             Member member, String keyword, String city,
             String district, List<ActivityTimeType> activityTimes
     );
+    boolean canMemberJoinCrew(Member currentUser,Long crewId);
 }

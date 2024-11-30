@@ -383,4 +383,16 @@ public class CrewController {
                 )
         );
     }
+    @GetMapping("/{crewId}/canJoin")
+    @Operation(summary = "크루 가입 가능 여부 확인 API", description = "사용자의 랭킹을 기반으로 크루에 가입할 수 있는지 확인합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "크루 가입 가능 여부 확인 성공",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
+    })
+    public BaseResponse<Boolean> canMemberJoinCrew(
+            @AuthenticationPrincipal PrincipalDetails principalDetails,
+            @PathVariable(value = "crewId") Long crewId
+    ) {
+        return BaseResponse.success("크루 가입 가능 여부 확인 성공", crewService.canMemberJoinCrew(principalDetails.member(), crewId));
+    }
 }

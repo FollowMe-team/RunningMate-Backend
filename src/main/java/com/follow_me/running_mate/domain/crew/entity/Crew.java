@@ -3,14 +3,7 @@ package com.follow_me.running_mate.domain.crew.entity;
 import com.follow_me.running_mate.domain.enums.Ranking;
 import com.follow_me.running_mate.domain.member.entity.Member;
 import com.follow_me.running_mate.global.common.BaseEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -53,7 +46,7 @@ public class Crew extends BaseEntity {
     @Builder.Default
     private Integer memberCount = 0;
 
-    @Column
+    @Enumerated(EnumType.STRING)
     private Ranking ranking;
 
     public void increaseMemberCount() {
@@ -72,6 +65,25 @@ public class Crew extends BaseEntity {
 
     public void setLeader(Member newLeader) {
         this.leader = newLeader;
+    }
+
+    public boolean canJoin(Member member) {
+        int memberRank = getRankingValue(member.getRanking());
+        int requiredRank = getRankingValue(this.ranking);
+        return memberRank >= requiredRank;
+    }
+
+    private int getRankingValue(Ranking ranking) {
+        return switch (ranking) {
+            case BRONZE -> 1;
+            case SILVER -> 2;
+            case GOLD -> 3;
+            case PLATINUM -> 4;
+            case DIAMOND -> 5;
+            case ELITE -> 6;
+            case LEGEND -> 7;
+            default -> 0; // 유효하지 않은 경우
+        };
     }
     //TODO: 크루 조건 엔티티에 추가하기
 }

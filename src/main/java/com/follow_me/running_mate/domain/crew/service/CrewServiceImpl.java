@@ -515,6 +515,15 @@ public class CrewServiceImpl implements CrewService {
         return new CrewResponse.MyCrewListResponse(crewResponseMapper.toCrewInfoResponse(myCrewMembers),crewResponseMapper.toCrewInfoResponse(searchCrews));
     }
     @Override
+    @Transactional(readOnly = true)
+    public boolean canMemberJoinCrew(Member currentUser,Long crewId) {
+
+        Crew crew = crewRepository.getCrew(crewId);
+        // 3. 크루의 가입 조건을 확인
+
+        return crew.canJoin(currentUser);
+    }
+    @Override
     @Transactional
     public CrewResponse.UpdateCrewResponse updateCrew(Member member, Long crewId, CrewRequest.UpdateCrewRequest request) {
         // 크루 조회

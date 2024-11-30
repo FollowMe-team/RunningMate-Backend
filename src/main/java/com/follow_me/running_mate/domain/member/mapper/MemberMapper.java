@@ -27,7 +27,7 @@ public class MemberMapper {
             .nickname(request.getNickname())
             .runningCareer(request.getRunningCareer())
             .role(Role.USER)
-            .ranking(Ranking.JOGGER)
+            .ranking(Ranking.NO_RANK)
             .build();
     }
 
