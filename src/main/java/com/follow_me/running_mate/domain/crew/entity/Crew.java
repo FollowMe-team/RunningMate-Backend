@@ -1,5 +1,6 @@
 package com.follow_me.running_mate.domain.crew.entity;
 
+import com.follow_me.running_mate.domain.enums.Ranking;
 import com.follow_me.running_mate.domain.member.entity.Member;
 import com.follow_me.running_mate.global.common.BaseEntity;
 import jakarta.persistence.Column;
@@ -51,6 +52,9 @@ public class Crew extends BaseEntity {
     @Column(nullable = false)
     @Builder.Default
     private Integer memberCount = 0;
+
+    @Column
+    private Ranking ranking;
 
     public void increaseMemberCount() {
         this.memberCount++;

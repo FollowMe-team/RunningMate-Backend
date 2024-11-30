@@ -21,4 +21,18 @@ public interface CrewRepository extends JpaRepository<Crew,Long> {
     }
     boolean existsByName(String name);
     Optional<Crew> findByLeader(Member leader);
+    @Query(value = "SELECT DISTINCT c.* FROM crew c " +
+            "LEFT JOIN crew_location l ON c.id = l.crew_id " +
+            "LEFT JOIN crew_activity_time a ON c.id = a.crew_id " +
+            "WHERE (:keyword IS NULL OR c.name ILIKE CONCAT('%', :keyword, '%')) " +
+            "AND (:city IS NULL OR l.city ILIKE CONCAT('%', :city, '%')) " +
+            "AND (:district IS NULL OR l.district ILIKE CONCAT('%', :district, '%')) " +
+            "AND (:activityTimes IS NULL OR a.type IN (:activityTimes))",
+            nativeQuery = true)
+    List<Crew> searchCrews(
+            @Param("keyword") String keyword,
+            @Param("city") String city,
+            @Param("district") String district,
+            @Param("activityTimes") List<String> activityTimes);
+
 }

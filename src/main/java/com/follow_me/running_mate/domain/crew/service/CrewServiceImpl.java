@@ -21,6 +21,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.follow_me.running_mate.domain.enums.ActivityTimeType;
 import com.follow_me.running_mate.domain.enums.CrewScheduleApplyStatus;
 import com.follow_me.running_mate.domain.enums.Status;
 import com.follow_me.running_mate.domain.member.dto.response.MemberResponse;
@@ -495,11 +496,24 @@ public class CrewServiceImpl implements CrewService {
 
         CrewCourse crewCourse = crewCourseRepository.findByCrewAndCourseId(crew, courseId)
                 .orElseThrow(() -> new CustomException(CrewErrorCode.NOT_FOUND_CREWCOURSE));
-
         crewCourse.delete();
     }
+    @Override
+    @Transactional(readOnly = true)
+    public CrewResponse.MyCrewListResponse searchCrews(
+            Member member, String keyword, String city,
+            String district, List<ActivityTimeType> activityTimes
+    ) {
+        List<Crew> myCrewMembers = crewMemberRepository.findCrewsByMemberAndStatus(member, Status.COMPLETE);
+        List<String> activityTimeList = (activityTimes != null) ? activityTimes.stream()
+                .map(ActivityTimeType::name)
+                .toList() : List.of();
 
-
+        List<Crew> searchCrews = crewRepository.searchCrews(
+                keyword, city, district, activityTimeList
+        );
+        return new CrewResponse.MyCrewListResponse(crewResponseMapper.toCrewInfoResponse(myCrewMembers),crewResponseMapper.toCrewInfoResponse(searchCrews));
+    }
     @Override
     @Transactional
     public CrewResponse.UpdateCrewResponse updateCrew(Member member, Long crewId, CrewRequest.UpdateCrewRequest request) {

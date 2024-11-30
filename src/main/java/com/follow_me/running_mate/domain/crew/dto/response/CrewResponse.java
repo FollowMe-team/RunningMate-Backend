@@ -61,6 +61,12 @@ public class CrewResponse {
         private String profileImageUrl;
         //TODO: 크루 발자국 어떻게 처리할지 고민하기
     }
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    public static class SearchCrewListResponse {
+        List<MyCrewResponse> SearchCrews;
+    }
 
     @Getter
     @Builder

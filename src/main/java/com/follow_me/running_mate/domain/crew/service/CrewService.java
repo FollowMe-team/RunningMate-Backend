@@ -8,6 +8,7 @@ import com.follow_me.running_mate.domain.crew.entity.Crew;
 import com.follow_me.running_mate.domain.crew.entity.CrewActivityTime;
 import com.follow_me.running_mate.domain.crew.entity.CrewImage;
 import com.follow_me.running_mate.domain.crew.entity.CrewLocation;
+import com.follow_me.running_mate.domain.enums.ActivityTimeType;
 import com.follow_me.running_mate.domain.member.dto.response.MemberResponse;
 import com.follow_me.running_mate.domain.member.entity.Member;
 import org.springframework.web.multipart.MultipartFile;
@@ -54,4 +55,8 @@ public interface CrewService {
     void deleteCrew(Member member, Long crewId);
     void deleteCrewSchedule(Member member, Long scheduleId);
     void deleteFavoriteCourse(Member member, Long courseId,Long crewId);
+    CrewResponse.MyCrewListResponse searchCrews(
+            Member member, String keyword, String city,
+            String district, List<ActivityTimeType> activityTimes
+    );
 }
