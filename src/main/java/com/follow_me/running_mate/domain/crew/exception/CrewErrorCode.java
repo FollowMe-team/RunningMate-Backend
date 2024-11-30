@@ -20,7 +20,8 @@ public enum CrewErrorCode implements ResultCode {
     APPLY_NOT_FOUND("CREW011", "해당 일정에 신청한 적 없는 사용자입니다."),
     ALREADY_CANCELLED("CREW012", "이미 취소한 신청입니다."),
     CREW_LEADER("CREW013", "해당 크루의 크루장입니다. 크루장을 변경하고 다시 시도해주세요"),
-    NOT_FOUND_CREWCOURSE("CREW014", "해당 코스는 즐겨찾기에 존재하지 않습니다.");
+    NOT_FOUND_CREWCOURSE("CREW014", "해당 코스는 즐겨찾기에 존재하지 않습니다."),
+    NOT_FOUND_CREWLOCATION("CREW015","해당 크루의 위치가 존재하지 않습니다." );
 
     private final String code;
     private final String message;

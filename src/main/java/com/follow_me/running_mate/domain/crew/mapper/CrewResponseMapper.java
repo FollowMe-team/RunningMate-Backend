@@ -26,7 +26,7 @@ public class CrewResponseMapper {
     public CrewResponse.CrewDetailResponse toCrewDetailInfo(
             Crew crew,
             List<CrewActivityTime> crewActivityTimes,
-            List<CrewLocation> crewLocations,
+            CrewLocation crewLocations,
             CourseResponse.CourseListResponse myCourseListResponse
     ) {
         return CrewResponse.CrewDetailResponse.builder()
@@ -63,14 +63,11 @@ public class CrewResponseMapper {
                 .toList();
     }
 
-    public List<CrewResponse.CrewLocationInfo> toCrewLocation(List<CrewLocation> crewLocations) {
-        return crewLocations.stream()
-                .map(crewLocation ->
-                        CrewResponse.CrewLocationInfo.builder()
-                                .city(crewLocation.getCity())
-                                .district(crewLocation.getDistrict())
-                                .build()
-                ).toList();
+    public CrewResponse.CrewLocationInfo toCrewLocation(CrewLocation crewLocation) {
+        return CrewResponse.CrewLocationInfo.builder()
+                .city(crewLocation.getCity())
+                .district(crewLocation.getDistrict())
+                .build();
     }
 
     public CrewResponse.CrewScheduleInfo toCrewScheduleInfo(

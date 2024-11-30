@@ -21,13 +21,6 @@ public interface CrewService {
     CrewResponse.MyCrewListResponse getCrewsByMember(Member member);
 
     CrewResponse.CrewDetailResponse getCrewDetail(Long crewId);
-
-    List<CrewActivityTime> getCrewActivityTime(Crew crew);
-
-    List<CrewLocation> getCrewLocationInfo(Crew crew);
-
-    CourseResponse.CourseListResponse getCrewCourses(Crew crew);
-
     CrewResponse.CrewScheduleListResponse getCrewScheduleByDate(Member member,Long crewId, YearMonth yearMonth);
 
     CourseResponse.CourseListResponse getCrewScheduleCourses(Course course);

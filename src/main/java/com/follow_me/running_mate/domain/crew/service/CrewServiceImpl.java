@@ -64,16 +64,23 @@ public class CrewServiceImpl implements CrewService {
     }
 
     @Override
+    @Transactional
     public CrewResponse.MyCrewListResponse getCrewsByMember(Member member) {
-        List<Crew> myCrewMembers = crewMemberRepository.findCrewsByMemberAndStatus(member, Status.COMPLETE);
-        List<Long> myCrewIds = myCrewMembers.stream()
-                .map(Crew::getId) // Crew 객체에서 id 추출
-                .toList();
-        List<Crew> recommendedCrews = crewRepository.findTop4ByIdNotInOrderByCreatedAtDesc(myCrewIds);
-        return new CrewResponse.MyCrewListResponse(crewResponseMapper.toCrewInfoResponse(myCrewMembers), crewResponseMapper.toCrewInfoResponse(recommendedCrews));
+        List<Crew> myCrews = crewMemberRepository.findCrewsByMemberAndStatus(member, Status.COMPLETE);
+        List<Crew> recommendedCrews = crewRepository.findTop4ByIdNotInOrderByCreatedAtDesc(myCrews);
+        //TODO: 분리하자
+        return new CrewResponse.MyCrewListResponse(crewResponseMapper.toCrewInfoResponse(myCrews),
+                crewResponseMapper.toCrewInfoResponse(recommendedCrews));
     }
 
+//    private List<Integer> getAveragefootprint(List<Crew> crews){
+//        for (Crew crew: crews) {
+//
+//        }
+//    }
+
     @Override
+    @Transactional
     public CrewResponse.CrewDetailResponse getCrewDetail(Long crewId) {
         Crew crew = crewRepository.getCrew(crewId);
 
@@ -85,19 +92,18 @@ public class CrewServiceImpl implements CrewService {
         );
     }
 
-    @Override
-    public List<CrewActivityTime> getCrewActivityTime(Crew crew) {
+    private List<CrewActivityTime> getCrewActivityTime(Crew crew) {
         return crewActivityTimeRepository.findAllByCrew(crew);
     }
 
-    @Override
-    public List<CrewLocation> getCrewLocationInfo(Crew crew) {
-        return crewLocationRepository.findAllByCrew(crew);
+    private CrewLocation getCrewLocationInfo(Crew crew) {
+        return crewLocationRepository.findByCrew(crew).orElseThrow
+                (() -> new CustomException(CrewErrorCode.NOT_FOUND_CREWLOCATION));
+        //TODO:그리고 이 활동시간의 경우
+        //같은 시간대인 요일은 묶고, 그리고 월,화,수 순으로 정렬되도록 보내줘야할 거 같은데
+        //디자인처럼
     }
-
-    @Override
-    @Transactional(readOnly = true)
-    public CourseResponse.CourseListResponse getCrewCourses(Crew crew) {
+    private CourseResponse.CourseListResponse getCrewCourses(Crew crew) {
 
         List<Course> myCourses = crewCourseRepository.findTop3CoursesByCrewOrderByCreatedAtDesc(crew);
 

@@ -12,8 +12,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CrewRepository extends JpaRepository<Crew,Long> {
-    @Query("SELECT c FROM Crew c WHERE c.id NOT IN :myCrewIds ORDER BY c.createdAt DESC")
-    List<Crew> findTop4ByIdNotInOrderByCreatedAtDesc(@Param("myCrewIds") List<Long> myCrewIds);
+    @Query("SELECT c FROM Crew c WHERE c NOT IN :myCrews ORDER BY c.createdAt DESC")
+    List<Crew> findTop4ByIdNotInOrderByCreatedAtDesc(@Param("myCrews") List<Crew> myCrews);
 
     default Crew getCrew(Long crewId) {
         return findById(crewId)

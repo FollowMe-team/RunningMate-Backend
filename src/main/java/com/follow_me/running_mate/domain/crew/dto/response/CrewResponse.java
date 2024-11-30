@@ -1,11 +1,9 @@
 package com.follow_me.running_mate.domain.crew.dto.response;
 
 import com.follow_me.running_mate.domain.course.dto.response.CourseResponse;
-import com.follow_me.running_mate.domain.crew.entity.CrewImage;
 import com.follow_me.running_mate.domain.enums.ActivityTimeType;
 import com.follow_me.running_mate.domain.enums.CourseImageType;
 import com.follow_me.running_mate.domain.enums.Ranking;
-import com.follow_me.running_mate.domain.member.dto.response.MemberResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -24,12 +22,12 @@ public class CrewResponse {
     @Getter
     @AllArgsConstructor
     public static class CrewScheduleIdResponse {
-        private Long ScheduleId;
+        private Long scheduleId;
     }
     @Getter
     @AllArgsConstructor
     public static class CrewCourseIdResponse {
-        private Long CrewCourseId;
+        private Long crewCourseId;
     }
     @Getter
     @AllArgsConstructor
@@ -61,6 +59,7 @@ public class CrewResponse {
         private Integer memberCount;
         private String shortDescription;
         private String profileImageUrl;
+        private Integer footprintaverage;
         //TODO: 크루 발자국 어떻게 처리할지 고민하기
     }
     @Getter
@@ -81,7 +80,7 @@ public class CrewResponse {
     @AllArgsConstructor
     public static class CrewCourseListResponse {
         private Long crewId;
-        private boolean IsCrewLeader;
+        private Boolean IsCrewLeader;
         private List<CourseResponse.SummaryInfo> courses;
     }
 
@@ -105,7 +104,7 @@ public class CrewResponse {
         private String detailDescription;
         private String profileImageUrl;
         private List<CrewActivityTime> crewActivityTimeList;
-        private List<CrewLocationInfo> crewLocationInfos;
+        private CrewLocationInfo crewLocationInfos;
         private CourseResponse.CourseListResponse crewCourses;
     }
     @Getter
@@ -114,7 +113,7 @@ public class CrewResponse {
     @NoArgsConstructor
     public static class CrewSelectResponse {
         private Long id;
-        private boolean IsCrewLeader;
+        private Boolean IsCrewLeader;
         private String name;
         private String openChatUrl;
         private List<CrewImageInfo> images;
@@ -165,7 +164,7 @@ public class CrewResponse {
     @NoArgsConstructor
     public static class CrewScheduleListResponse {
         private Long crewId;
-        private boolean IsCrewLeader;
+        private Boolean IsCrewLeader;
         private List<CrewScheduleInfo> crewSchedule;
     }
 
