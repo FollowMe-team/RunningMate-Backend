@@ -14,6 +14,7 @@ import com.follow_me.running_mate.domain.member.entity.Member;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 
 public interface CrewService {
@@ -29,7 +30,7 @@ public interface CrewService {
 
     CourseResponse.CourseListResponse getCrewCourses(Crew crew);
 
-    CrewResponse.CrewScheduleListResponse getCrewScheduleByDate(Member member,Long crewId, LocalDate date);
+    CrewResponse.CrewScheduleListResponse getCrewScheduleByDate(Member member,Long crewId, YearMonth yearMonth);
 
     CourseResponse.CourseListResponse getCrewScheduleCourses(Course course);
 

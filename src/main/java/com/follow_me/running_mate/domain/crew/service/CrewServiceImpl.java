@@ -18,6 +18,8 @@ import com.follow_me.running_mate.domain.crew.repository.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -116,22 +118,23 @@ public class CrewServiceImpl implements CrewService {
 
     @Override
     @Transactional(readOnly = true)
-    public CrewResponse.CrewScheduleListResponse getCrewScheduleByDate(Member member, Long crewId, LocalDate date) {
-        LocalDateTime startOfDay = date.atStartOfDay();
-        LocalDateTime endOfDay = date.atTime(23, 59, 59);
+    public CrewResponse.CrewScheduleListResponse getCrewScheduleByDate(Member member, Long crewId, YearMonth yearMonth) {
+
+        LocalDateTime startOfMonth = yearMonth.atDay(1).atStartOfDay();
+        LocalDateTime endOfMonth = yearMonth.atEndOfMonth().atTime(LocalTime.MAX);
         Crew crew = crewRepository.getCrew(crewId);
-        List<CrewSchedule> crewSchedules = crewScheduleRepository.findByCrewAndStartTimeBetween(crew, startOfDay, endOfDay);
+        List<CrewSchedule> crewSchedules = crewScheduleRepository.findByCrewAndStartTimeBetween(crew, startOfMonth, endOfMonth);
 
         List<CrewResponse.CrewScheduleInfo> scheduleInfos = crewSchedules.stream().map(schedule ->
                 crewResponseMapper.toCrewScheduleInfo(
                         schedule,
-                        this.getCrewScheduleCourses(schedule.getCourse())
+                        getCrewScheduleCourses(schedule.getCourse())
                 )).toList();
 
         return CrewResponse.CrewScheduleListResponse.builder()
                 .crewId(crew.getId())
-                .crewSchedule(scheduleInfos)
                 .IsCrewLeader(isUserLeaderOfCrew(member, crew))
+                .crewSchedule(scheduleInfos)
                 .build();
     }
 

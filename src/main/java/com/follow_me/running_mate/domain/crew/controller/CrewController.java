@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 
 @RestController
@@ -89,8 +90,8 @@ public class CrewController {
     public BaseResponse<CrewResponse.CrewScheduleListResponse> getCrewSchedule(
             @AuthenticationPrincipal PrincipalDetails principalDetails,
             @PathVariable(value = "crewId") Long crewId,
-            @RequestParam(value = "date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date) {
-        return BaseResponse.success("크루의 월간 스케줄 조회에 성공했습니다.", crewService.getCrewScheduleByDate(principalDetails.member(),crewId, date));
+            @RequestParam(value = "yearMonth") YearMonth yearMonth) {
+        return BaseResponse.success("크루의 월간 스케줄 조회에 성공했습니다.", crewService.getCrewScheduleByDate(principalDetails.member(),crewId, yearMonth));
     }
 
     @GetMapping("/members/{scheduleId}")
