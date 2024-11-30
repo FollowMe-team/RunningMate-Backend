@@ -113,7 +113,8 @@ public class MemberServiceImpl implements MemberService {
         if (profileImage != null) {
             // 기존 이미지 삭제
             String oldProfileImageUrl = member.getProfileImageUrl();
-            s3ImageService.deleteImageFromS3(oldProfileImageUrl);
+            if (oldProfileImageUrl != null)
+                s3ImageService.deleteImageFromS3(oldProfileImageUrl);
 
             // 새로운 이미지로 교체
             String profileImageUrl = s3ImageService.upload(profileImage);
@@ -122,14 +123,23 @@ public class MemberServiceImpl implements MemberService {
 
         Member savedMember = memberRepository.save(member);
 
-        // 거주지 정보 업데이트
+        // 거주지 정보 업데이트 또는 새로 생성
         memberLocationRepository.findByMember(savedMember)
-                .ifPresent(memberLocation -> {
+            .ifPresentOrElse(
+                memberLocation -> {
+                    // 존재하면 업데이트
                     memberLocation.updateLocation(
-                        request.getIntroduce(), FormatterUtil.formatPoint(request.getLocationInfo())
+                        request.getLocationInfo().getAddress(), FormatterUtil.formatPoint(request.getLocationInfo())
                     );
-                    memberLocationRepository.save(memberLocation);
-                });
+                },
+                // 존재하지 않으면 새로 생성 후 저장
+                () -> {
+                    memberLocationRepository.save(
+                        memberMapper.toMemberLocation(request.getLocationInfo(), savedMember)
+                    );
+                }
+            );
+
 
         return new MemberResponse.UpdateMyProfileResponse(savedMember.getId());
     }
