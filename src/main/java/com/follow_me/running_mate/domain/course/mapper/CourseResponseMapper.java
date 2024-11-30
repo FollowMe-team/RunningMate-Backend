@@ -207,22 +207,28 @@ public class CourseResponseMapper {
             .nickname(member.getNickname())
             .profileImageUrl(member.getProfileImageUrl())
             .ranking(member.getRanking())
+            .footPrint(member.getFootprint())
             .build();
     }
-    public static CourseResponse.CourseRecordInfo toCourseRecordInfo(CourseRecord courseRecord) {
-        // Duration 포맷팅
-        long durationInSeconds = courseRecord.getDuration().getSeconds();
-        long nanos = courseRecord.getDuration().getNano();
-        String formattedDuration = FormatterUtil.formatDurationWithNanos(durationInSeconds, nanos);
-
-        // CourseRecordInfo 객체 생성
+    public CourseResponse.CourseRecordInfo toCourseRecordInfo(CourseRecord courseRecord, Boolean isMine) {
         return CourseResponse.CourseRecordInfo.builder()
-                .date(courseRecord.getStartTime())
-                .courseName(courseRecord.getCourse().getName())
-                .distance(courseRecord.getDistance())
-                .caloriesBurned(courseRecord.getCaloriesBurned())
-                .averagePace(courseRecord.getAveragePace())
-                .formattedDuration(formattedDuration) // 바로 포맷팅된 값 설정
+            .recordId(courseRecord.getId())
+            .startTime(courseRecord.getStartTime())
+            .course(toCourseInfo(courseRecord.getCourse(), isMine))
+            .distance(courseRecord.getDistance())
+            .caloriesBurned(courseRecord.getCaloriesBurned())
+            .duration(FormatterUtil.formatDuration(courseRecord.getStartTime(), courseRecord.getEndTime()))
+            .averagePace(courseRecord.getAveragePace())
+            .build();
+    }
+
+    private CourseResponse.CourseInfo toCourseInfo(Course course, Boolean isMine) {
+        if (isMine) {
+            return CourseResponse.CourseInfo.builder()
+                .courseId(course.getId())
+                .courseName(course.getName())
                 .build();
+        }
+        return null;
     }
 }

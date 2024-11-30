@@ -45,6 +45,33 @@ public class FormatterUtil {
         }
     }
 
+    public static String formatDuration(LocalDateTime startTime, LocalDateTime endTime) {
+        Duration duration = Duration.between(startTime, endTime);
+
+        long hours = duration.toHours();
+        long minutes = duration.toMinutes() % 60;
+        long seconds = duration.getSeconds() % 60;
+
+        return String.format("%02d:%02d:%02d", hours, minutes, seconds);
+    }
+
+    // MemberCount 포맷팅
+    public static String formatMemberCount(Long count) {
+        if (count == null) {
+            return "0";
+        }
+
+        if (count < 1000) {
+            return count.toString();
+        } else if (count < 1000000) {
+            return String.format("%.1fK", count / 1000.0).replaceAll("\\.0K$", "K");
+        } else if (count < 1000000000) {
+            return String.format("%.1fM", count / 1000000.0).replaceAll("\\.0M$", "M");
+        } else {
+            return String.format("%.1fB", count / 1000000000.0).replaceAll("\\.0B$", "B");
+        }
+    }
+
     // Rating 포맷팅
     public static Double formatRating(Double rating) {
         return rating != null ? Double.parseDouble(String.format("%.1f", rating)) : 0.0;
@@ -94,12 +121,5 @@ public class FormatterUtil {
         long seconds = (long) ((((durationInHours - hours) * 60) - minutes) * 60);
 
         return Duration.ofHours(hours).plusMinutes(minutes).plusSeconds(seconds);
-    }
-    public static String formatDurationWithNanos(Long durationInSeconds, Long nanos) {
-        long hours = durationInSeconds / 3600;
-        long minutes = (durationInSeconds % 3600) / 60;
-        long seconds = durationInSeconds % 60;
-        long millis = nanos / 1_000_000; // 나노초를 밀리초로 변환
-        return String.format("%02d:%02d:%02d:%03d", hours, minutes, seconds, millis);
     }
 }

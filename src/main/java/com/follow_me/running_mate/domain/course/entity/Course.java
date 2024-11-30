@@ -24,6 +24,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.SQLRestriction;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Point;
@@ -71,6 +72,7 @@ public class Course extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Status status;
 
+    @Setter
     @Enumerated(EnumType.STRING)
     private Difficulty difficulty;
 
@@ -85,7 +87,16 @@ public class Course extends BaseEntity {
         this.runningCount++;
     }
 
-    public void addOption(List<CourseOption> option) {
+    public void updateStatus(Status status) {
+        this.status = status;
+    }
+
+    public void addOption(CourseOption option) {
+        this.options.add(option);
+    }
+
+    public void addOptions(List<CourseOption> option) {
         this.options.addAll(option);
     }
+
 }

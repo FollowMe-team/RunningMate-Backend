@@ -87,7 +87,7 @@ public class CrewController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
     })
     public BaseResponse<CrewResponse.CrewScheduleMemberListResponse> getMembersBySchedule(@PathVariable(value = "scheduleId") Long scheduleId) {
-        List<MemberResponse.FollowResponse> responses = crewService.getMembersBySchedule(scheduleId);
+        List<MemberResponse.FollowInfo> responses = crewService.getMembersBySchedule(scheduleId);
         return BaseResponse.success("스케줄 멤버 조회에 성공했습니다.", new CrewResponse.CrewScheduleMemberListResponse(responses));
     }
 

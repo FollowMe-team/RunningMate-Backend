@@ -17,15 +17,26 @@ public class CoursePointServiceImpl implements CoursePointService {
     private final CoursePointRepository coursePointRepository;
 
     @Override
-    public void saveCoursePoints(Course course, List<CourseRequest.CoursePointInfo> coursePoints) {
+    public void saveCoursePoint(CoursePoint coursePoint) {
+        coursePointRepository.save(coursePoint);
+    }
+
+    @Override
+    public List<CoursePoint> saveCoursePoints(Course course, List<CourseRequest.CoursePointInfo> coursePoints) {
         for (int i = 0; i < coursePoints.size(); i++) {
             CoursePoint coursePoint = courseEntityMapper.toCoursePoint(course, coursePoints.get(i), i + 1);
             coursePointRepository.save(coursePoint);
         }
+        return coursePointRepository.findAllByCourseOrderBySequenceNumberAsc(course);
     }
 
     @Override
     public List<CoursePoint> getCoursePoints(Course course) {
         return coursePointRepository.findAllByCourseOrderBySequenceNumberAsc(course);
+    }
+
+    @Override
+    public List<CoursePoint> getCoursePointsByCourseId(Long courseId) {
+        return coursePointRepository.findAllByCourseIdOrderBySequenceNumberAsc(courseId);
     }
 }

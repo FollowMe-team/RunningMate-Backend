@@ -206,24 +206,36 @@ public class CourseResponse {
         private String nickname;
         private String profileImageUrl;
         private Ranking ranking;
-        // 러닝 발자국 추가
+        private Long footPrint;
     }
+
     @Getter
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class CourseRecordInfo{
-        private LocalDateTime date;
-        private String courseName;
+    public static class CourseRecordInfo {
+        private Long recordId;
+        private LocalDateTime startTime;
+        private CourseInfo course;
         private Double distance;
+        private String duration;
         private Integer caloriesBurned;
-        private Integer averagePace;
-        private String formattedDuration;
+        private Double averagePace;
     }
+
     @Getter
     @Builder
     @AllArgsConstructor
-    public static class CourseRecordInfoList{
+    @NoArgsConstructor
+    public static class CourseInfo {
+        private Long courseId;
+        private String courseName;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    public static class CourseRecordInfoList {
         private List<CourseRecordInfo> records;
     }
 }

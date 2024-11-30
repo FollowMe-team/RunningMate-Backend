@@ -3,6 +3,7 @@ package com.follow_me.running_mate.domain.course.service;
 import com.follow_me.running_mate.domain.course.dto.request.CourseRequest;
 import com.follow_me.running_mate.domain.course.dto.response.CourseResponse;
 import com.follow_me.running_mate.domain.course.entity.Course;
+import com.follow_me.running_mate.domain.course.entity.CourseOption;
 import com.follow_me.running_mate.domain.course.entity.CoursePoint;
 import com.follow_me.running_mate.domain.course.entity.CourseReview;
 import com.follow_me.running_mate.domain.course.entity.CourseReviewImage;
@@ -21,13 +22,17 @@ import com.follow_me.running_mate.domain.enums.Difficulty;
 import com.follow_me.running_mate.domain.enums.Ranking;
 import com.follow_me.running_mate.domain.enums.ReviewSortType;
 import com.follow_me.running_mate.domain.enums.RunningGoal;
+import com.follow_me.running_mate.domain.enums.Status;
 import com.follow_me.running_mate.domain.member.entity.Member;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CourseServiceImpl implements CourseService {
@@ -53,18 +58,43 @@ public class CourseServiceImpl implements CourseService {
         Member member, CourseRequest.CreateCourseRequest request,
         MultipartFile representativeImage, MultipartFile startImage, MultipartFile endImage
     ) {
-        Course course = courseRepository.save(courseEntityMapper.toCourse(request, member));
+        log.info("코스 생성 시작: memberId={}", member.getId());
+
+        Course course = courseEntityMapper.toCourse(request, member);
+        course = courseRepository.save(course);
+        log.info("코스 기본 정보 저장 완료: courseId={}", course.getId());
 
         courseImageService.saveCourseImages(course, representativeImage, startImage, endImage);
-        course.addOption(courseOptionService.getCourseOptions(course));
-        coursePointService.saveCoursePoints(course, request.getCoursePoints());
+        List<CourseOption> courseOptions = courseOptionService.saveAll(course, request.getOptions());
+        course.addOptions(courseOptions);
+        List<CoursePoint> coursePoints = coursePointService.saveCoursePoints(course, request.getCoursePoints());
+        log.info("코스 상세 정보 저장 완료: courseId={}", course.getId());
 
-        // 람다 호출: 난이도 및 기타 계산 (비동기)
-        // TODO: 람다 완성되면 주석 해제
-        // CompletableFuture.runAsync(() -> lambdaService.invokeCourseDifficultyLambda(course.getId()));
+        final Long courseId = course.getId();
+        CompletableFuture.runAsync(() -> {
+            try {
+                log.info("Lambda 분석 시작: courseId={}", courseId);
+                updateCourseStatus(courseId, Status.ANALYZING);
+                log.info("상태 업데이트 - ANALYZING: courseId={}", courseId);
 
+                lambdaService.invokeCourseDifficultyLambda(
+                    courseRepository.getCourseNotApproved(courseId),
+                    coursePointService.getCoursePointsByCourseId(courseId)
+                );
+                log.info("Lambda 분석 완료: courseId={}", courseId);
+
+                updateCourseStatus(courseId, Status.WAIT);
+                log.info("상태 업데이트 - WAIT: courseId={}", courseId);
+            } catch (Exception e) {
+                log.error("Lambda 분석 실패: courseId={}", courseId, e);
+                updateCourseStatus(courseId, Status.READY);
+            }
+        });
+
+        log.info("코스 생성 API 응답: courseId={}", course.getId());
         return new CourseResponse.CourseIdResponse(course.getId());
     }
+
 
     @Override
     @Transactional
@@ -72,6 +102,7 @@ public class CourseServiceImpl implements CourseService {
         Member member, Long courseId, CourseRequest.CreateCourseRecordRequest request
     ) {
         Course course = courseRepository.getCourse(courseId);
+        course.updateRunningCount();
 
         return courseRecordService.createCourseRecord(member, course, request);
     }
@@ -294,6 +325,13 @@ public class CourseServiceImpl implements CourseService {
         return new CourseResponse.CheckCourseNameResponse(
             courseRepository.existsByName(name)
         );
+    }
+
+    @Transactional
+    protected void updateCourseStatus(Long courseId, Status status) {
+        Course course = courseRepository.getCourseNotApproved(courseId);
+        course.updateStatus(status);
+        courseRepository.save(course);
     }
 
     // 사용자 ranking에 따른 기본 난이도 설정

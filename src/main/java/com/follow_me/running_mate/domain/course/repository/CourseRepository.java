@@ -23,6 +23,11 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
             .orElseThrow(() -> new CustomException(CourseErrorCode.NOT_FOUND));
     }
 
+    default Course getCourseNotApproved(Long id) {
+        return findById(id)
+            .orElseThrow(() -> new CustomException(CourseErrorCode.NOT_FOUND));
+    }
+
     boolean existsByName(String name);
 
     List<Course> findAllByWriterOrderByCreatedAtDesc(Member writer);

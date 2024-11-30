@@ -57,6 +57,7 @@ public class CourseEntityMapper {
         return CoursePoint.builder()
             .course(course)
             .location(FormatterUtil.formatPoint(pointInfo))
+            .elevation(pointInfo.getElevation())
             .sequenceNumber(order)
             .build();
     }

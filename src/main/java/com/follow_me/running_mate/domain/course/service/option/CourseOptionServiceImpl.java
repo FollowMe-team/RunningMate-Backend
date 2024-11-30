@@ -20,6 +20,11 @@ public class CourseOptionServiceImpl implements CourseOptionService {
 
 
     @Override
+    public CourseOption saveGradientOption(Course course, CourseOptionType optionType) {
+        return courseOptionRepository.save(courseEntityMapper.toCourseOption(course, optionType));
+    }
+
+    @Override
     public List<CourseOption> saveAll(Course course, List<CourseOptionType> options) {
          return options.stream()
              .map(option -> courseEntityMapper.toCourseOption(course, option))

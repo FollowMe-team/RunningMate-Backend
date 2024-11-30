@@ -4,6 +4,7 @@ import com.follow_me.running_mate.domain.enums.Gender;
 import com.follow_me.running_mate.domain.enums.Ranking;
 import com.follow_me.running_mate.domain.enums.Role;
 import com.follow_me.running_mate.domain.enums.RunningCareer;
+import com.follow_me.running_mate.domain.member.dto.request.MemberRequest;
 import com.follow_me.running_mate.global.common.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -75,15 +76,17 @@ public class Member extends BaseEntity {
 
     @Column(nullable = false)
     @Builder.Default
-    private Integer followerCount = 0;
+    private Long followerCount = 0L;
 
     @Column(nullable = false)
     @Builder.Default
-    private Integer followingCount = 0;
+    private Long followingCount = 0L;
 
     @Column(nullable = false)
     @Builder.Default
     private Long footprint = 500L;
+
+    private String introduce;
 
     // 팔로워 수 증가
     public void incrementFollowerCount() {
@@ -109,14 +112,33 @@ public class Member extends BaseEntity {
         }
     }
     // 프로필 변경
-    public void updateProfile(String nickname, Gender gender, LocalDate birth) {
-        this.nickname = nickname;
-        this.gender = gender;
-        this.birth = birth;
+    public void updateProfile(MemberRequest.UpdateProfileRequest request) {
+        this.nickname = request.getNickname();
+        this.gender = request.getGender();
+        this.birth = request.getBirth();
+        this.introduce = request.getIntroduce();
     }
+
+    // 프로필 이미지 변경
+    public void updateProfileImage(String profileImageUrl) {
+        this.profileImageUrl = profileImageUrl;
+    }
+
     //비밀번호 변경
     public void changePassword(String encodedNewPassword) {
         this.password = encodedNewPassword;
+    }
+
+    // 발자국 증가
+    public void incrementFootprint() {
+        this.footprint += 50L;
+    }
+
+    // 발자국 감소
+    public void decrementFootprint() {
+        if (this.footprint > 0) {
+            this.footprint -= 50L;
+        }
     }
 
 }

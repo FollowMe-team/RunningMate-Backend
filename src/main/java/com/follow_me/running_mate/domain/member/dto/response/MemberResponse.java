@@ -1,43 +1,72 @@
 package com.follow_me.running_mate.domain.member.dto.response;
 
+import com.follow_me.running_mate.domain.enums.FootprintType;
 import com.follow_me.running_mate.domain.enums.Gender;
-import com.follow_me.running_mate.domain.enums.RunningCareer;
-import com.follow_me.running_mate.domain.enums.RunningGoal;
+import com.follow_me.running_mate.domain.enums.Ranking;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.awt.*;
 import java.time.LocalDate;
 import java.util.List;
 
 public class MemberResponse {
 
-
     @Getter
-    @Builder // 인자가 많아 생성자가 많이 필요할때 사용해 선택적으로 인자를 사용해 편하게 해주는 어노테이션
-    @AllArgsConstructor // 모든 인자들을 포함하는 생성자 만들어주는 어노테이션
+    @Builder
+    @AllArgsConstructor
     @NoArgsConstructor
     public static class MyProfileResponse {
-        private String name;
+        private String profileImageUrl;
         private String nickname;
-        private Gender gender; // Gender enum
-        private LocalDate birth; // LocalDate for birth
-        private RunningGoal runningGoal; // RunningGoal enum
-        private RunningCareer runningCareer; // RunningCareer enum
+        private Ranking ranking;
+        private String introduce;
+        private String followerCount;
+        private String followingCount;
+        private String name;
+        private Gender gender;
+        private LocalDate birth;
+        private String address;
+        private Double runningDistance;
+        private Long runningCount;
         private Long footPrint;
     }
 
     @Getter
     @Builder
     @AllArgsConstructor
-    @NoArgsConstructor // 생성자에 모든 인자를 포함하지 않아도 되는 어노테이션
-    public static class UpdateMyProfileResponse {
+    @NoArgsConstructor
+    public static class MyProfileSummaryResponse {
+        private String profileImageUrl;
         private String nickname;
-        private Gender gender; // Gender enum
-        private LocalDate birth; // LocalDate for birth
-        private Point address; //주소지
+        private String introduce;
+        private LocalDate birth;
+        private Gender gender;
+        private LocationInfo locationInfo;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class OtherProfileResponse {
+        private String profileImageUrl;
+        private String nickname;
+        private Ranking ranking;
+        private String introduce;
+        private String followerCount;
+        private String followingCount;
+        private Double runningDistance;
+        private Long runningCount;
+        private Long footPrint;
+        private Boolean isSameCrew;
+    }
+
+    @Getter
+    @AllArgsConstructor
+    public static class UpdateMyProfileResponse {
+        private Long memberId;
     }
 
     @Getter
@@ -47,32 +76,85 @@ public class MemberResponse {
         private String name;
         private String description;
         private String iconUrl;
-        private String criteria;    // 배지를 획득한 기준
+        private String criteria;
+        private Boolean isAcquired;
     }
+
     @Getter
     @Builder
     @AllArgsConstructor
     public static class BadgeListResponse{
         private List<BadgeResponse> badges;
     }
+
     @Getter
     @Builder
     @AllArgsConstructor
-    public static class FollowResponse {
+    public static class FollowInfo {
+        private Long memberId;
+        private String profileImageUrl;
         private String nickname;
-        private String iconUrl;
-        private Long footPrint;// 배지를 획득한 기준
+        private Ranking ranking;
+        private Long footPrint;
     }
+
     @Getter
     @Builder
     @AllArgsConstructor
-    public static class FollowListResponse{
-        private List<FollowResponse> Follows;
+    public static class FollowingListResponse {
+        private List<FollowInfo> followings;
     }
+
     @Getter
     @Builder
     @AllArgsConstructor
     public static class FollowerListResponse{
-        private List<FollowResponse> Followers;
+        private List<FollowInfo> followers;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class LocationInfo {
+        private String address;
+        private Double latitude;
+        private Double longitude;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class MemberInfo {
+        private Long memberId;
+        private String profileImageUrl;
+        private String nickname;
+        private Ranking ranking;
+        private Long footPrint;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class FootprintInfo {
+        private Long footprintId;
+        private MemberInfo memberInfo;
+        private FootprintType footprintType;
+        private String content;
+        private String createdAt;
+    }
+
+    @Getter
+    @AllArgsConstructor
+    public static class FootprintListResponse {
+        private List<FootprintInfo> footprints;
+    }
+
+    @Getter
+    @AllArgsConstructor
+    public static class DuplicateCheckResponse {
+        private Boolean isDuplicated;
     }
 }

@@ -174,6 +174,6 @@ public class CrewResponse {
     @Builder
     @AllArgsConstructor
     public static class CrewScheduleMemberListResponse {
-        private List<MemberResponse.FollowResponse> CrewScheduleMembers;
+        private List<MemberResponse.FollowInfo> CrewScheduleMembers;
     }
 }

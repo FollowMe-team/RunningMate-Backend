@@ -1,14 +1,20 @@
 package com.follow_me.running_mate.domain.member.mapper;
 
+import com.follow_me.running_mate.domain.enums.BadgeType;
 import com.follow_me.running_mate.domain.enums.Ranking;
 import com.follow_me.running_mate.domain.enums.Role;
 import com.follow_me.running_mate.domain.member.dto.request.MemberRequest;
 import com.follow_me.running_mate.domain.member.dto.response.MemberResponse;
 import com.follow_me.running_mate.domain.member.entity.Member;
 import com.follow_me.running_mate.domain.member.entity.MemberBadge;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
+import com.follow_me.running_mate.domain.member.entity.MemberFollow;
+import com.follow_me.running_mate.domain.member.entity.MemberFootprint;
+import com.follow_me.running_mate.domain.member.entity.MemberLocation;
+import com.follow_me.running_mate.domain.member.entity.MemberWithdraw;
+import com.follow_me.running_mate.global.common.util.FormatterUtil;
+import java.util.Arrays;
+import java.util.Optional;
+import java.util.Set;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -25,46 +31,156 @@ public class MemberMapper {
             .gender(request.getGender())
             .birth(request.getBirth())
             .nickname(request.getNickname())
+            .introduce(request.getIntroduce())
             .runningCareer(request.getRunningCareer())
             .role(Role.USER)
             .ranking(Ranking.NO_RANK)
             .build();
     }
 
-    // 마이 프로필 조회 시 사용: Entity -> Response DTO 변환
-    public MemberResponse.MyProfileResponse toMyProfileResponse(Member member) {
+    public MemberLocation toMemberLocation(MemberRequest.LocationInfo locationInfo, Member member) {
+        return MemberLocation.builder()
+            .member(member)
+            .address(locationInfo.getAddress())
+            .location(FormatterUtil.formatPoint(locationInfo))
+            .build();
+    }
+
+    public MemberFollow toMemberFollow(Member follower, Member following) {
+        return MemberFollow.builder()
+            .follower(follower)
+            .following(following)
+            .isActive(false)
+            .build();
+    }
+
+    public MemberFootprint toMemberFootprint(Member writer, Member target, MemberRequest.FootprintRequest request) {
+        return MemberFootprint.builder()
+            .writer(writer)
+            .target(target)
+            .content(request.getContent())
+            .type(request.getType())
+            .isAnonymous(request.getIsAnonymous())
+            .build();
+    }
+
+    public MemberWithdraw toMemberWithdraw(Member member, MemberRequest.WithdrawRequest request) {
+        return MemberWithdraw.builder()
+            .member(member)
+            .type(request.getType())
+            .reason(request.getReason())
+            .build();
+    }
+
+    public MemberResponse.FootprintInfo toFootprintInfo(MemberFootprint footprint) {
+
+        MemberResponse.FootprintInfo.FootprintInfoBuilder builder = MemberResponse.FootprintInfo.builder()
+            .footprintId(footprint.getId())
+            .content(footprint.getContent())
+            .footprintType(footprint.getType())
+            .createdAt(FormatterUtil.formatTime(footprint.getCreatedAt()));
+
+        if (footprint.getIsAnonymous()) {
+            builder
+                .memberInfo(null);
+        } else {
+            builder
+                .memberInfo(toMemberInfo(footprint.getWriter()));
+        }
+        return builder.build();
+    }
+
+    private MemberResponse.MemberInfo toMemberInfo(Member member) {
+        return MemberResponse.MemberInfo.builder()
+            .memberId(member.getId())
+            .profileImageUrl(member.getProfileImageUrl())
+            .nickname(member.getNickname())
+            .ranking(member.getRanking())
+            .footPrint(member.getFootprint())
+            .build();
+    }
+
+    public MemberResponse.MyProfileResponse toMyProfileResponse(
+        Member member, String address, Double runningDistance, Long runningCount
+    ) {
         return MemberResponse.MyProfileResponse.builder()
-                .name(member.getName())
-                .nickname(member.getNickname())
-                .gender(member.getGender())
-                .birth(member.getBirth())
-                .runningCareer(member.getRunningCareer())
-                .footPrint(member.getFootprint())
-                .build();
+            .profileImageUrl(member.getProfileImageUrl())
+            .nickname(member.getNickname())
+            .ranking(member.getRanking())
+            .introduce(member.getIntroduce())
+            .followerCount(FormatterUtil.formatMemberCount(member.getFollowerCount()))
+            .followingCount(FormatterUtil.formatMemberCount(member.getFollowingCount()))
+            .name(member.getName())
+            .gender(member.getGender())
+            .birth(member.getBirth())
+            .address(address)
+            .runningDistance(runningDistance)
+            .runningCount(runningCount)
+            .footPrint(member.getFootprint())
+            .build();
     }
-    public MemberResponse.UpdateMyProfileResponse toUpdateMyProfileResponse(Member member) {
-        return MemberResponse.UpdateMyProfileResponse.builder()
-                .nickname(member.getNickname())
-                .gender(member.getGender())
-                .birth(member.getBirth())
-                .build();
+
+    public MemberResponse.MyProfileSummaryResponse toMyProfileSummaryResponse(
+        Member member, Optional<MemberLocation> location
+    ) {
+        return MemberResponse.MyProfileSummaryResponse.builder()
+            .profileImageUrl(member.getProfileImageUrl())
+            .nickname(member.getNickname())
+            .introduce(member.getIntroduce())
+            .birth(member.getBirth())
+            .gender(member.getGender())
+            .locationInfo(toLocationInfo(location))
+            .build();
     }
-    // MemberBadge 리스트를 BadgeResponse 리스트로 변환
-    public List<MemberResponse.BadgeResponse> toBadgeResponseList(List<MemberBadge> memberBadges) {
-        return memberBadges.stream() // list -> stream 타입으로 변경
-                .map(badge -> MemberResponse.BadgeResponse.builder() // badge 는 변수이름 설정해준것 map 으로 각각의 스트림 요소 변환 작업
-                        .name(badge.getType().getName()) //getType 으로 BadgeType 이라는 enum 을 가져오고 거기서 추가 정보를 가져오는 방식
-                        .description(badge.getType().getDescription())
-                        .iconUrl(badge.getType().getIconUrl())
-                        .criteria(badge.getType().getCriteria())
-                        .build()) // 빌더로 객체 생성
-                .collect(Collectors.toList()); // 다시 stream -> list 로 변경
+
+    private MemberResponse.LocationInfo toLocationInfo(Optional<MemberLocation> location) {
+        return location.map(memberLocation -> MemberResponse.LocationInfo.builder()
+            .address(memberLocation.getAddress())
+            .latitude(memberLocation.getLocation().getY())
+            .longitude(memberLocation.getLocation().getX())
+            .build()).orElse(null);
     }
-    public MemberResponse.FollowResponse toFollowResponse(Member member) {
-        return MemberResponse.FollowResponse.builder()
-                .nickname(member.getNickname())
-                .iconUrl(member.getProfileImageUrl())
-                .footPrint(member.getFootprint())
-                .build();
+
+    public MemberResponse.OtherProfileResponse toOtherProfileResponse(
+        Member member, Double runningDistance, Long runningCount, Boolean isSameCrew
+    ) {
+        return MemberResponse.OtherProfileResponse.builder()
+            .profileImageUrl(member.getProfileImageUrl())
+            .nickname(member.getNickname())
+            .ranking(member.getRanking())
+            .introduce(member.getIntroduce())
+            .followerCount(FormatterUtil.formatMemberCount(member.getFollowerCount()))
+            .followingCount(FormatterUtil.formatMemberCount(member.getFollowingCount()))
+            .runningDistance(runningDistance)
+            .runningCount(runningCount)
+            .footPrint(member.getFootprint())
+            .isSameCrew(isSameCrew)
+            .build();
+    }
+
+    public List<MemberResponse.BadgeResponse> toBadgeResponses(List<MemberBadge> memberBadges) {
+        Set<BadgeType> acquiredBadges = memberBadges.stream()
+                .map(MemberBadge::getType)
+                .collect(Collectors.toSet());
+
+        return Arrays.stream(BadgeType.values())
+                .map(badgeType -> MemberResponse.BadgeResponse.builder()
+                        .name(badgeType.getName())
+                        .description(badgeType.getDescription())
+                        .iconUrl(badgeType.getIconUrl())
+                        .criteria(badgeType.getCriteria())
+                        .isAcquired(acquiredBadges.contains(badgeType))
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    public MemberResponse.FollowInfo toFollowResponse(Member member) {
+        return MemberResponse.FollowInfo.builder()
+            .memberId(member.getId())
+            .profileImageUrl(member.getProfileImageUrl())
+            .nickname(member.getNickname())
+            .footPrint(member.getFootprint())
+            .ranking(member.getRanking())
+            .build();
     }
 }

@@ -57,7 +57,7 @@ public class CourseRequest {
         private Double distance;
 
         @NotNull(message = "평균 페이스를 입력해주세요.")
-        private Integer averagePace;
+        private Double averagePace;
 
         @NotNull(message = "소모 칼로리를 입력해주세요.")
         private Integer caloriesBurned;
@@ -87,6 +87,7 @@ public class CourseRequest {
     public static class CoursePointInfo implements GeoPoint {
         private Double latitude;
         private Double longitude;
+        private Double elevation;
     }
 
     @Getter
