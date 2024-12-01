@@ -217,18 +217,18 @@ public class CrewController {
         );
     }
 
-    @PostMapping("/{crewId}/img")
+    @PostMapping("/{crewId}/image")
     @Operation(summary = "크루 활동 사진 업로드 API", description = "크루의 활동 사진을 여러 장 업로드합니다.")
     @ApiResponse(responseCode = "200", description = "이미지 업로드 성공",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
-    public BaseResponse<CrewResponse.ActivityImageListResponse> uploadCrewImages(
+    public BaseResponse<Void> uploadCrewImages(
             @AuthenticationPrincipal PrincipalDetails principalDetails,
             @PathVariable(value = "crewId") Long crewId,
             @RequestPart(value = "activityImages") List<MultipartFile> activityImages
     ) {
-        return BaseResponse.success("이미지 업로드가 완료되었습니다.", crewService.uploadCrewImages(crewId, activityImages, principalDetails.member()));
+        crewService.uploadCrewImages(principalDetails.member(), crewId, activityImages);
+        return BaseResponse.success("이미지 업로드가 완료되었습니다.", null);
     }
-    //TODO: 크루 활동 사진 순서에 맞춰서 수정 메소드 짜기
 
     @PatchMapping("/{crewId}/schedule/{scheduleId}")
     @Operation(summary = "크루 일정 수정 API", description = "크루의 일정을 수정합니다.")

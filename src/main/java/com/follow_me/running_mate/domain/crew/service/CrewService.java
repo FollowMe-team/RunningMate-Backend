@@ -34,8 +34,7 @@ public interface CrewService {
         Member member, Long crewId, CrewRequest.UpdateCrewRequest request, MultipartFile representativeImage);
     CrewResponse.CrewCourseListResponse getFavoriteCourses(Member member,Long crewId);
     CrewResponse.CrewCourseIdResponse addFavoriteCourse(Member member,Long crewId ,Long courseId);
-    CrewResponse.ActivityImageListResponse uploadCrewImages(Long crewId, List<MultipartFile> images,Member member);
-    List<CrewImage> saveImages(Crew crew, List<MultipartFile> images,Integer orderNumber);
+    void uploadCrewImages(Member member, Long crewId, List<MultipartFile> images);
     CrewResponse.UpdateCrewSchedule updateSchedule(Member member,Long crewId, Long scheduleId, CrewRequest.createSchedule request);
     void cancelScheduleApply(Member member, Long scheduleId);
     void attendSchedule(Member member, Long scheduleId, List<Long> memberIds);

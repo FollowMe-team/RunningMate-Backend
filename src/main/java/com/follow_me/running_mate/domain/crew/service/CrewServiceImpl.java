@@ -331,34 +331,16 @@ public class CrewServiceImpl implements CrewService {
 
     @Override
     @Transactional
-    public CrewResponse.ActivityImageListResponse uploadCrewImages(Long crewId, List<MultipartFile> images, Member member) {
+    public void uploadCrewImages(
+        Member member, Long crewId, List<MultipartFile> images
+    ) {
         // 크루 존재 확인
         Crew crew = crewRepository.getCrew(crewId);
-        if (!crew.getLeader().getId().equals(member.getId())) {
-            throw new CustomException(CrewErrorCode.FORBIDDEN_ACCESS);
-        }
+        validateCrewLeader(member, crew);
+
         int currentImageCount = crewImageRepository.countByCrew(crew);
 
-        List<CrewImage> crewImages = saveImages(crew, images, currentImageCount + 1);
-
-        return new CrewResponse.ActivityImageListResponse(crewResponseMapper.toCrewActivityImages(crewImages));
-    }
-
-    @Override
-    @Transactional
-    public List<CrewImage> saveImages(
-            Crew crew, List<MultipartFile> images, Integer orderNumber
-    ) {
-        AtomicInteger index = new AtomicInteger(orderNumber);
-        return images.stream()
-                .map(s3ImageService::upload)
-                .map(url -> CrewImage.builder()
-                        .crew(crew)
-                        .url(url)
-                        .orderNumber(index.getAndIncrement())
-                        .build())
-                .map(crewImageRepository::save)
-                .toList();
+        saveImages(crew, images, currentImageCount + 1);
     }
 
     @Override
@@ -577,4 +559,18 @@ public class CrewServiceImpl implements CrewService {
         }
     }
 
+    private List<CrewImage> saveImages(
+        Crew crew, List<MultipartFile> images, Integer orderNumber
+    ) {
+        AtomicInteger index = new AtomicInteger(orderNumber);
+        return images.stream()
+            .map(s3ImageService::upload)
+            .map(url -> CrewImage.builder()
+                .crew(crew)
+                .url(url)
+                .orderNumber(index.getAndIncrement())
+                .build())
+            .map(crewImageRepository::save)
+            .toList();
+    }
 }
