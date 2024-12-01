@@ -1,5 +1,6 @@
 package com.follow_me.running_mate.domain.crew.entity;
 
+import com.follow_me.running_mate.domain.crew.dto.request.CrewRequest;
 import com.follow_me.running_mate.domain.enums.Ranking;
 import com.follow_me.running_mate.domain.member.entity.Member;
 import com.follow_me.running_mate.global.common.BaseEntity;
@@ -56,11 +57,12 @@ public class Crew extends BaseEntity {
     public void decreaseMemberCount() {
         this.memberCount--;
     }
-    public void update(String name, String shortDescription, String detailDescription, String openChatUrl) {
-        this.name = name;
-        this.shortDescription = shortDescription;
-        this.detailDescription = detailDescription;
-        this.openChatUrl = openChatUrl;
+    public void update(CrewRequest.UpdateCrewRequest request) {
+        this.name = request.getName();
+        this.shortDescription = request.getShortDescription();
+        this.detailDescription = request.getDetailDescription();
+        this.openChatUrl = request.getOpenChatUrl();
+        this.ranking = request.getRanking();
     }
 
     public void setLeader(Member newLeader) {

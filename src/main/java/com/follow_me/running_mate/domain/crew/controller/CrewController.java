@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -157,7 +158,7 @@ public class CrewController {
     }
 
     @PatchMapping("{crewId}/members/{memberId}")
-    @Operation(summary = "크루 신청 상태 업데이트 API", description = "크루 신청 상태를 수락하거나 거절합니다. , 크루 멤버 수정 가능")
+    @Operation(summary = "크루 멤버 상태 업데이트 API", description = "크루 멤버 상태를 수락, 거절, 탈퇴로 변경합니다.")
     @ApiResponse(responseCode = "200", description = "상태 업데이트 성공",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
     public BaseResponse<Void> updateCrewMemberStatus(
@@ -167,21 +168,24 @@ public class CrewController {
             @RequestParam(value = "status") CrewMemberStatus status
     ) {
         crewService.updateCrewMemberStatus(principalDetails.member(), crewId, memberId, status);
-        return BaseResponse.success("크루 신청 상태가 성공적으로 업데이트되었습니다.", null);
+        return BaseResponse.success("크루 멤버 상태가 성공적으로 업데이트되었습니다.", null);
     }
 
-    @PatchMapping("/{crewId}/modify")
+    @PatchMapping( value = "/{crewId}/modify", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "크루 수정 API", description = "크루장이 본인의 크루를 수정합니다.")
     @ApiResponse(responseCode = "200", description = "크루 수정 성공",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
-    public BaseResponse<CrewResponse.UpdateCrewResponse> updateCrew(
+    public BaseResponse<CrewResponse.CrewIdResponse> updateCrew(
             @AuthenticationPrincipal PrincipalDetails principalDetails,
             @PathVariable(value = "crewId") Long crewId,
-            @RequestBody @Valid CrewRequest.UpdateCrewRequest request
+            @RequestPart(name = "request") @Valid CrewRequest.UpdateCrewRequest request,
+            @RequestPart(name = "representativeImage", required = false) MultipartFile representativeImage
     ) {
 
-        return BaseResponse.success("크루 수정에 성공했습니다.", crewService.updateCrew(principalDetails.member(), crewId, request));
-        //TODO: 닉네임 중복 확인 마이프로필과 동일하게 해야할지 고민
+        return BaseResponse.success(
+            "크루 수정에 성공했습니다.",
+            crewService.updateCrew(principalDetails.member(), crewId, request, representativeImage)
+        );
     }
 
     @GetMapping("/{crewId}/favorite")
@@ -192,7 +196,10 @@ public class CrewController {
             @AuthenticationPrincipal PrincipalDetails principalDetails,
             @PathVariable(value = "crewId") Long crewId
     ) {
-        return BaseResponse.success("즐겨찾기 코스를 성공적으로 조회했습니다.", crewService.getFavoriteCourses(principalDetails.member(),crewId));
+        return BaseResponse.success(
+            "즐겨찾기 코스를 성공적으로 조회했습니다.",
+            crewService.getFavoriteCourses(principalDetails.member(), crewId)
+        );
     }
 
     @PostMapping("{crewId}/courses/{courseId}/favorite")

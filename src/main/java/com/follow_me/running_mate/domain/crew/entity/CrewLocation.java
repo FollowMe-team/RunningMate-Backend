@@ -30,4 +30,9 @@ public class CrewLocation extends BaseEntity {
 
     @Column(nullable = false)
     private String district;
+
+    public void updateCrewLocation(String city, String district) {
+        this.city = city;
+        this.district = district;
+    }
 }
