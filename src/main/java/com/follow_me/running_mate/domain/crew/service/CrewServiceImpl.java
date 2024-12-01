@@ -166,12 +166,8 @@ public class CrewServiceImpl implements CrewService {
     public CrewResponse.CrewIdResponse createCrew(Member leader, CrewRequest.createCrew request
             , MultipartFile representativeImage) {
         Crew crew;
-        if (representativeImage != null) {
-            String imageUrl = s3ImageService.upload(representativeImage);
-            crew = crewEntityMapper.toCrew(leader, request, imageUrl);
-        } else {
-            crew = crewEntityMapper.toCrew(leader, request, null);
-        }
+        String imageUrl = (representativeImage != null) ? s3ImageService.upload(representativeImage) : null;
+        crew = crewEntityMapper.toCrew(leader, request, imageUrl);
         crewRepository.save(crew);
         crewLocationRepository.save(crewEntityMapper.toCrewLocation(crew,request));
         crewMemberRepository.save(CrewMember.builder()
