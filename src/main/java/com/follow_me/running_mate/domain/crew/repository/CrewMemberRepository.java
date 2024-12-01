@@ -19,6 +19,7 @@ public interface CrewMemberRepository extends JpaRepository<CrewMember, Long> {
     List<Long> sumFootprintByCrewsAndStatus(@Param("crews") List<Crew> crews, @Param("status") CrewMemberStatus status);
 
     Optional<CrewMember> findByCrewAndMember(Crew crew, Member member);
+    Optional<CrewMember> findByCrewAndMemberAndStatus(Crew crew, Member member, CrewMemberStatus status);
 
     boolean existsByCrewAndMemberAndStatus(Crew crew, Member member, CrewMemberStatus status);
 

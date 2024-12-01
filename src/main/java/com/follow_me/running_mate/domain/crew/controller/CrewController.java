@@ -313,7 +313,7 @@ public class CrewController {
     @DeleteMapping("/{crewId}/cancel")
     @Operation(summary = "러닝 크루 신청 취소 API", description = "주어진 크루 ID에 대해 신청을 취소합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "신청 취소 성공",
+            @ApiResponse(responseCode = "200", description = "신청이 성공적으로 취소되었습니다.",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
             @ApiResponse(responseCode = "CREW009", description = "해당 크루를 찾을 수 없음",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),

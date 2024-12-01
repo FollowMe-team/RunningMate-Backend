@@ -408,12 +408,9 @@ public class CrewServiceImpl implements CrewService {
     public void cancelCrewApplication(Member member, Long crewId) {
         Crew crew = crewRepository.getCrew(crewId);
 
-        CrewMember crewMember = crewMemberRepository.findByCrewAndMember(crew, member)
+        CrewMember crewMember = crewMemberRepository.findByCrewAndMemberAndStatus(crew, member, CrewMemberStatus.READY)
                 .orElseThrow(() -> new CustomException(CrewErrorCode.NO_APPLY_CREW));
 
-        if (crew.getLeader().getId().equals(member.getId())) {
-            throw new CustomException(CrewErrorCode.CREW_LEADER);
-        }
         crewMember.delete();
     }
 
