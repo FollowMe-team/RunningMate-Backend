@@ -50,11 +50,12 @@ public class CrewController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
     })
     public BaseResponse<CrewResponse.CrewDetailResponse> getCrewDetail(
+            @AuthenticationPrincipal PrincipalDetails principalDetails,
             @PathVariable(value = "crewId") Long crewId
     ) {
         return BaseResponse.success(
                 "크루 상세 조회에 성공했습니다.",
-                crewService.getCrewDetail(crewId)
+                crewService.getCrewDetail(principalDetails.member(),crewId)
         );
     }
     @GetMapping("/{crewId}/select")
