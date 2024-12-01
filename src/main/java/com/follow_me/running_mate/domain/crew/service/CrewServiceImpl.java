@@ -67,17 +67,13 @@ public class CrewServiceImpl implements CrewService {
     @Transactional
     public CrewResponse.MyCrewListResponse getCrewsByMember(Member member) {
         List<Crew> myCrews = crewMemberRepository.findCrewsByMemberAndStatus(member, Status.COMPLETE);
+        List<Long> sumFootprint = crewMemberRepository.sumFootprintByCrewsAndStatus(myCrews,Status.COMPLETE);
         List<Crew> recommendedCrews = crewRepository.findTop4ByIdNotInOrderByCreatedAtDesc(myCrews);
+        List<Long> recommendSumFootprint = crewMemberRepository.sumFootprintByCrewsAndStatus(recommendedCrews,Status.COMPLETE);
         //TODO: 분리하자
-        return new CrewResponse.MyCrewListResponse(crewResponseMapper.toCrewInfoResponse(myCrews),
-                crewResponseMapper.toCrewInfoResponse(recommendedCrews));
+        return new CrewResponse.MyCrewListResponse(crewResponseMapper.toCrewInfoResponse(myCrews,sumFootprint),
+                crewResponseMapper.toCrewInfoResponse(recommendedCrews,recommendSumFootprint));
     }
-
-//    private List<Integer> getAveragefootprint(List<Crew> crews){
-//        for (Crew crew: crews) {
-//
-//        }
-//    }
 
     @Override
     @Transactional
@@ -541,7 +537,10 @@ public class CrewServiceImpl implements CrewService {
         List<Crew> searchCrews = crewRepository.searchCrews(
                 keyword, city, district, activityTimeList
         );
-        return new CrewResponse.MyCrewListResponse(crewResponseMapper.toCrewInfoResponse(myCrewMembers), crewResponseMapper.toCrewInfoResponse(searchCrews));
+        List<Long> sumFootprint = crewMemberRepository.sumFootprintByCrewsAndStatus(myCrewMembers,Status.COMPLETE);
+        List<Long> searchSumFootprint = crewMemberRepository.sumFootprintByCrewsAndStatus(searchCrews,Status.COMPLETE);
+        return new CrewResponse.MyCrewListResponse(crewResponseMapper.toCrewInfoResponse(myCrewMembers,sumFootprint),
+                crewResponseMapper.toCrewInfoResponse(searchCrews,searchSumFootprint));
     }
 
     @Override

@@ -59,7 +59,7 @@ public class CrewResponse {
         private Integer memberCount;
         private String shortDescription;
         private String profileImageUrl;
-        private Integer footprintaverage;
+        private Long footprintaverage;
         //TODO: 크루 발자국 어떻게 처리할지 고민하기
     }
     @Getter
