@@ -1,6 +1,7 @@
 package com.follow_me.running_mate.domain.crew.entity;
 
 import com.follow_me.running_mate.domain.course.entity.Course;
+import com.follow_me.running_mate.domain.crew.dto.request.CrewRequest;
 import com.follow_me.running_mate.domain.crew.exception.CrewErrorCode;
 import com.follow_me.running_mate.global.common.BaseEntity;
 import com.follow_me.running_mate.global.error.exception.CustomException;
@@ -56,21 +57,13 @@ public class CrewSchedule extends BaseEntity {
         this.memberCount++;
     }
 
-    public void setCourse(Course course) {
+    public void update(Course course, CrewRequest.CreateSchedule request) {
         this.course = course;
+        this.startTime = request.getStartTime();
+        this.endTime = request.getEndTime();
+        this.memberMax = request.getMemberMax();
     }
 
-    public void setStartTime(LocalDateTime startTime) {
-        this.startTime = startTime;
-    }
-
-    public void setEndTime(LocalDateTime endTime) {
-        this.endTime = endTime;
-    }
-
-    public void setMemberMax(Integer memberMax) {
-        this.memberMax = memberMax;
-    }
     public void decreaseMemberCount() {
         if (this.memberCount > 0) {
             this.memberCount--;

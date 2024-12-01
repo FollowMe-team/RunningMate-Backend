@@ -203,7 +203,7 @@ public class CrewServiceImpl implements CrewService {
 
     @Override
     @Transactional
-    public CrewResponse.CrewScheduleIdResponse registerSchedule(Member member, Long crewId, CrewRequest.createSchedule request) {
+    public CrewResponse.CrewScheduleIdResponse registerSchedule(Member member, Long crewId, CrewRequest.CreateSchedule request) {
         // 크루 존재 여부 확인
         Crew crew = crewRepository.findById(crewId)
                 .orElseThrow(() -> new CustomException(CrewErrorCode.NOT_FOUND));
@@ -345,22 +345,18 @@ public class CrewServiceImpl implements CrewService {
 
     @Override
     @Transactional
-    public CrewResponse.UpdateCrewSchedule updateSchedule(Member member, Long crewId, Long scheduleId, CrewRequest.createSchedule request) {
-        if (!member.getId().equals(crewRepository.getCrew(crewId).getLeader().getId())) {
-            throw new CustomException(CrewErrorCode.FORBIDDEN_ACCESS);
-        }
-
+    public CrewResponse.CrewScheduleIdResponse updateSchedule(
+        Member member, Long scheduleId, CrewRequest.CreateSchedule request
+    ) {
         CrewSchedule schedule = crewScheduleRepository.findById(scheduleId)
-                .orElseThrow(() -> new CustomException(CrewErrorCode.NOT_FOUND_SCHEDULE));
+            .orElseThrow(() -> new CustomException(CrewErrorCode.NOT_FOUND_SCHEDULE));
+
+        validateCrewLeader(member, schedule.getCrew());
 
         Course course = courseRepository.getCourse(request.getCourseId());
+        schedule.update(course, request);
 
-        schedule.setCourse(course);
-        schedule.setStartTime(request.getStartTime());
-        schedule.setEndTime(request.getEndTime());
-        schedule.setMemberMax(request.getMemberMax());
-
-        return crewResponseMapper.toUpdateCrewSchedule(crewScheduleRepository.save(schedule));
+        return new CrewResponse.CrewScheduleIdResponse(schedule.getId());
     }
 
     @Override

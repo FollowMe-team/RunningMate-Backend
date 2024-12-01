@@ -72,17 +72,6 @@ public class CrewResponseMapper {
                 .crewCourse(courseInfo)
                 .build();
     }
-    public CrewResponse.UpdateCrewSchedule toUpdateCrewSchedule(
-            CrewSchedule crewSchedules
-    ) {
-        return CrewResponse.UpdateCrewSchedule.builder()
-                .scheduleId(crewSchedules.getId())
-                .startTime(crewSchedules.getStartTime())
-                .endTime(crewSchedules.getEndTime())
-                .memberMax(crewSchedules.getMemberMax())
-                .courseId(crewSchedules.getCourse().getId())
-                .build();
-    }
 
     public List<CrewResponse.CrewActivityImageResponse> toCrewActivityImages(
             List<CrewImage> crewImages

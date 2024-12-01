@@ -54,7 +54,7 @@ public class CrewRequest {
 
     @Getter
     @AllArgsConstructor
-    public static class createSchedule {
+    public static class CreateSchedule {
         @NotNull(message = "코스를 선택해주세요.")
         private Long courseId;
 

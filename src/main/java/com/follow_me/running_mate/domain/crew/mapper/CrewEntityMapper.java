@@ -42,7 +42,7 @@ public class CrewEntityMapper {
                 .build();
     }
 
-    public CrewSchedule toCrewSchedule(Crew crew, Course course, CrewRequest.createSchedule request) {
+    public CrewSchedule toCrewSchedule(Crew crew, Course course, CrewRequest.CreateSchedule request) {
         return CrewSchedule.builder()
                 .crew(crew)
                 .course(course)
