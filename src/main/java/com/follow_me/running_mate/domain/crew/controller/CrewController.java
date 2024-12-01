@@ -211,7 +211,10 @@ public class CrewController {
             @PathVariable(value = "crewId") Long crewId,
             @PathVariable(value = "courseId") Long courseId
     ) {
-        return BaseResponse.success("코스가 즐겨찾기에 추가되었습니다.", crewService.addFavoriteCourse(principalDetails.member(), crewId, courseId));
+        return BaseResponse.success(
+            "코스가 즐겨찾기에 추가되었습니다.",
+            crewService.addFavoriteCourse(principalDetails.member(), crewId, courseId)
+        );
     }
 
     @PostMapping("/{crewId}/img")

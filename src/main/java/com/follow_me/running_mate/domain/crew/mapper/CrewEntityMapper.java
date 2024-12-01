@@ -58,4 +58,11 @@ public class CrewEntityMapper {
                 .status(CrewScheduleApplyStatus.APPLY) // 상태를 참여로 설정
                 .build();
     }
+
+    public CrewCourse toCrewCourse(Crew crew, Course course) {
+        return CrewCourse.builder()
+                .crew(crew)
+                .course(course)
+                .build();
+    }
 }

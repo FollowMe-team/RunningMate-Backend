@@ -311,23 +311,18 @@ public class CrewServiceImpl implements CrewService {
     public CrewResponse.CrewCourseIdResponse addFavoriteCourse(Member member, Long crewId, Long courseId) {
         // 크루 존재 확인
         Crew crew = crewRepository.getCrew(crewId);
-        if (!member.getId().equals(crew.getLeader().getId())) {
-            throw new CustomException(CrewErrorCode.FORBIDDEN_ACCESS);
-        }
+        validateCrewLeader(member, crew);
         // 코스 존재 확인
         Course course = courseRepository.getCourse(courseId);
 
         // 이미 즐겨찾기된 코스인지 확인
-        if (crewCourseRepository.existsByCrewIdAndCourseId(crewId, courseId)) {
+        if (crewCourseRepository.existsByCrewAndCourse(crew, course)) {
             throw new CustomException(CrewErrorCode.DUPLICATE_RESOURCE);
         }
 
-        // 즐겨찾기 추가
-        CrewCourse crewCourse = CrewCourse.builder()
-                .crew(crew)
-                .course(course)
-                .build();
-        return new CrewResponse.CrewCourseIdResponse(crewCourseRepository.save(crewCourse).getId());
+        return new CrewResponse.CrewCourseIdResponse(
+            crewCourseRepository.save(crewEntityMapper.toCrewCourse(crew, course)).getId()
+        );
     }
 
     @Override
