@@ -16,9 +16,9 @@ public interface CrewScheduleApplyRepository extends JpaRepository<CrewScheduleA
 
     @Query("SELECT c.crewMember FROM CrewScheduleApply c " +
             "JOIN c.crewSchedule cs " +
-            "WHERE cs.id = :scheduleId AND c.status = :status")
+            "WHERE cs = :crewSchedule AND c.status = :status ORDER BY  c.crewMember.createdAt DESC")
     List<CrewMember> findAllCrewMembersByScheduleIdAndStatus(
-            @Param("scheduleId") Long scheduleId,
+            @Param("crewSchedule") CrewSchedule crewSchedule,
             @Param("status") CrewScheduleApplyStatus status);
 
     boolean existsByCrewScheduleAndCrewMember(CrewSchedule crewSchedule, CrewMember crewMember);
