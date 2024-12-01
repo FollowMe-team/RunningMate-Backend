@@ -58,7 +58,6 @@ public class CrewSchedule extends BaseEntity {
         this.memberCount++;
     }
 
-    @Setter
     @Column(nullable = false)
     private String meetingPlace;
 
@@ -67,6 +66,7 @@ public class CrewSchedule extends BaseEntity {
         this.startTime = request.getStartTime();
         this.endTime = request.getEndTime();
         this.memberMax = request.getMemberMax();
+        this.meetingPlace = request.getMeetingPlace();
     }
 
     public void decreaseMemberCount() {
