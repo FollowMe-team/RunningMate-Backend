@@ -173,6 +173,7 @@ public class CrewServiceImpl implements CrewService {
             crew = crewEntityMapper.toCrew(leader, request, null);
         }
         crewRepository.save(crew);
+        crewLocationRepository.save(crewEntityMapper.toCrewLocation(crew,request));
         crewMemberRepository.save(CrewMember.builder()
                 .crew(crew)
                 .status(CrewMemberStatus.COMPLETE)

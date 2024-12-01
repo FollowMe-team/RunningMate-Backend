@@ -19,7 +19,16 @@ public class CrewEntityMapper {
                 .shortDescription(request.getShortDescription())
                 .detailDescription(request.getDetailDescription())
                 .openChatUrl(request.getOpenChatUrl())
+                .ranking(request.getRanking())
                 .profileImageUrl(defaultProfileImageUrl)
+                .build();
+    }
+
+    public CrewLocation toCrewLocation(Crew crew,CrewRequest.createCrew request){
+        return CrewLocation.builder()
+                .crew(crew)
+                .city(request.getCity())
+                .district(request.getDistrict())
                 .build();
     }
 

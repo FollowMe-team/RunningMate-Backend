@@ -28,6 +28,14 @@ public class CrewRequest {
 
         @NotBlank(message = "크루 상세 소개를 입력해주세요.")
         private String detailDescription;
+        
+        @NotBlank(message = "시/도를 선택해주세요.")
+        private String city;
+
+        @NotBlank(message = "구/군을 선택해주세요.")
+        private String district;
+
+        private Ranking ranking;
 
         @NotBlank(message = "오픈채팅방 링크를 입력해주세요.")
         private String openChatUrl;
