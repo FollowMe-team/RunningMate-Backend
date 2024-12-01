@@ -304,7 +304,6 @@ public class CrewServiceImpl implements CrewService {
                 )).toList();
 
         return new CrewResponse.CrewCourseListResponse(crewId, isUserLeaderOfCrew(member, crew), courses);
-
     }
 
     @Override

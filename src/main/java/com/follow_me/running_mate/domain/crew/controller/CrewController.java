@@ -196,7 +196,10 @@ public class CrewController {
             @AuthenticationPrincipal PrincipalDetails principalDetails,
             @PathVariable(value = "crewId") Long crewId
     ) {
-        return BaseResponse.success("즐겨찾기 코스를 성공적으로 조회했습니다.", crewService.getFavoriteCourses(principalDetails.member(),crewId));
+        return BaseResponse.success(
+            "즐겨찾기 코스를 성공적으로 조회했습니다.",
+            crewService.getFavoriteCourses(principalDetails.member(), crewId)
+        );
     }
 
     @PostMapping("{crewId}/courses/{courseId}/favorite")
