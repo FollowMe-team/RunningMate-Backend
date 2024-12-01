@@ -348,8 +348,7 @@ public class CrewServiceImpl implements CrewService {
     public CrewResponse.CrewScheduleIdResponse updateSchedule(
         Member member, Long scheduleId, CrewRequest.CreateSchedule request
     ) {
-        CrewSchedule schedule = crewScheduleRepository.findById(scheduleId)
-            .orElseThrow(() -> new CustomException(CrewErrorCode.NOT_FOUND_SCHEDULE));
+        CrewSchedule schedule = crewScheduleRepository.getCrewSchedule(scheduleId);
 
         validateCrewLeader(member, schedule.getCrew());
 
@@ -362,15 +361,15 @@ public class CrewServiceImpl implements CrewService {
     @Override
     @Transactional
     public void cancelScheduleApply(Member member, Long scheduleId) {
-        // 일정 존재 여부 확인
-        CrewSchedule crewSchedule = crewScheduleRepository.findById(scheduleId)
-                .orElseThrow(() -> new CustomException(CrewErrorCode.NOT_FOUND_SCHEDULE));
+        CrewSchedule crewSchedule = crewScheduleRepository.getCrewSchedule(scheduleId);
+
         // 크루에 이미 가입된 멤버인지 확인
         CrewMember crewMember = crewMemberRepository.findByCrewAndMember(crewSchedule.getCrew(), member)
                 .orElseThrow(() -> new CustomException(CrewErrorCode.FORBIDDEN_ACCESS));
+
         // 참여 신청 존재 여부 확인
-        CrewScheduleApply crewScheduleApply = crewScheduleApplyRepository.findByCrewScheduleAndCrewMember(
-                        crewSchedule, crewMember)
+        CrewScheduleApply crewScheduleApply =
+            crewScheduleApplyRepository.findByCrewScheduleAndCrewMember(crewSchedule, crewMember)
                 .orElseThrow(() -> new CustomException(CrewErrorCode.APPLY_NOT_FOUND));
 
         crewScheduleApply.setStatus(CrewScheduleApplyStatus.CANCEL);
@@ -555,11 +554,11 @@ public class CrewServiceImpl implements CrewService {
         }
     }
 
-    private List<CrewImage> saveImages(
+    private void saveImages(
         Crew crew, List<MultipartFile> images, Integer orderNumber
     ) {
         AtomicInteger index = new AtomicInteger(orderNumber);
-        return images.stream()
+        images.stream()
             .map(s3ImageService::upload)
             .map(url -> CrewImage.builder()
                 .crew(crew)
