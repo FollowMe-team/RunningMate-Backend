@@ -206,7 +206,9 @@ public class CrewServiceImpl implements CrewService {
 
         // 코스 존재 여부 확인
         Course course = courseRepository.getCourse(request.getCourseId());
-
+        if(crewCourseRepository.existsByCrewAndCourse(crew, course)){
+            throw new CustomException(CrewErrorCode.NOT_FOUND_CREW_COURSE);
+        }
         if (!crew.getLeader().getId().equals(member.getId())) {
             throw new CustomException(CrewErrorCode.FORBIDDEN_ACCESS);
         }

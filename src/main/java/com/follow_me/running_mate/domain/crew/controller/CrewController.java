@@ -429,4 +429,6 @@ public class CrewController {
     ) {
         return BaseResponse.success("크루 가입 가능 여부 확인 성공", crewService.canMemberJoinCrew(principalDetails.member(), crewId));
     }
+
+    //TODO: 크루 탈퇴 api 만들기
 }
