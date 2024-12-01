@@ -168,16 +168,16 @@ public class CrewServiceImpl implements CrewService {
         Crew crew;
         String imageUrl = (representativeImage != null) ? s3ImageService.upload(representativeImage) : null;
         crew = crewEntityMapper.toCrew(leader, request, imageUrl);
-        crewRepository.save(crew);
-        crewLocationRepository.save(crewEntityMapper.toCrewLocation(crew,request));
+        Crew savedCrew = crewRepository.save(crew);
+        crewLocationRepository.save(crewEntityMapper.toCrewLocation(savedCrew,request));
         crewMemberRepository.save(CrewMember.builder()
-                .crew(crew)
+                .crew(savedCrew)
                 .status(CrewMemberStatus.COMPLETE)
                 .member(leader)
                 .build());
 
         // CrewActivityTime 생성 및 저장
-        List<CrewActivityTime> activityTimes = crewEntityMapper.toCrewActivityTimes(crew, request.getActivityTimes());
+        List<CrewActivityTime> activityTimes = crewEntityMapper.toCrewActivityTimes(savedCrew, request.getActivityTimes());
         crewActivityTimeRepository.saveAll(activityTimes);
 
         return new CrewResponse.CrewIdResponse(crew.getId());
