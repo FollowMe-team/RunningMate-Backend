@@ -187,9 +187,7 @@ public class CrewServiceImpl implements CrewService {
     @Transactional
     public void applyToCrew(Member member, Long crewId) {
         // 크루 존재 여부 확인
-        Crew crew = crewRepository.findById(crewId)
-                .orElseThrow(() -> new CustomException(CrewErrorCode.NOT_FOUND));
-
+        Crew crew = crewRepository.getCrew(crewId);
         // 이미 신청했는지 확인
         boolean isAlreadyApplied = crewMemberRepository.existsByCrewAndMember(crew, member);
         if (isAlreadyApplied) {
@@ -202,12 +200,10 @@ public class CrewServiceImpl implements CrewService {
     @Transactional
     public CrewResponse.CrewScheduleIdResponse registerSchedule(Member member, Long crewId, CrewRequest.createSchedule request) {
         // 크루 존재 여부 확인
-        Crew crew = crewRepository.findById(crewId)
-                .orElseThrow(() -> new CustomException(CrewErrorCode.NOT_FOUND));
+        Crew crew = crewRepository.getCrew(crewId);
 
         // 코스 존재 여부 확인
-        Course course = courseRepository.findById(request.getCourseId())
-                .orElseThrow(() -> new CustomException(CourseErrorCode.NOT_FOUND));
+        Course course = courseRepository.getCourse(request.getCourseId());
 
         if (!crew.getLeader().getId().equals(member.getId())) {
             throw new CustomException(CrewErrorCode.FORBIDDEN_ACCESS);
@@ -433,8 +429,7 @@ public class CrewServiceImpl implements CrewService {
         if (!crewMember.getStatus().equals(CrewMemberStatus.COMPLETE)) {
             throw new CustomException(CrewErrorCode.NOAPPLY_CREW);
         }
-        Member newLeader = memberRepository.findById(newLeaderId)
-                .orElseThrow(() -> new CustomException(MemberErrorCode.NOT_FOUND));
+        Member newLeader = memberRepository.getMember(newLeaderId);
 
         crew.setLeader(newLeader);
     }
