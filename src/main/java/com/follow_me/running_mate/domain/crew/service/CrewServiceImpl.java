@@ -557,68 +557,33 @@ public class CrewServiceImpl implements CrewService {
 
     @Override
     @Transactional
-    public CrewResponse.UpdateCrewResponse updateCrew(Member member, Long crewId, CrewRequest.UpdateCrewRequest request) {
+    public CrewResponse.CrewIdResponse updateCrew(
+        Member member, Long crewId, CrewRequest.UpdateCrewRequest request, MultipartFile representativeImage
+    ) {
         // 크루 조회
-        Crew crew = crewRepository.findById(crewId)
-                .orElseThrow(() -> new CustomException(CrewErrorCode.NOT_FOUND));
-
-        if (!crew.getLeader().getId().equals(member.getId())) {
-            throw new CustomException(CrewErrorCode.FORBIDDEN_ACCESS);
-        }
+        Crew crew = crewRepository.getCrew(crewId);
+        validateCrewLeader(member, crew);
 
         // 크루 정보 수정
-        crew.update(request.getName(), request.getShortDescription(), request.getDetailDescription(), request.getOpenChatUrl());
+        crew.update(request);
+        // 크루 활동 위치 수정
+        CrewLocation crewLocation = crewLocationRepository.findByCrew(crew)
+                .orElseThrow(() -> new CustomException(CrewErrorCode.NOT_FOUND_CREWLOCATION));
+        crewLocation.updateCrewLocation(request.getCity(), request.getDistrict());
         // 기존 ActivityTime 삭제
         crewActivityTimeRepository.deleteByCrew(crew);
 
+        crewActivityTimeRepository.saveAll(
+            crewEntityMapper.toCrewActivityTimes(crew, request.getActivityTimes())
+        );
 
-        List<CrewActivityTime> crewActivityTimeList = crewActivityTimeRepository.saveAll(crewEntityMapper.toCrewActivityTimes(crew, request.getActivityTimes()));
-        return crewResponseMapper.toUpdateCrewInfo(crew, crewActivityTimeList);
+        return new CrewResponse.CrewIdResponse(crew.getId());
+    }
 
-//        // 기존 ActivityTime 조회
-//        List<CrewActivityTime> existingActivityTimes = crewActivityTimeRepository.findByCrew(crew);
-//
-//        // 요청 데이터 분석
-//        Map<Long, CrewRequest.UpdateCrewRequest.ActivityTime> requestMap = request.getActivityTimes().stream()
-//                .filter(activityTime -> activityTime.getId() != null) // ID가 있는 경우 기존 데이터로 간주
-//                .collect(Collectors.toMap(CrewRequest.UpdateCrewRequest.ActivityTime::getId, Function.identity()));
-//
-//        List<CrewActivityTime> toDelete = new ArrayList<>();
-//        List<CrewActivityTime> toUpdate = new ArrayList<>();
-//        List<CrewActivityTime> toAdd = new ArrayList<>();
-//
-//        // 기존 데이터와 요청 데이터 비교
-//        for (CrewActivityTime existing : existingActivityTimes) {
-//            CrewRequest.UpdateCrewRequest.ActivityTime requestActivity = requestMap.get(existing.getId());
-//            if (requestActivity == null) {
-//                // 요청에 없으면 삭제
-//                toDelete.add(existing);
-//            } else {
-//                // 존재하지만 값이 다르면 수정
-//                if (!existing.getStartTime().equals(requestActivity.getStartTime())
-//                        || !existing.getEndTime().equals(requestActivity.getEndTime())
-//                        || !existing.getType().equals(requestActivity.getType())) {
-//                    existing.update(requestActivity.getStartTime(), requestActivity.getEndTime(), requestActivity.getType());
-//                    toUpdate.add(existing);
-//                }
-//                requestMap.remove(existing.getId()); // 처리된 요청 데이터는 제거
-//            }
-//        }
-//
-//        // 요청 데이터 중 추가된 항목 처리
-//        for (CrewRequest.UpdateCrewRequest.ActivityTime remaining : requestMap.values()) {
-//            toAdd.add(CrewActivityTime.builder()
-//                    .crew(crew)
-//                    .startTime(remaining.getStartTime())
-//                    .endTime(remaining.getEndTime())
-//                    .type(remaining.getType())
-//                    .build());
-//        }
-//
-//        // 데이터베이스에 변경 사항 반영
-//        crewActivityTimeRepository.deleteAll(toDelete);
-//        crewActivityTimeRepository.saveAll(toUpdate);
-//        crewActivityTimeRepository.saveAll(toAdd);
+    private void validateCrewLeader(Member member, Crew crew) {
+        if (!crew.getLeader().getId().equals(member.getId())) {
+            throw new CustomException(CrewErrorCode.FORBIDDEN_ACCESS);
+        }
     }
 
 }

@@ -33,7 +33,8 @@ public interface CrewService {
     CrewResponse.CrewScheduleIdResponse registerSchedule(Member member, Long crewId, CrewRequest.createSchedule request);
     CrewResponse.CrewScheduleApplyIdResponse applyToSchedule(Member member, Long scheduleId);
     void updateCrewMemberStatus(Member currentUser, Long crewId, Long memberId, CrewMemberStatus status);
-    CrewResponse.UpdateCrewResponse updateCrew(Member member, Long crewId, CrewRequest.UpdateCrewRequest request);
+    CrewResponse.CrewIdResponse updateCrew(
+        Member member, Long crewId, CrewRequest.UpdateCrewRequest request, MultipartFile representativeImage);
     CrewResponse.CrewCourseListResponse getFavoriteCourses(Member member,Long crewId);
     CrewResponse.CrewCourseIdResponse addFavoriteCourse(Member member,Long crewId ,Long courseId);
     CrewResponse.ActivityImageListResponse uploadCrewImages(Long crewId, List<MultipartFile> images,Member member);
