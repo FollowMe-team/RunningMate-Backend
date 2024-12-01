@@ -171,7 +171,7 @@ public class CrewServiceImpl implements CrewService {
         crewRepository.save(crew);
         crewMemberRepository.save(CrewMember.builder()
                 .crew(crew)
-                .status(Status.COMPLETE)
+                .status(CrewMemberStatus.COMPLETE)
                 .member(leader)
                 .build());
 
