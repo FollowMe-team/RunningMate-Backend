@@ -200,7 +200,7 @@ public class CrewServiceImpl implements CrewService {
 
     @Override
     @Transactional
-    public CrewResponse.CrewScheduleIdResponse registerSchedule(Member member, Long crewId, CrewRequest.createSchedule request) {
+    public CrewResponse.CrewScheduleIdResponse registerSchedule(Member member, Long crewId, CrewRequest.CreateSchedule request) {
         // 크루 존재 여부 확인
         Crew crew = crewRepository.getCrew(crewId);
 
@@ -312,90 +312,61 @@ public class CrewServiceImpl implements CrewService {
     public CrewResponse.CrewCourseIdResponse addFavoriteCourse(Member member, Long crewId, Long courseId) {
         // 크루 존재 확인
         Crew crew = crewRepository.getCrew(crewId);
-        if (!member.getId().equals(crew.getLeader().getId())) {
-            throw new CustomException(CrewErrorCode.FORBIDDEN_ACCESS);
-        }
+        validateCrewLeader(member, crew);
         // 코스 존재 확인
         Course course = courseRepository.getCourse(courseId);
 
         // 이미 즐겨찾기된 코스인지 확인
-        if (crewCourseRepository.existsByCrewIdAndCourseId(crewId, courseId)) {
+        if (crewCourseRepository.existsByCrewAndCourse(crew, course)) {
             throw new CustomException(CrewErrorCode.DUPLICATE_RESOURCE);
         }
 
-        // 즐겨찾기 추가
-        CrewCourse crewCourse = CrewCourse.builder()
-                .crew(crew)
-                .course(course)
-                .build();
-        return new CrewResponse.CrewCourseIdResponse(crewCourseRepository.save(crewCourse).getId());
+        return new CrewResponse.CrewCourseIdResponse(
+            crewCourseRepository.save(crewEntityMapper.toCrewCourse(crew, course)).getId()
+        );
     }
 
     @Override
     @Transactional
-    public CrewResponse.ActivityImageListResponse uploadCrewImages(Long crewId, List<MultipartFile> images, Member member) {
+    public void uploadCrewImages(
+        Member member, Long crewId, List<MultipartFile> images
+    ) {
         // 크루 존재 확인
         Crew crew = crewRepository.getCrew(crewId);
-        if (!crew.getLeader().getId().equals(member.getId())) {
-            throw new CustomException(CrewErrorCode.FORBIDDEN_ACCESS);
-        }
+        validateCrewLeader(member, crew);
+
         int currentImageCount = crewImageRepository.countByCrew(crew);
 
-        List<CrewImage> crewImages = saveImages(crew, images, currentImageCount + 1);
-
-        return new CrewResponse.ActivityImageListResponse(crewResponseMapper.toCrewActivityImages(crewImages));
+        saveImages(crew, images, currentImageCount + 1);
     }
 
     @Override
     @Transactional
-    public List<CrewImage> saveImages(
-            Crew crew, List<MultipartFile> images, Integer orderNumber
+    public CrewResponse.CrewScheduleIdResponse updateSchedule(
+        Member member, Long scheduleId, CrewRequest.CreateSchedule request
     ) {
-        AtomicInteger index = new AtomicInteger(orderNumber);
-        return images.stream()
-                .map(s3ImageService::upload)
-                .map(url -> CrewImage.builder()
-                        .crew(crew)
-                        .url(url)
-                        .orderNumber(index.getAndIncrement())
-                        .build())
-                .map(crewImageRepository::save)
-                .toList();
-    }
+        CrewSchedule schedule = crewScheduleRepository.getCrewSchedule(scheduleId);
 
-    @Override
-    @Transactional
-    public CrewResponse.UpdateCrewSchedule updateSchedule(Member member, Long crewId, Long scheduleId, CrewRequest.createSchedule request) {
-        if (!member.getId().equals(crewRepository.getCrew(crewId).getLeader().getId())) {
-            throw new CustomException(CrewErrorCode.FORBIDDEN_ACCESS);
-        }
-
-        CrewSchedule schedule = crewScheduleRepository.findById(scheduleId)
-                .orElseThrow(() -> new CustomException(CrewErrorCode.NOT_FOUND_SCHEDULE));
+        validateCrewLeader(member, schedule.getCrew());
 
         Course course = courseRepository.getCourse(request.getCourseId());
+        schedule.update(course, request);
 
-        schedule.setCourse(course);
-        schedule.setStartTime(request.getStartTime());
-        schedule.setEndTime(request.getEndTime());
-        schedule.setMemberMax(request.getMemberMax());
-        schedule.setMeetingPlace(request.getMeetingPlace());
-
-        return crewResponseMapper.toUpdateCrewSchedule(crewScheduleRepository.save(schedule));
+        return new CrewResponse.CrewScheduleIdResponse(schedule.getId());
     }
 
     @Override
     @Transactional
     public void cancelScheduleApply(Member member, Long scheduleId) {
-        // 일정 존재 여부 확인
-        CrewSchedule crewSchedule = crewScheduleRepository.findById(scheduleId)
-                .orElseThrow(() -> new CustomException(CrewErrorCode.NOT_FOUND_SCHEDULE));
+        CrewSchedule crewSchedule = crewScheduleRepository.getCrewSchedule(scheduleId);
+
         // 크루에 이미 가입된 멤버인지 확인
         CrewMember crewMember = crewMemberRepository.findByCrewAndMember(crewSchedule.getCrew(), member)
                 .orElseThrow(() -> new CustomException(CrewErrorCode.FORBIDDEN_ACCESS));
+
         // 참여 신청 존재 여부 확인
-        CrewScheduleApply crewScheduleApply = crewScheduleApplyRepository.findByCrewScheduleAndCrewMember(
-                        crewSchedule, crewMember)
+        CrewScheduleApply crewScheduleApply =
+            crewScheduleApplyRepository.findByCrewScheduleAndCrewMember(crewSchedule, crewMember)
                 .orElseThrow(() -> new CustomException(CrewErrorCode.APPLY_NOT_FOUND));
 
         crewScheduleApply.setStatus(CrewScheduleApplyStatus.CANCEL);
@@ -579,4 +550,18 @@ public class CrewServiceImpl implements CrewService {
         }
     }
 
+    private void saveImages(
+        Crew crew, List<MultipartFile> images, Integer orderNumber
+    ) {
+        AtomicInteger index = new AtomicInteger(orderNumber);
+        images.stream()
+            .map(s3ImageService::upload)
+            .map(url -> CrewImage.builder()
+                .crew(crew)
+                .url(url)
+                .orderNumber(index.getAndIncrement())
+                .build())
+            .map(crewImageRepository::save)
+            .toList();
+    }
 }

@@ -51,7 +51,7 @@ public class CrewEntityMapper {
                 .build();
     }
 
-    public CrewSchedule toCrewSchedule(Crew crew, Course course, CrewRequest.createSchedule request) {
+    public CrewSchedule toCrewSchedule(Crew crew, Course course, CrewRequest.CreateSchedule request) {
         return CrewSchedule.builder()
                 .crew(crew)
                 .course(course)
@@ -66,6 +66,13 @@ public class CrewEntityMapper {
                 .crewSchedule(crewSchedule)
                 .crewMember(crewMember)
                 .status(CrewScheduleApplyStatus.APPLY) // 상태를 참여로 설정
+                .build();
+    }
+
+    public CrewCourse toCrewCourse(Crew crew, Course course) {
+        return CrewCourse.builder()
+                .crew(crew)
+                .course(course)
                 .build();
     }
 }

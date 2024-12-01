@@ -1,11 +1,9 @@
 package com.follow_me.running_mate.domain.crew.service;
 
-import com.follow_me.running_mate.domain.course.dto.response.CourseResponse;
 import com.follow_me.running_mate.domain.course.entity.Course;
 import com.follow_me.running_mate.domain.crew.dto.request.CrewRequest;
 import com.follow_me.running_mate.domain.crew.dto.response.CrewResponse;
 import com.follow_me.running_mate.domain.crew.entity.Crew;
-import com.follow_me.running_mate.domain.crew.entity.CrewImage;
 import com.follow_me.running_mate.domain.enums.ActivityTimeType;
 import com.follow_me.running_mate.domain.enums.CrewMemberStatus;
 import com.follow_me.running_mate.domain.member.entity.Member;
@@ -27,16 +25,15 @@ public interface CrewService {
 
     void applyToCrew(Member member, Long crewId);
 
-    CrewResponse.CrewScheduleIdResponse registerSchedule(Member member, Long crewId, CrewRequest.createSchedule request);
+    CrewResponse.CrewScheduleIdResponse registerSchedule(Member member, Long crewId, CrewRequest.CreateSchedule request);
     CrewResponse.CrewScheduleApplyIdResponse applyToSchedule(Member member, Long scheduleId);
     void updateCrewMemberStatus(Member currentUser, Long crewId, Long memberId, CrewMemberStatus status);
     CrewResponse.CrewIdResponse updateCrew(
         Member member, Long crewId, CrewRequest.UpdateCrewRequest request, MultipartFile representativeImage);
     CrewResponse.CrewCourseListResponse getFavoriteCourses(Member member,Long crewId);
     CrewResponse.CrewCourseIdResponse addFavoriteCourse(Member member,Long crewId ,Long courseId);
-    CrewResponse.ActivityImageListResponse uploadCrewImages(Long crewId, List<MultipartFile> images,Member member);
-    List<CrewImage> saveImages(Crew crew, List<MultipartFile> images,Integer orderNumber);
-    CrewResponse.UpdateCrewSchedule updateSchedule(Member member,Long crewId, Long scheduleId, CrewRequest.createSchedule request);
+    void uploadCrewImages(Member member, Long crewId, List<MultipartFile> images);
+    CrewResponse.CrewScheduleIdResponse updateSchedule(Member member, Long scheduleId, CrewRequest.CreateSchedule request);
     void cancelScheduleApply(Member member, Long scheduleId);
     void attendSchedule(Member member, Long scheduleId, List<Long> memberIds);
     void changeLeader(Member currentMember, Long newLeaderId);
