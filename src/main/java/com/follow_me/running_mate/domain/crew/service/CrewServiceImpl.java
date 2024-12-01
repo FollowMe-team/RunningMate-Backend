@@ -492,12 +492,10 @@ public class CrewServiceImpl implements CrewService {
 
     @Override
     @Transactional(readOnly = true)
-    public boolean canMemberJoinCrew(Member currentUser, Long crewId) {
-
+    public CrewResponse.CheckJoinCrewResponse canMemberJoinCrew(Member currentUser, Long crewId) {
         Crew crew = crewRepository.getCrew(crewId);
-        // 3. 크루의 가입 조건을 확인
 
-        return crew.canJoin(currentUser);
+        return new CrewResponse.CheckJoinCrewResponse(crew.canJoin(currentUser));
     }
 
     @Override

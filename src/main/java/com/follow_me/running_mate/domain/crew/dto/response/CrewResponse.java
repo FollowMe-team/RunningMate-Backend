@@ -186,4 +186,10 @@ public class CrewResponse {
         private Ranking ranking;
         private Long footPrint;
     }
+
+    @Getter
+    @AllArgsConstructor
+    public static class CheckJoinCrewResponse {
+        private Boolean isAvailable;
+    }
 }
