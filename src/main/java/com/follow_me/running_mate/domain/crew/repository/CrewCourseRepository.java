@@ -19,6 +19,4 @@ public interface CrewCourseRepository extends JpaRepository<CrewCourse, Long> {
     List<CrewCourse> findAllByCrew(Crew crew);
     boolean existsByCrewAndCourse(Crew crew, Course course);
     Optional<CrewCourse> findByCrewAndCourseId(Crew crew, Long courseId);
-
-    boolean existsByCrewAndCourse(Crew crew, Course course);
 }
