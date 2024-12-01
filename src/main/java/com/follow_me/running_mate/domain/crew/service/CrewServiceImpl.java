@@ -151,7 +151,7 @@ public class CrewServiceImpl implements CrewService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<CrewResponse.CrewMemberinfo> getMembersBySchedule(Long scheduleId) {
+    public List<CrewResponse.CrewMemberInfo> getMembersBySchedule(Long scheduleId) {
         List<CrewMember> crewMembers = crewScheduleApplyRepository.findAllCrewMembersByScheduleIdAndStatus(scheduleId, CrewScheduleApplyStatus.PARTICIPATE);
         return crewMembers.stream()
                 .map(crewMember -> crewResponseMapper.toCrewMemberInfo(crewMember.getMember()))

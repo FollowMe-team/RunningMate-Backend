@@ -196,12 +196,12 @@ public class CrewResponse {
     @Builder
     @AllArgsConstructor
     public static class CrewScheduleMemberListResponse {
-        private List<CrewMemberinfo> CrewScheduleMembers;
+        private List<CrewMemberInfo> CrewScheduleMembers;
     }
     @Getter
     @Builder
     @AllArgsConstructor
-    public static class CrewMemberinfo {
+    public static class CrewMemberInfo {
         private Long memberId;
         private String profileImageUrl;
         private String nickname;
