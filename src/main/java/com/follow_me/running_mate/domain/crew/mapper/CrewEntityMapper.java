@@ -19,7 +19,16 @@ public class CrewEntityMapper {
                 .shortDescription(request.getShortDescription())
                 .detailDescription(request.getDetailDescription())
                 .openChatUrl(request.getOpenChatUrl())
+                .ranking(request.getRanking())
                 .profileImageUrl(defaultProfileImageUrl)
+                .build();
+    }
+
+    public CrewLocation toCrewLocation(Crew crew,CrewRequest.createCrew request){
+        return CrewLocation.builder()
+                .crew(crew)
+                .city(request.getCity())
+                .district(request.getDistrict())
                 .build();
     }
 
@@ -49,6 +58,7 @@ public class CrewEntityMapper {
                 .startTime(request.getStartTime())
                 .endTime(request.getEndTime())
                 .memberMax(request.getMemberMax())
+                .meetingPlace(request.getMeetingPlace())
                 .build();
     }
     public CrewScheduleApply toCrewScheduleApply(CrewSchedule crewSchedule,CrewMember crewMember){

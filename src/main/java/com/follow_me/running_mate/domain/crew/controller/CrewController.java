@@ -124,8 +124,12 @@ public class CrewController {
 
     @PostMapping("/{crewId}/apply")
     @Operation(summary = "크루 신청 API", description = "멤버가 특정 크루에 가입 신청합니다.")
-    @ApiResponse(responseCode = "200", description = "신청 성공",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "크루 신청 성공",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+            @ApiResponse(responseCode = "CREW016", description = "해당 크루에 신청 할 수 없습니다.",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+    })
     public BaseResponse<Void> applyToCrew(
             @AuthenticationPrincipal PrincipalDetails principalDetails,
             @PathVariable(value = "crewId") Long crewId

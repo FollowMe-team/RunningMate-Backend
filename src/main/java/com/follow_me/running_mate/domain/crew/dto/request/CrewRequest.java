@@ -29,6 +29,14 @@ public class CrewRequest {
         @NotBlank(message = "크루 상세 소개를 입력해주세요.")
         private String detailDescription;
 
+        @NotBlank(message = "시/도를 선택해주세요.")
+        private String city;
+
+        @NotBlank(message = "구/군을 선택해주세요.")
+        private String district;
+
+        private Ranking ranking;
+
         @NotBlank(message = "오픈채팅방 링크를 입력해주세요.")
         private String openChatUrl;
 
@@ -65,6 +73,9 @@ public class CrewRequest {
         @NotNull(message = "종료 시간을 입력해주세요.")
         @Future(message = "종료 시간은 시작 시간 이후여야 합니다.")
         private LocalDateTime endTime;
+
+        @NotEmpty(message = "모집장소는 필수입니다.")
+        private String meetingPlace;
 
         @Min(value = 1, message = "최소 1명 이상의 인원이 필요합니다.")
         private Integer memberMax;

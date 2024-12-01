@@ -19,6 +19,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.SQLRestriction;
 
 @Getter
@@ -56,6 +57,10 @@ public class CrewSchedule extends BaseEntity {
     public void increaseMemberCount() {
         this.memberCount++;
     }
+
+    @Setter
+    @Column(nullable = false)
+    private String meetingPlace;
 
     public void update(Course course, CrewRequest.CreateSchedule request) {
         this.course = course;
