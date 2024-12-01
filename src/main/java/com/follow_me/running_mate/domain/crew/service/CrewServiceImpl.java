@@ -419,9 +419,7 @@ public class CrewServiceImpl implements CrewService {
     public void deleteCrew(Member member, Long crewId) {
         Crew crew = crewRepository.getCrew(crewId);
 
-        if (!crew.getLeader().getId().equals(member.getId())) {
-            throw new CustomException(CrewErrorCode.FORBIDDEN_ACCESS);
-        }
+        validateCrewLeader(member, crew);
 
         crewActivityTimeRepository.findAllByCrew(crew).forEach(CrewActivityTime::delete);
         crewCourseRepository.findAllByCrew(crew).forEach(CrewCourse::delete);
