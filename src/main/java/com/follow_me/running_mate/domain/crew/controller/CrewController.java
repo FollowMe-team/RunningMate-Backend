@@ -268,7 +268,7 @@ public class CrewController {
         return BaseResponse.success("일정 참여가 성공적으로 취소되었습니다.", null);
     }
 
-    @PatchMapping("/schedule/{scheduleId}/attend") //TODO: 크루 멤버 아이디로 값을 받을지 고민 갑슬 바로 보기 애매함
+    @PatchMapping("/schedule/{scheduleId}/attend")
     @Operation(summary = "크루 일정 출석 체크 API", description = "크루원이 일정에 출석 여부를 체크합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "출석 체크 성공",
@@ -281,9 +281,9 @@ public class CrewController {
     public BaseResponse<Void> attendSchedule(
             @AuthenticationPrincipal PrincipalDetails principalDetails,
             @PathVariable(value = "scheduleId") Long scheduleId,
-            @RequestBody @Valid CrewRequest.attendCrewSchedule memberIds
+            @RequestBody @Valid CrewRequest.attendCrewSchedule request
     ) {
-        crewService.attendSchedule(principalDetails.member(), scheduleId, memberIds.getMemberIds());
+        crewService.attendSchedule(principalDetails.member(), scheduleId, request.getMemberIds());
         return BaseResponse.success("크루 일정 출석체크가 완료되었습니다.", null);
     }
 

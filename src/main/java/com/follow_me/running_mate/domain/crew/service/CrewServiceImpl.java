@@ -375,21 +375,14 @@ public class CrewServiceImpl implements CrewService {
     @Override
     @Transactional
     public void attendSchedule(Member member, Long scheduleId, List<Long> memberIds) {
-        CrewSchedule crewSchedule = crewScheduleRepository.findById(scheduleId)
-                .orElseThrow(() -> new CustomException(CrewErrorCode.NOT_FOUND_SCHEDULE));
-        if (member.getId().equals(crewSchedule.getCrew().getLeader().getId())) {
-            throw new CustomException(CrewErrorCode.FORBIDDEN_ACCESS);
-        }
+        CrewSchedule crewSchedule = crewScheduleRepository.getCrewSchedule(scheduleId);
+        validateCrewLeader(member, crewSchedule.getCrew());
+
+        // 신청 목록 가져오기
         List<CrewScheduleApply> applyList = crewScheduleApplyRepository.findAllByCrewScheduleId(scheduleId);
 
-        for (CrewScheduleApply apply : applyList) {
-            Long existingMemberId = apply.getCrewMember().getMember().getId();
-            if (memberIds.contains(existingMemberId)) {
-                apply.setStatus(CrewScheduleApplyStatus.PARTICIPATE);
-            } else {
-                apply.setStatus(CrewScheduleApplyStatus.ABSENCE);
-            }
-        }
+        // 신청 상태 업데이트
+        applyList.forEach(apply -> updateApplyStatus(apply, memberIds));
     }
 
     @Override
@@ -559,7 +552,14 @@ public class CrewServiceImpl implements CrewService {
                 .url(url)
                 .orderNumber(index.getAndIncrement())
                 .build())
-            .map(crewImageRepository::save)
-            .toList();
+            .map(crewImageRepository::save);
+    }
+
+    private void updateApplyStatus(CrewScheduleApply apply, List<Long> memberIds) {
+        Long existingMemberId = apply.getCrewMember().getMember().getId();
+        CrewScheduleApplyStatus status = memberIds.contains(existingMemberId)
+            ? CrewScheduleApplyStatus.PARTICIPATE
+            : CrewScheduleApplyStatus.ABSENCE;
+        apply.setStatus(status);
     }
 }
