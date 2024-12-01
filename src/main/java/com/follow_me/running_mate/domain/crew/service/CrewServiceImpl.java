@@ -152,7 +152,10 @@ public class CrewServiceImpl implements CrewService {
     @Override
     @Transactional(readOnly = true)
     public List<CrewResponse.CrewMemberInfo> getMembersBySchedule(Long scheduleId) {
-        List<CrewMember> crewMembers = crewScheduleApplyRepository.findAllCrewMembersByScheduleIdAndStatus(scheduleId, CrewScheduleApplyStatus.PARTICIPATE);
+        CrewSchedule crewSchedule = crewScheduleRepository.findById(scheduleId)
+                .orElseThrow(() -> new CustomException(CrewErrorCode.NOT_FOUND_SCHEDULE));
+        List<CrewMember> crewMembers = crewScheduleApplyRepository
+                .findAllCrewMembersByScheduleIdAndStatus(crewSchedule, CrewScheduleApplyStatus.PARTICIPATE);
         return crewMembers.stream()
                 .map(crewMember -> crewResponseMapper.toCrewMemberInfo(crewMember.getMember()))
                 .toList();
@@ -160,7 +163,8 @@ public class CrewServiceImpl implements CrewService {
 
     @Override
     @Transactional
-    public CrewResponse.CrewIdResponse createCrew(Member leader, CrewRequest.createCrew request, MultipartFile representativeImage) {
+    public CrewResponse.CrewIdResponse createCrew(Member leader, CrewRequest.createCrew request
+            , MultipartFile representativeImage) {
         Crew crew;
         if (representativeImage != null) {
             String imageUrl = s3ImageService.upload(representativeImage);

@@ -99,7 +99,7 @@ public class CrewController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "멤버 조회 성공",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
-            @ApiResponse(responseCode = "404", description = "스케줄을 찾을 수 없음",
+            @ApiResponse(responseCode = "CREW009", description = "스케줄을 찾을 수 없음",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
             @ApiResponse(responseCode = "500", description = "서버 오류",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))

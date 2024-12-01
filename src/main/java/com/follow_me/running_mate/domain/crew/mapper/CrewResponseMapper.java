@@ -42,20 +42,6 @@ public class CrewResponseMapper {
                 .crewCourses(myCourseListResponse)
                 .build();
     }
-
-    public CrewResponse.UpdateCrewResponse toUpdateCrewInfo(
-            Crew crew,
-            List<CrewActivityTime> crewActivityTimes
-    ) {
-        return CrewResponse.UpdateCrewResponse.builder()
-                .id(crew.getId())
-                .name(crew.getName())
-                .detailDescription(crew.getDetailDescription())
-                .profileImageUrl(crew.getProfileImageUrl())
-                .crewActivityTimeList(toCrewActivityTimes(crewActivityTimes))
-                .build();
-    }
-
     public List<CrewResponse.CrewActivityTime> toCrewActivityTimes(List<CrewActivityTime> crewActivityTimes) {
         return crewActivityTimes.stream()
                 .map(crewActivityTime -> CrewResponse.CrewActivityTime.builder()
