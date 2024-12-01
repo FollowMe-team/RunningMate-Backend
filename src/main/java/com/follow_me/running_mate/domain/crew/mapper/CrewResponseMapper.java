@@ -75,7 +75,7 @@ public class CrewResponseMapper {
 
     public CrewResponse.CrewScheduleInfo toCrewScheduleInfo(
             CrewSchedule crewSchedules,
-            CourseResponse.CourseListResponse courseInfo
+            CourseResponse.SummaryInfo courseInfo
     ) {
         return CrewResponse.CrewScheduleInfo.builder()
                 .id(crewSchedules.getId())

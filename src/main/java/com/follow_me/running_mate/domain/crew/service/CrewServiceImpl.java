@@ -138,15 +138,14 @@ public class CrewServiceImpl implements CrewService {
                 .crewSchedule(scheduleInfos)
                 .build();
     }
-    private CourseResponse.CourseListResponse getCrewScheduleCourses(Member member,Course course) {
-        CourseResponse.SummaryInfo courseInfo = courseResponseMapper.toSummaryInfo(
+    private CourseResponse.SummaryInfo getCrewScheduleCourses(Member member,Course course) {
+        return courseResponseMapper.toSummaryInfo(
                 course,
                 courseReviewService.getAverageRating(course),
                 course.getRunningCount(),
                 courseBookmarkService.isBookmarked(member, course),
                 courseOptionService.getCourseOptions(course),
                 coursePointService.getCoursePoints(course));
-        return new CourseResponse.CourseListResponse(List.of(courseInfo));
     }
 
     @Override

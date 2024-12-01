@@ -178,7 +178,7 @@ public class CrewResponse {
         private LocalDateTime endTime;
         private Integer memberCount;
         private Integer memberMax;
-        private CourseResponse.CourseListResponse crewCourse;
+        private CourseResponse.SummaryInfo crewCourse;
     }
     @Getter
     @Builder
