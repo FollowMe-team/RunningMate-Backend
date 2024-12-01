@@ -7,10 +7,12 @@ import com.follow_me.running_mate.domain.member.entity.Member;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Component
 public class CrewResponseMapper {
-    public List<CrewResponse.MyCrewResponse> toCrewInfoResponse(List<Crew> CrewList) {
+    public List<CrewResponse.MyCrewResponse> toCrewInfoResponse(List<Crew> CrewList , List<Long>SumFoot) {
+        AtomicInteger index = new AtomicInteger(0);
         return CrewList.stream()
                 .map(crew ->
                         CrewResponse.MyCrewResponse.builder()
@@ -19,6 +21,7 @@ public class CrewResponseMapper {
                                 .memberCount(crew.getMemberCount())
                                 .shortDescription(crew.getShortDescription())
                                 .profileImageUrl(crew.getProfileImageUrl())
+                                .footprintaverage(SumFoot.get(index.getAndIncrement())/crew.getMemberCount())
                                 .build())
                 .toList();
     }
@@ -72,7 +75,7 @@ public class CrewResponseMapper {
 
     public CrewResponse.CrewScheduleInfo toCrewScheduleInfo(
             CrewSchedule crewSchedules,
-            CourseResponse.CourseListResponse courseInfo
+            CourseResponse.SummaryInfo courseInfo
     ) {
         return CrewResponse.CrewScheduleInfo.builder()
                 .id(crewSchedules.getId())

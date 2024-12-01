@@ -5,6 +5,7 @@ import com.follow_me.running_mate.domain.course.entity.Course;
 import com.follow_me.running_mate.domain.course.exception.CourseErrorCode;
 import com.follow_me.running_mate.domain.course.mapper.CourseResponseMapper;
 import com.follow_me.running_mate.domain.course.repository.CourseRepository;
+import com.follow_me.running_mate.domain.course.service.bookmark.CourseBookmarkService;
 import com.follow_me.running_mate.domain.course.service.option.CourseOptionService;
 import com.follow_me.running_mate.domain.course.service.point.CoursePointService;
 import com.follow_me.running_mate.domain.course.service.review.CourseReviewService;
@@ -57,6 +58,7 @@ public class CrewServiceImpl implements CrewService {
     private final CourseRepository courseRepository;
     private final MemberRepository memberRepository;
     private final CrewImageRepository crewImageRepository;
+    private final CourseBookmarkService courseBookmarkService;
 
     @Override
     public List<Crew> getCrewByCourse(Course course) {
@@ -67,28 +69,24 @@ public class CrewServiceImpl implements CrewService {
     @Transactional
     public CrewResponse.MyCrewListResponse getCrewsByMember(Member member) {
         List<Crew> myCrews = crewMemberRepository.findCrewsByMemberAndStatus(member, Status.COMPLETE);
+        List<Long> sumFootprint = crewMemberRepository.sumFootprintByCrewsAndStatus(myCrews,Status.COMPLETE);
         List<Crew> recommendedCrews = crewRepository.findTop4ByIdNotInOrderByCreatedAtDesc(myCrews);
+        List<Long> recommendSumFootprint = crewMemberRepository.sumFootprintByCrewsAndStatus(recommendedCrews,Status.COMPLETE);
         //TODO: 분리하자
-        return new CrewResponse.MyCrewListResponse(crewResponseMapper.toCrewInfoResponse(myCrews),
-                crewResponseMapper.toCrewInfoResponse(recommendedCrews));
+        return new CrewResponse.MyCrewListResponse(crewResponseMapper.toCrewInfoResponse(myCrews,sumFootprint),
+                crewResponseMapper.toCrewInfoResponse(recommendedCrews,recommendSumFootprint));
     }
-
-//    private List<Integer> getAveragefootprint(List<Crew> crews){
-//        for (Crew crew: crews) {
-//
-//        }
-//    }
 
     @Override
     @Transactional
-    public CrewResponse.CrewDetailResponse getCrewDetail(Long crewId) {
+    public CrewResponse.CrewDetailResponse getCrewDetail(Member member ,Long crewId) {
         Crew crew = crewRepository.getCrew(crewId);
 
         return crewResponseMapper.toCrewDetailInfo(
                 crew,
                 getCrewActivityTime(crew),
                 getCrewLocationInfo(crew),
-                this.getCrewCourses(crew)
+                this.getCrewCourses(member,crew)
         );
     }
 
@@ -103,15 +101,16 @@ public class CrewServiceImpl implements CrewService {
         //같은 시간대인 요일은 묶고, 그리고 월,화,수 순으로 정렬되도록 보내줘야할 거 같은데
         //디자인처럼
     }
-    private CourseResponse.CourseListResponse getCrewCourses(Crew crew) {
+    private CourseResponse.CourseListResponse getCrewCourses(Member member , Crew crew) {
 
         List<Course> myCourses = crewCourseRepository.findTop3CoursesByCrewOrderByCreatedAtDesc(crew);
 
         List<CourseResponse.SummaryInfo> courses = myCourses.stream().map(course ->
-                courseResponseMapper.toCrewCourseInfo(
+                courseResponseMapper.toSummaryInfo(
                         course,
                         courseReviewService.getAverageRating(course),
                         course.getRunningCount(),
+                        courseBookmarkService.isBookmarked(member, course),
                         courseOptionService.getCourseOptions(course),
                         coursePointService.getCoursePoints(course)
                 )).toList();
@@ -131,7 +130,7 @@ public class CrewServiceImpl implements CrewService {
         List<CrewResponse.CrewScheduleInfo> scheduleInfos = crewSchedules.stream().map(schedule ->
                 crewResponseMapper.toCrewScheduleInfo(
                         schedule,
-                        getCrewScheduleCourses(schedule.getCourse())
+                        getCrewScheduleCourses(member,schedule.getCourse())
                 )).toList();
 
         return CrewResponse.CrewScheduleListResponse.builder()
@@ -140,18 +139,14 @@ public class CrewServiceImpl implements CrewService {
                 .crewSchedule(scheduleInfos)
                 .build();
     }
-
-    @Override
-    @Transactional(readOnly = true)
-    public CourseResponse.CourseListResponse getCrewScheduleCourses(Course course) {
-
-        CourseResponse.SummaryInfo courseInfo = courseResponseMapper.toCrewCourseInfo(
+    private CourseResponse.SummaryInfo getCrewScheduleCourses(Member member,Course course) {
+        return courseResponseMapper.toSummaryInfo(
                 course,
                 courseReviewService.getAverageRating(course),
                 course.getRunningCount(),
+                courseBookmarkService.isBookmarked(member, course),
                 courseOptionService.getCourseOptions(course),
                 coursePointService.getCoursePoints(course));
-        return new CourseResponse.CourseListResponse(List.of(courseInfo));
     }
 
     @Override
@@ -166,7 +161,6 @@ public class CrewServiceImpl implements CrewService {
     @Override
     @Transactional
     public CrewResponse.CrewIdResponse createCrew(Member leader, CrewRequest.createCrew request, MultipartFile representativeImage) {
-        // Crew 생성
         Crew crew;
         if (representativeImage != null) {
             String imageUrl = s3ImageService.upload(representativeImage);
@@ -175,6 +169,11 @@ public class CrewServiceImpl implements CrewService {
             crew = crewEntityMapper.toCrew(leader, request, null);
         }
         crewRepository.save(crew);
+        crewMemberRepository.save(CrewMember.builder()
+                .crew(crew)
+                .status(CrewMemberStatus.COMPLETE)
+                .member(leader)
+                .build());
 
         // CrewActivityTime 생성 및 저장
         List<CrewActivityTime> activityTimes = crewEntityMapper.toCrewActivityTimes(crew, request.getActivityTimes());
@@ -295,10 +294,11 @@ public class CrewServiceImpl implements CrewService {
         // CrewCourse 목록 조회
         List<CrewCourse> crewCourses = crewCourseRepository.findAllByCrew(crew);
         List<CourseResponse.SummaryInfo> courses = crewCourses.stream().map(course ->
-                courseResponseMapper.toCrewCourseInfo(
+                courseResponseMapper.toSummaryInfo(
                         course.getCourse(),
                         courseReviewService.getAverageRating(course.getCourse()),
                         course.getCourse().getRunningCount(),
+                        courseBookmarkService.isBookmarked(member, course.getCourse()),
                         courseOptionService.getCourseOptions(course.getCourse()),
                         coursePointService.getCoursePoints(course.getCourse())
                 )).toList();
@@ -542,7 +542,10 @@ public class CrewServiceImpl implements CrewService {
         List<Crew> searchCrews = crewRepository.searchCrews(
                 keyword, city, district, activityTimeList
         );
-        return new CrewResponse.MyCrewListResponse(crewResponseMapper.toCrewInfoResponse(myCrewMembers), crewResponseMapper.toCrewInfoResponse(searchCrews));
+        List<Long> sumFootprint = crewMemberRepository.sumFootprintByCrewsAndStatus(myCrewMembers,Status.COMPLETE);
+        List<Long> searchSumFootprint = crewMemberRepository.sumFootprintByCrewsAndStatus(searchCrews,Status.COMPLETE);
+        return new CrewResponse.MyCrewListResponse(crewResponseMapper.toCrewInfoResponse(myCrewMembers,sumFootprint),
+                crewResponseMapper.toCrewInfoResponse(searchCrews,searchSumFootprint));
     }
 
     @Override
