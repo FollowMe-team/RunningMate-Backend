@@ -151,7 +151,7 @@ public class CrewServiceImpl implements CrewService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<CrewResponse.CrewMemberinfo> getMembersBySchedule(Long scheduleId) {
+    public List<CrewResponse.CrewMemberInfo> getMembersBySchedule(Long scheduleId) {
         List<CrewMember> crewMembers = crewScheduleApplyRepository.findAllCrewMembersByScheduleIdAndStatus(scheduleId, CrewScheduleApplyStatus.PARTICIPATE);
         return crewMembers.stream()
                 .map(crewMember -> crewResponseMapper.toCrewMemberInfo(crewMember.getMember()))
@@ -497,17 +497,7 @@ public class CrewServiceImpl implements CrewService {
         Crew crew = crewRepository.getCrew(crewId);
         List<CrewImage> crewImages = crewImageRepository.findAllByCrewOrderByOrderNumberAsc(crew);
 
-        return CrewResponse.CrewSelectResponse.builder()
-                .id(crew.getId())
-                .name(crew.getName())
-                .openChatUrl(crew.getOpenChatUrl())
-                .images(crewImages.stream().map(crewImage -> CrewResponse.CrewImageInfo.builder()
-                        .openChatUrl(crewImage.getUrl())
-                        .orderNumber(crewImage.getOrderNumber())
-                        .build())
-                        .toList())
-                .IsCrewLeader(isUserLeaderOfCrew(member, crew))
-                .build();
+        return crewResponseMapper.toCrewSelectResponse(crew,crewImages,isUserLeaderOfCrew(member,crew));
     }
 
     private boolean isUserLeaderOfCrew(Member member, Crew crew) {

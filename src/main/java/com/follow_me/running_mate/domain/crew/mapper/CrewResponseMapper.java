@@ -110,13 +110,28 @@ public class CrewResponseMapper {
                                 .build()
                 ) .toList();
     }
-    public CrewResponse.CrewMemberinfo toCrewMemberInfo(Member member){
-        return CrewResponse.CrewMemberinfo.builder()
+    public CrewResponse.CrewMemberInfo toCrewMemberInfo(Member member){
+        return CrewResponse.CrewMemberInfo.builder()
                 .memberId(member.getId())
                 .profileImageUrl(member.getProfileImageUrl())
                 .nickname(member.getNickname())
                 .footPrint(member.getFootprint())
                 .ranking(member.getRanking())
+                .build();
+    }
+
+    public CrewResponse.CrewSelectResponse toCrewSelectResponse(Crew crew, List<CrewImage> crewImages, boolean isCrewLeader) {
+        return CrewResponse.CrewSelectResponse.builder()
+                .id(crew.getId())
+                .name(crew.getName())
+                .openChatUrl(crew.getOpenChatUrl())
+                .images(crewImages.stream()
+                        .map(crewImage -> CrewResponse.CrewImageInfo.builder()
+                                .openChatUrl(crewImage.getUrl())
+                                .orderNumber(crewImage.getOrderNumber())
+                                .build())
+                        .toList())
+                .IsCrewLeader(isCrewLeader)
                 .build();
     }
 }

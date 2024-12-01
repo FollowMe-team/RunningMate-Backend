@@ -21,7 +21,7 @@ public interface CrewService {
 
     CrewResponse.CrewDetailResponse getCrewDetail(Member member,Long crewId);
     CrewResponse.CrewScheduleListResponse getCrewScheduleByDate(Member member,Long crewId, YearMonth yearMonth);
-    List<CrewResponse.CrewMemberinfo> getMembersBySchedule(Long scheduleId);
+    List<CrewResponse.CrewMemberInfo> getMembersBySchedule(Long scheduleId);
 
     CrewResponse.CrewIdResponse createCrew(Member member, CrewRequest.createCrew request, MultipartFile representativeImage);
 
