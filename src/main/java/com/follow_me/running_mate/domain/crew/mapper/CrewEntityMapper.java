@@ -58,6 +58,7 @@ public class CrewEntityMapper {
                 .startTime(request.getStartTime())
                 .endTime(request.getEndTime())
                 .memberMax(request.getMemberMax())
+                .meetingPlace(request.getMeetingPlace())
                 .build();
     }
     public CrewScheduleApply toCrewScheduleApply(CrewSchedule crewSchedule,CrewMember crewMember){

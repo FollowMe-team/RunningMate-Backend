@@ -56,6 +56,9 @@ public class CrewSchedule extends BaseEntity {
         this.memberCount++;
     }
 
+    @Column(nullable = false)
+    private String meetingPlace;
+
     public void setCourse(Course course) {
         this.course = course;
     }
@@ -77,5 +80,9 @@ public class CrewSchedule extends BaseEntity {
         } else {
             throw new CustomException(CrewErrorCode.INVALID_MEMBER_COUNT);
         }
+    }
+
+    public void setMeetingPlace(String meetingPlace) {
+        this.meetingPlace=meetingPlace;
     }
 }

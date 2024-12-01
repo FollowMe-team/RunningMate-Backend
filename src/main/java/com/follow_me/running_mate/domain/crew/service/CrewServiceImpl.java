@@ -377,6 +377,7 @@ public class CrewServiceImpl implements CrewService {
         schedule.setStartTime(request.getStartTime());
         schedule.setEndTime(request.getEndTime());
         schedule.setMemberMax(request.getMemberMax());
+        schedule.setMeetingPlace(request.getMeetingPlace());
 
         return crewResponseMapper.toUpdateCrewSchedule(crewScheduleRepository.save(schedule));
     }
