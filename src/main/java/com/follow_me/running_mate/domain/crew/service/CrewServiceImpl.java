@@ -162,7 +162,6 @@ public class CrewServiceImpl implements CrewService {
     @Override
     @Transactional
     public CrewResponse.CrewIdResponse createCrew(Member leader, CrewRequest.createCrew request, MultipartFile representativeImage) {
-        // Crew 생성
         Crew crew;
         if (representativeImage != null) {
             String imageUrl = s3ImageService.upload(representativeImage);
@@ -171,6 +170,11 @@ public class CrewServiceImpl implements CrewService {
             crew = crewEntityMapper.toCrew(leader, request, "default-image");
         }
         crewRepository.save(crew);
+        crewMemberRepository.save(CrewMember.builder()
+                .crew(crew)
+                .status(Status.COMPLETE)
+                .member(leader)
+                .build());
 
         // CrewActivityTime 생성 및 저장
         List<CrewActivityTime> activityTimes = crewEntityMapper.toCrewActivityTimes(crew, request.getActivityTimes());
