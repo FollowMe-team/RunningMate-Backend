@@ -463,9 +463,7 @@ public class CrewServiceImpl implements CrewService {
     @Transactional
     public void deleteFavoriteCourse(Member member, Long courseId, Long crewId) {
         Crew crew = crewRepository.getCrew(crewId);
-        if (!isUserLeaderOfCrew(member, crew)) {
-            throw new CustomException(CrewErrorCode.FORBIDDEN_ACCESS);
-        }
+        validateCrewLeader(member, crew);
 
         CrewCourse crewCourse = crewCourseRepository.findByCrewAndCourseId(crew, courseId)
                 .orElseThrow(() -> new CustomException(CrewErrorCode.NOT_FOUND_CREW_COURSE));

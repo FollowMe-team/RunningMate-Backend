@@ -385,7 +385,7 @@ public class CrewController {
             @PathVariable(value = "crewId") Long crewId,
             @PathVariable(value = "courseId") Long courseId
     ) {
-        crewService.deleteFavoriteCourse(principalDetails.member(), courseId,crewId);
+        crewService.deleteFavoriteCourse(principalDetails.member(), courseId, crewId);
         return BaseResponse.success("즐겨찾기가 성공적으로 삭제되었습니다.", null);
     }
     @GetMapping("/search")
