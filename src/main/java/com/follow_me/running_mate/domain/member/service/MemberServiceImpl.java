@@ -338,6 +338,11 @@ public class MemberServiceImpl implements MemberService {
         );
     }
 
+    @Override
+    public Member getMember(Long memberId) {
+        return memberRepository.getMember(memberId);
+    }
+
     private void validateSelfFollow(Member member, Long targetMemberId) {
         if (member.getId().equals(targetMemberId)) {
             throw new CustomException(MemberErrorCode.NOT_SELF_TARGET);

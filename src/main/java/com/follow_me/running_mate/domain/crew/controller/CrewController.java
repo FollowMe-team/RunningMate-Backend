@@ -287,7 +287,7 @@ public class CrewController {
         return BaseResponse.success("크루 일정 출석체크가 완료되었습니다.", null);
     }
 
-    @PatchMapping("/leader/{memberId}")
+    @PatchMapping("/{crewId}/leader/{memberId}")
     @Operation(summary = "러닝 크루 리더 변경 API", description = "주어진 멤버 ID로 크루 리더를 변경합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "리더 변경 성공",
@@ -303,9 +303,10 @@ public class CrewController {
     })
     public BaseResponse<Void> changeLeader(
             @AuthenticationPrincipal PrincipalDetails principalDetails,
+            @PathVariable(value = "crewId") Long crewId,
             @PathVariable(value = "memberId") Long memberId
     ) {
-        crewService.changeLeader(principalDetails.member(), memberId);
+        crewService.changeLeader(principalDetails.member(), crewId, memberId);
         return BaseResponse.success("리더가 성공적으로 변경되었습니다.", null);
     }
 

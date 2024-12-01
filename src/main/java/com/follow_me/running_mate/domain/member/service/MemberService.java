@@ -31,4 +31,5 @@ public interface MemberService {
     void unfollow(Member member , Long memberId);
     void createFootprint(Member member, Long memberId, MemberRequest.FootprintRequest request);
     MemberResponse.FootprintListResponse getFootprints(Member member, Long memberId);
+    Member getMember(Long memberId);
 }

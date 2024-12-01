@@ -17,6 +17,7 @@ import com.follow_me.running_mate.domain.crew.mapper.CrewResponseMapper;
 import com.follow_me.running_mate.domain.crew.repository.*;
 
 import com.follow_me.running_mate.domain.enums.CrewMemberStatus;
+import com.follow_me.running_mate.domain.member.service.MemberService;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.YearMonth;
@@ -50,12 +51,12 @@ public class CrewServiceImpl implements CrewService {
     private final CourseReviewService courseReviewService;
     private final CourseOptionService courseOptionService;
     private final CoursePointService coursePointService;
+    private final MemberService memberService;
     private final CrewScheduleRepository crewScheduleRepository;
     private final CrewScheduleApplyRepository crewScheduleApplyRepository;
     private final CrewEntityMapper crewEntityMapper;
     private final S3ImageService s3ImageService;
     private final CourseRepository courseRepository;
-    private final MemberRepository memberRepository;
     private final CrewImageRepository crewImageRepository;
     private final CourseBookmarkService courseBookmarkService;
 
@@ -256,7 +257,7 @@ public class CrewServiceImpl implements CrewService {
     @Transactional
     public void updateCrewMemberStatus(Member currentUser, Long crewId, Long memberId, CrewMemberStatus status) {
 
-        Member applyMember = memberRepository.getMember(memberId);
+        Member applyMember = memberService.getMember(memberId);
         Crew crew = crewRepository.getCrew(crewId);
         CrewMember crewMember = crewMemberRepository.findByCrewAndMember(crew, applyMember)
                 .orElseThrow(() -> new CustomException(CrewErrorCode.NO_APPLY_CREW));
@@ -389,16 +390,15 @@ public class CrewServiceImpl implements CrewService {
 
     @Override
     @Transactional
-    public void changeLeader(Member currentMember, Long newLeaderId) {
-        Crew crew = crewRepository.findByLeader(currentMember)
-                .orElseThrow(() -> new CustomException(CrewErrorCode.FORBIDDEN_ACCESS));
+    public void changeLeader(Member currentMember, Long crewId, Long newLeaderId) {
+        Crew crew = crewRepository.getCrew(crewId);
+        validateCrewLeader(currentMember, crew);
 
-        CrewMember crewMember = crewMemberRepository.findByMemberIdAndCrew(newLeaderId, crew)
-                .orElseThrow(() -> new CustomException(CrewErrorCode.NO_APPLY_CREW));
-        if (!crewMember.getStatus().equals(CrewMemberStatus.COMPLETE)) {
+        Member newLeader = memberService.getMember(newLeaderId);
+
+        if (!crewMemberRepository.existsByCrewAndMemberAndStatus(crew, newLeader, CrewMemberStatus.COMPLETE)) {
             throw new CustomException(CrewErrorCode.NO_APPLY_CREW);
         }
-        Member newLeader = memberRepository.getMember(newLeaderId);
 
         crew.setLeader(newLeader);
     }
