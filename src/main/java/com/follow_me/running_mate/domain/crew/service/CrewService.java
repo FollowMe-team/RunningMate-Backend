@@ -5,10 +5,9 @@ import com.follow_me.running_mate.domain.course.entity.Course;
 import com.follow_me.running_mate.domain.crew.dto.request.CrewRequest;
 import com.follow_me.running_mate.domain.crew.dto.response.CrewResponse;
 import com.follow_me.running_mate.domain.crew.entity.Crew;
-import com.follow_me.running_mate.domain.crew.entity.CrewActivityTime;
 import com.follow_me.running_mate.domain.crew.entity.CrewImage;
-import com.follow_me.running_mate.domain.crew.entity.CrewLocation;
 import com.follow_me.running_mate.domain.enums.ActivityTimeType;
+import com.follow_me.running_mate.domain.enums.CrewMemberStatus;
 import com.follow_me.running_mate.domain.member.entity.Member;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -33,7 +32,7 @@ public interface CrewService {
 
     CrewResponse.CrewScheduleIdResponse registerSchedule(Member member, Long crewId, CrewRequest.createSchedule request);
     CrewResponse.CrewScheduleApplyIdResponse applyToSchedule(Member member, Long scheduleId);
-    void updateCrewMemberStatus(Member currentUser, Long memberId, String status);
+    void updateCrewMemberStatus(Member currentUser, Long crewId, Long memberId, CrewMemberStatus status);
     CrewResponse.UpdateCrewResponse updateCrew(Member member, Long crewId, CrewRequest.UpdateCrewRequest request);
     CrewResponse.CrewCourseListResponse getFavoriteCourses(Member member,Long crewId);
     CrewResponse.CrewCourseIdResponse addFavoriteCourse(Member member,Long crewId ,Long courseId);

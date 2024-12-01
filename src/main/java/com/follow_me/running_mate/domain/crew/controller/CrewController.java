@@ -5,6 +5,7 @@ import com.follow_me.running_mate.domain.crew.dto.request.CrewRequest;
 import com.follow_me.running_mate.domain.crew.dto.response.CrewResponse;
 import com.follow_me.running_mate.domain.crew.service.CrewService;
 import com.follow_me.running_mate.domain.enums.ActivityTimeType;
+import com.follow_me.running_mate.domain.enums.CrewMemberStatus;
 import com.follow_me.running_mate.global.common.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -154,16 +155,17 @@ public class CrewController {
         return BaseResponse.success("일정 참여 신청이 완료되었습니다.", crewService.applyToSchedule(principalDetails.member(), scheduleId));
     }
 
-    @PatchMapping("/{memberId}")
+    @PatchMapping("{crewId}/members/{memberId}")
     @Operation(summary = "크루 신청 상태 업데이트 API", description = "크루 신청 상태를 수락하거나 거절합니다. , 크루 멤버 수정 가능")
     @ApiResponse(responseCode = "200", description = "상태 업데이트 성공",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
     public BaseResponse<Void> updateCrewMemberStatus(
             @AuthenticationPrincipal PrincipalDetails principalDetails,
+            @PathVariable(value = "crewId") Long crewId,
             @PathVariable(value = "memberId") Long memberId,
-            @RequestParam(value = "status") String status
+            @RequestParam(value = "status") CrewMemberStatus status
     ) {
-        crewService.updateCrewMemberStatus(principalDetails.member(), memberId, status);
+        crewService.updateCrewMemberStatus(principalDetails.member(), crewId, memberId, status);
         return BaseResponse.success("크루 신청 상태가 성공적으로 업데이트되었습니다.", null);
     }
 

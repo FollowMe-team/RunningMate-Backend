@@ -16,6 +16,7 @@ import com.follow_me.running_mate.domain.crew.mapper.CrewEntityMapper;
 import com.follow_me.running_mate.domain.crew.mapper.CrewResponseMapper;
 import com.follow_me.running_mate.domain.crew.repository.*;
 
+import com.follow_me.running_mate.domain.enums.CrewMemberStatus;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.YearMonth;
@@ -27,7 +28,6 @@ import com.follow_me.running_mate.domain.enums.CrewScheduleApplyStatus;
 import com.follow_me.running_mate.domain.enums.Status;
 import com.follow_me.running_mate.domain.member.entity.Member;
 import com.follow_me.running_mate.domain.member.exception.MemberErrorCode;
-import com.follow_me.running_mate.domain.member.mapper.MemberMapper;
 import com.follow_me.running_mate.domain.member.repository.MemberRepository;
 import com.follow_me.running_mate.global.common.service.S3ImageService;
 import com.follow_me.running_mate.global.error.exception.CustomException;
@@ -172,7 +172,7 @@ public class CrewServiceImpl implements CrewService {
             String imageUrl = s3ImageService.upload(representativeImage);
             crew = crewEntityMapper.toCrew(leader, request, imageUrl);
         } else {
-            crew = crewEntityMapper.toCrew(leader, request, "default-image");
+            crew = crewEntityMapper.toCrew(leader, request, null);
         }
         crewRepository.save(crew);
 
@@ -233,7 +233,7 @@ public class CrewServiceImpl implements CrewService {
         CrewMember crewMember = crewMemberRepository.findByCrewAndMember(crewSchedule.getCrew(), member)
                 .orElseThrow(() -> new CustomException(CrewErrorCode.FORBIDDEN_ACCESS));
 
-        if (!crewMember.getStatus().equals(Status.COMPLETE)) {
+        if (!crewMember.getStatus().equals(CrewMemberStatus.COMPLETE)) {
             throw new CustomException(CrewErrorCode.FORBIDDEN_ACCESS);
         }
 
@@ -254,31 +254,32 @@ public class CrewServiceImpl implements CrewService {
 
     @Override
     @Transactional
-    public void updateCrewMemberStatus(Member currentUser, Long memberId, String status) {
+    public void updateCrewMemberStatus(Member currentUser, Long crewId, Long memberId, CrewMemberStatus status) {
 
-        Member applyMember = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(MemberErrorCode.NOT_FOUND));
-        Crew crew = crewRepository.findByLeader(currentUser).orElseThrow(() -> new CustomException(CrewErrorCode.NOT_FOUND));
+        Member applyMember = memberRepository.getMember(memberId);
+        Crew crew = crewRepository.getCrew(crewId);
         CrewMember crewMember = crewMemberRepository.findByCrewAndMember(crew, applyMember)
                 .orElseThrow(() -> new CustomException(CrewErrorCode.NOAPPLY_CREW));
-
-        if (crewMember.getStatus().equals(Status.COMPLETE) || crewMember.getStatus().equals(Status.REJECT)) {
-            throw new CustomException(CrewErrorCode.ALREADY_EXISTS);
-        }
 
         // 현재 사용자가 해당 크루의 리더인지 확인하는 로직
         validateCrewLeader(currentUser, crewMember);
 
-        try {
-            Status newStatus = Status.valueOf(status.toUpperCase());
-            if (newStatus.equals(Status.COMPLETE)) {
-                crewMember.getCrew().increaseMemberCount();
-            } else if (crewMember.getStatus().equals(Status.COMPLETE) && newStatus.equals(Status.REJECT)) {
-                crewMember.getCrew().decreaseMemberCount();
-            }
-            crewMember.updateStatus(newStatus);
-        } catch (IllegalArgumentException e) {
-            throw new CustomException(CrewErrorCode.INVALID_INPUT_VALUE);
+        switch (status) {
+            case COMPLETE:
+                crew.increaseMemberCount();
+                // TODO: 크루 가입 승인 푸시 알림
+                break;
+            case REJECT:
+                // TODO: 크루 가입 거절 푸시 알림
+                break;
+            case OUT:
+                crew.decreaseMemberCount();
+                // TODO: 크루 탈퇴 푸시 알림
+                break;
+            default:
+                throw new CustomException(CrewErrorCode.INVALID_INPUT_VALUE);
         }
+        crewMember.updateStatus(status);
     }
 
     private void validateCrewLeader(Member currentUser, CrewMember crewMember) {
@@ -429,7 +430,7 @@ public class CrewServiceImpl implements CrewService {
 
         CrewMember crewMember = crewMemberRepository.findByMemberIdAndCrew(newLeaderId, crew)
                 .orElseThrow(() -> new CustomException(CrewErrorCode.NOAPPLY_CREW));
-        if (!crewMember.getStatus().equals(Status.COMPLETE)) {
+        if (!crewMember.getStatus().equals(CrewMemberStatus.COMPLETE)) {
             throw new CustomException(CrewErrorCode.NOAPPLY_CREW);
         }
         Member newLeader = memberRepository.findById(newLeaderId)
