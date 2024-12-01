@@ -4,7 +4,7 @@ import com.follow_me.running_mate.domain.course.entity.Course;
 import com.follow_me.running_mate.domain.crew.dto.request.CrewRequest;
 import com.follow_me.running_mate.domain.crew.entity.*;
 import com.follow_me.running_mate.domain.enums.CrewScheduleApplyStatus;
-import com.follow_me.running_mate.domain.enums.Status;
+import com.follow_me.running_mate.domain.enums.CrewMemberStatus;
 import com.follow_me.running_mate.domain.member.entity.Member;
 import org.springframework.stereotype.Component;
 
@@ -38,7 +38,7 @@ public class CrewEntityMapper {
         return CrewMember.builder()
                 .crew(crew)
                 .member(member)
-                .status(Status.READY) // 기본 상태 설정
+                .status(CrewMemberStatus.READY) // 기본 상태 설정
                 .build();
     }
 

@@ -17,6 +17,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.SQLRestriction;
 
 @Getter
@@ -39,11 +40,8 @@ public class CrewScheduleApply extends BaseEntity {
     @JoinColumn(nullable = false)
     private CrewMember crewMember;
 
+    @Setter
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private CrewScheduleApplyStatus status;
-
-    public void setStatus(CrewScheduleApplyStatus status) {
-        this.status = status;
-    }
 }
