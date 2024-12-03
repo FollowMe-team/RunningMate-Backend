@@ -15,7 +15,6 @@ public class CourseResponseMapper {
     public CourseResponse.SummaryInfo toSummaryInfo(
         Course course,
         Double rating,
-        Integer runningCount,
         Boolean isBookmarked,
         List<CourseOption> courseOptions,
         List<CoursePoint> coursePointInfos
@@ -29,7 +28,7 @@ public class CourseResponseMapper {
             .duration(FormatterUtil.formatDuration(course.getDuration()))
             .difficulty(course.getDifficulty())
             .rating(FormatterUtil.formatRating(rating))
-            .runningCount(runningCount)
+            .runningCount(course.getRunningCount())
             .isBookmarked(isBookmarked)
             .courseOptionTypes(toCourseOptionTypes(courseOptions))
             .coursePointInfos(toCoursePointInfos(coursePointInfos))
@@ -39,7 +38,6 @@ public class CourseResponseMapper {
     public CourseResponse.MyCourseInfo toMyCourseInfo(
         Course course,
         Double rating,
-        Integer runningCount,
         Boolean isBookmarked,
         List<CourseOption> courseOptions,
         List<CoursePoint> coursePointInfos
@@ -54,7 +52,7 @@ public class CourseResponseMapper {
             .difficulty(course.getDifficulty())
             .status(course.getStatus())
             .rating(FormatterUtil.formatRating(rating))
-            .runningCount(runningCount)
+            .runningCount(course.getRunningCount())
             .isBookmarked(isBookmarked)
             .courseOptionTypes(toCourseOptionTypes(courseOptions))
             .coursePointInfos(toCoursePointInfos(coursePointInfos))

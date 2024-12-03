@@ -157,7 +157,6 @@ public class CourseServiceImpl implements CourseService {
             courseResponseMapper.toSummaryInfo(
                 course,
                 courseReviewService.getAverageRating(course),
-                course.getRunningCount(),
                 courseBookmarkService.isBookmarked(member, course),
                 courseOptionService.getCourseOptions(course),
                 coursePointService.getCoursePoints(course)
@@ -176,7 +175,6 @@ public class CourseServiceImpl implements CourseService {
             courseResponseMapper.toSummaryInfo(
                 course,
                 courseReviewService.getAverageRating(course),
-                course.getRunningCount(),
                 courseBookmarkService.isBookmarked(member, course),
                 courseOptionService.getCourseOptions(course),
                 coursePointService.getCoursePoints(course)
@@ -195,7 +193,6 @@ public class CourseServiceImpl implements CourseService {
             courseResponseMapper.toMyCourseInfo(
                 course,
                 courseReviewService.getAverageRating(course),
-                course.getRunningCount(),
                 courseBookmarkService.isBookmarked(member, course),
                 courseOptionService.getCourseOptions(course),
                 coursePointService.getCoursePoints(course)
@@ -227,7 +224,6 @@ public class CourseServiceImpl implements CourseService {
             courseResponseMapper.toSummaryInfo(
                 course,
                 courseReviewService.getAverageRating(course),
-                course.getRunningCount(),
                 courseBookmarkService.isBookmarked(member, course),
                 courseOptionService.getCourseOptions(course),
                 coursePointService.getCoursePoints(course)
@@ -261,7 +257,6 @@ public class CourseServiceImpl implements CourseService {
             courseResponseMapper.toSummaryInfo(
                 course,
                 courseReviewService.getAverageRating(course),
-                course.getRunningCount(),
                 courseBookmarkService.isBookmarked(member, course),
                 courseOptionService.getCourseOptions(course),
                 coursePointService.getCoursePoints(course)

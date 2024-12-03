@@ -132,7 +132,6 @@ public class CrewServiceImpl implements CrewService {
                 courseResponseMapper.toSummaryInfo(
                         course,
                         courseReviewService.getAverageRating(course),
-                        course.getRunningCount(),
                         courseBookmarkService.isBookmarked(member, course),
                         courseOptionService.getCourseOptions(course),
                         coursePointService.getCoursePoints(course)
@@ -166,7 +165,6 @@ public class CrewServiceImpl implements CrewService {
         return courseResponseMapper.toSummaryInfo(
                 course,
                 courseReviewService.getAverageRating(course),
-                course.getRunningCount(),
                 courseBookmarkService.isBookmarked(member, course),
                 courseOptionService.getCourseOptions(course),
                 coursePointService.getCoursePoints(course));
@@ -322,7 +320,6 @@ public class CrewServiceImpl implements CrewService {
                 courseResponseMapper.toSummaryInfo(
                         course.getCourse(),
                         courseReviewService.getAverageRating(course.getCourse()),
-                        course.getCourse().getRunningCount(),
                         courseBookmarkService.isBookmarked(member, course.getCourse()),
                         courseOptionService.getCourseOptions(course.getCourse()),
                         coursePointService.getCoursePoints(course.getCourse())
