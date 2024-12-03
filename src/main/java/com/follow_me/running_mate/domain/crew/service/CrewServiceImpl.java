@@ -15,9 +15,9 @@ import com.follow_me.running_mate.domain.crew.exception.CrewErrorCode;
 import com.follow_me.running_mate.domain.crew.mapper.CrewEntityMapper;
 import com.follow_me.running_mate.domain.crew.mapper.CrewResponseMapper;
 import com.follow_me.running_mate.domain.crew.repository.*;
-
 import com.follow_me.running_mate.domain.enums.*;
-
+import com.follow_me.running_mate.domain.enums.CrewMemberStatus;
+import com.follow_me.running_mate.domain.member.service.MemberService;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.YearMonth;
@@ -26,7 +26,6 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.follow_me.running_mate.domain.member.entity.Member;
-import com.follow_me.running_mate.domain.member.repository.MemberRepository;
 import com.follow_me.running_mate.global.common.service.S3ImageService;
 import com.follow_me.running_mate.global.error.exception.CustomException;
 import lombok.RequiredArgsConstructor;
@@ -48,12 +47,12 @@ public class CrewServiceImpl implements CrewService {
     private final CourseReviewService courseReviewService;
     private final CourseOptionService courseOptionService;
     private final CoursePointService coursePointService;
+    private final MemberService memberService;
     private final CrewScheduleRepository crewScheduleRepository;
     private final CrewScheduleApplyRepository crewScheduleApplyRepository;
     private final CrewEntityMapper crewEntityMapper;
     private final S3ImageService s3ImageService;
     private final CourseRepository courseRepository;
-    private final MemberRepository memberRepository;
     private final CrewImageRepository crewImageRepository;
     private final CourseBookmarkService courseBookmarkService;
 
@@ -281,7 +280,7 @@ public class CrewServiceImpl implements CrewService {
     @Transactional
     public void updateCrewMemberStatus(Member currentUser, Long crewId, Long memberId, CrewMemberStatus status) {
 
-        Member applyMember = memberRepository.getMember(memberId);
+        Member applyMember = memberService.getMember(memberId);
         Crew crew = crewRepository.getCrew(crewId);
         CrewMember crewMember = crewMemberRepository.findByCrewAndMember(crew, applyMember)
                 .orElseThrow(() -> new CustomException(CrewErrorCode.NO_APPLY_CREW));
@@ -402,35 +401,27 @@ public class CrewServiceImpl implements CrewService {
     @Override
     @Transactional
     public void attendSchedule(Member member, Long scheduleId, List<Long> memberIds) {
-        CrewSchedule crewSchedule = crewScheduleRepository.findById(scheduleId)
-                .orElseThrow(() -> new CustomException(CrewErrorCode.NOT_FOUND_SCHEDULE));
-        if (member.getId().equals(crewSchedule.getCrew().getLeader().getId())) {
-            throw new CustomException(CrewErrorCode.FORBIDDEN_ACCESS);
-        }
+        CrewSchedule crewSchedule = crewScheduleRepository.getCrewSchedule(scheduleId);
+        validateCrewLeader(member, crewSchedule.getCrew());
+
+        // 신청 목록 가져오기
         List<CrewScheduleApply> applyList = crewScheduleApplyRepository.findAllByCrewScheduleId(scheduleId);
 
-        for (CrewScheduleApply apply : applyList) {
-            Long existingMemberId = apply.getCrewMember().getMember().getId();
-            if (memberIds.contains(existingMemberId)) {
-                apply.setStatus(CrewScheduleApplyStatus.PARTICIPATE);
-            } else {
-                apply.setStatus(CrewScheduleApplyStatus.ABSENCE);
-            }
-        }
+        // 신청 상태 업데이트
+        applyList.forEach(apply -> updateApplyStatus(apply, memberIds));
     }
 
     @Override
     @Transactional
-    public void changeLeader(Member currentMember, Long newLeaderId) {
-        Crew crew = crewRepository.findByLeader(currentMember)
-                .orElseThrow(() -> new CustomException(CrewErrorCode.FORBIDDEN_ACCESS));
+    public void changeLeader(Member currentMember, Long crewId, Long newLeaderId) {
+        Crew crew = crewRepository.getCrew(crewId);
+        validateCrewLeader(currentMember, crew);
 
-        CrewMember crewMember = crewMemberRepository.findByMemberIdAndCrew(newLeaderId, crew)
-                .orElseThrow(() -> new CustomException(CrewErrorCode.NO_APPLY_CREW));
-        if (!crewMember.getStatus().equals(CrewMemberStatus.COMPLETE)) {
+        Member newLeader = memberService.getMember(newLeaderId);
+
+        if (!crewMemberRepository.existsByCrewAndMemberAndStatus(crew, newLeader, CrewMemberStatus.COMPLETE)) {
             throw new CustomException(CrewErrorCode.NO_APPLY_CREW);
         }
-        Member newLeader = memberRepository.getMember(newLeaderId);
 
         crew.setLeader(newLeader);
     }
@@ -440,12 +431,9 @@ public class CrewServiceImpl implements CrewService {
     public void cancelCrewApplication(Member member, Long crewId) {
         Crew crew = crewRepository.getCrew(crewId);
 
-        CrewMember crewMember = crewMemberRepository.findByCrewAndMember(crew, member)
+        CrewMember crewMember = crewMemberRepository.findByCrewAndMemberAndStatus(crew, member, CrewMemberStatus.READY)
                 .orElseThrow(() -> new CustomException(CrewErrorCode.NO_APPLY_CREW));
 
-        if (crew.getLeader().getId().equals(member.getId())) {
-            throw new CustomException(CrewErrorCode.CREW_LEADER);
-        }
         crewMember.delete();
     }
 
@@ -454,9 +442,7 @@ public class CrewServiceImpl implements CrewService {
     public void deleteCrew(Member member, Long crewId) {
         Crew crew = crewRepository.getCrew(crewId);
 
-        if (!crew.getLeader().getId().equals(member.getId())) {
-            throw new CustomException(CrewErrorCode.FORBIDDEN_ACCESS);
-        }
+        validateCrewLeader(member, crew);
 
         crewActivityTimeRepository.findAllByCrew(crew).forEach(CrewActivityTime::delete);
         crewCourseRepository.findAllByCrew(crew).forEach(CrewCourse::delete);
@@ -476,15 +462,10 @@ public class CrewServiceImpl implements CrewService {
     @Override
     @Transactional
     public void deleteCrewSchedule(Member member, Long scheduleId) {
-        CrewSchedule crewSchedule = crewScheduleRepository.findById(scheduleId)
-                .orElseThrow(() -> new CustomException(CrewErrorCode.NOT_FOUND_SCHEDULE));
-
-        if (!isUserLeaderOfCrew(member, crewSchedule.getCrew())) {
-            throw new CustomException(CrewErrorCode.FORBIDDEN_ACCESS);
-        }
+        CrewSchedule crewSchedule = crewScheduleRepository.getCrewSchedule(scheduleId);
+        validateCrewLeader(member, crewSchedule.getCrew());
 
         crewScheduleApplyRepository.findAllByCrewSchedule(crewSchedule).forEach(CrewScheduleApply::delete);
-
         crewSchedule.delete();
     }
 
@@ -505,23 +486,18 @@ public class CrewServiceImpl implements CrewService {
     @Transactional
     public void deleteFavoriteCourse(Member member, Long courseId, Long crewId) {
         Crew crew = crewRepository.getCrew(crewId);
-        if (!isUserLeaderOfCrew(member, crew)) {
-            throw new CustomException(CrewErrorCode.FORBIDDEN_ACCESS);
-        }
+        validateCrewLeader(member, crew);
 
         CrewCourse crewCourse = crewCourseRepository.findByCrewAndCourseId(crew, courseId)
                 .orElseThrow(() -> new CustomException(CrewErrorCode.NOT_FOUND_CREW_COURSE));
         crewCourse.delete();
     }
-
     @Override
     @Transactional(readOnly = true)
-    public boolean canMemberJoinCrew(Member currentUser, Long crewId) {
-
+    public CrewResponse.CheckJoinCrewResponse canMemberJoinCrew(Member currentUser, Long crewId) {
         Crew crew = crewRepository.getCrew(crewId);
-        // 3. 크루의 가입 조건을 확인
 
-        return crew.canJoin(currentUser);
+        return new CrewResponse.CheckJoinCrewResponse(crew.canJoin(currentUser));
     }
 
     @Override
@@ -566,7 +542,14 @@ public class CrewServiceImpl implements CrewService {
                 .url(url)
                 .orderNumber(index.getAndIncrement())
                 .build())
-            .map(crewImageRepository::save)
-            .toList();
+            .map(crewImageRepository::save);
+    }
+
+    private void updateApplyStatus(CrewScheduleApply apply, List<Long> memberIds) {
+        Long existingMemberId = apply.getCrewMember().getMember().getId();
+        CrewScheduleApplyStatus status = memberIds.contains(existingMemberId)
+            ? CrewScheduleApplyStatus.PARTICIPATE
+            : CrewScheduleApplyStatus.ABSENCE;
+        apply.setStatus(status);
     }
 }
