@@ -326,7 +326,7 @@ public class CrewController {
         return BaseResponse.success("크루 일정 출석체크가 완료되었습니다.", null);
     }
 
-    @PatchMapping("/leader/{memberId}")
+    @PatchMapping("/{crewId}/leader/{memberId}")
     @Operation(summary = "러닝 크루 리더 변경 API", description = "주어진 멤버 ID로 크루 리더를 변경합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "리더 변경 성공",
@@ -342,9 +342,10 @@ public class CrewController {
     })
     public BaseResponse<Void> changeLeader(
             @AuthenticationPrincipal PrincipalDetails principalDetails,
+            @PathVariable(value = "crewId") Long crewId,
             @PathVariable(value = "memberId") Long memberId
     ) {
-        crewService.changeLeader(principalDetails.member(), memberId);
+        crewService.changeLeader(principalDetails.member(), crewId, memberId);
         return BaseResponse.success("리더가 성공적으로 변경되었습니다.", null);
     }
 
@@ -427,17 +428,20 @@ public class CrewController {
         return BaseResponse.success("즐겨찾기가 성공적으로 삭제되었습니다.", null);
     }
 
-    @GetMapping("/{crewId}/canJoin")
+    @GetMapping("/{crewId}/check")
     @Operation(summary = "크루 가입 가능 여부 확인 API", description = "사용자의 랭킹을 기반으로 크루에 가입할 수 있는지 확인합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "크루 가입 가능 여부 확인 성공",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
     })
-    public BaseResponse<Boolean> canMemberJoinCrew(
+    public BaseResponse<CrewResponse.CheckJoinCrewResponse> canMemberJoinCrew(
             @AuthenticationPrincipal PrincipalDetails principalDetails,
             @PathVariable(value = "crewId") Long crewId
     ) {
-        return BaseResponse.success("크루 가입 가능 여부 확인 성공", crewService.canMemberJoinCrew(principalDetails.member(), crewId));
+        return BaseResponse.success(
+            "크루 가입 가능 여부 확인 성공",
+            crewService.canMemberJoinCrew(principalDetails.member(), crewId)
+        );
     }
 
     //TODO: 크루 탈퇴 api 만들기
