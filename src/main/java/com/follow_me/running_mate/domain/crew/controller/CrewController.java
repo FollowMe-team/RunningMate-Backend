@@ -45,6 +45,7 @@ public class CrewController {
         CrewResponse.MyCrewListResponse crewListResponse = crewService.getCrewsByMember(principalDetails.member());
         return BaseResponse.success("크루 조회에 성공했습니다.", crewListResponse); // 응답 객체 반환
     }
+
     @GetMapping("/search")
     @Operation(summary = "크루 검색 API", description = "크루를 검색합니다.")
     @ApiResponses(value = {
@@ -79,7 +80,7 @@ public class CrewController {
         return BaseResponse.success(
                 "크루 검색에 성공했습니다.",
                 crewService.searchCrews(
-                        principalDetails.member(), keyword, city, district, activityTimes , ranking
+                        principalDetails.member(), keyword, city, district, activityTimes, ranking
                 )
         );
     }
@@ -96,9 +97,10 @@ public class CrewController {
     ) {
         return BaseResponse.success(
                 "크루 상세 조회에 성공했습니다.",
-                crewService.getCrewDetail(principalDetails.member(),crewId)
+                crewService.getCrewDetail(principalDetails.member(), crewId)
         );
     }
+
     @GetMapping("/{crewId}/select")
     @Operation(summary = "크루 선택 조회 API", description = "선택한 크루의 상세 정보를 조회합니다.")
     @ApiResponses(value = {
@@ -112,7 +114,7 @@ public class CrewController {
     ) {
         return BaseResponse.success(
                 "크루 선택 조회에 성공했습니다.",
-                crewService.getCrewSelectDetail(principalDetails.member(),crewId)
+                crewService.getCrewSelectDetail(principalDetails.member(), crewId)
         );
     }
 
@@ -130,7 +132,7 @@ public class CrewController {
             @AuthenticationPrincipal PrincipalDetails principalDetails,
             @PathVariable(value = "crewId") Long crewId,
             @RequestParam(value = "yearMonth") YearMonth yearMonth) {
-        return BaseResponse.success("크루의 월간 스케줄 조회에 성공했습니다.", crewService.getCrewScheduleByDate(principalDetails.member(),crewId, yearMonth));
+        return BaseResponse.success("크루의 월간 스케줄 조회에 성공했습니다.", crewService.getCrewScheduleByDate(principalDetails.member(), crewId, yearMonth));
     }
 
     @GetMapping("/members/{scheduleId}")
@@ -214,7 +216,7 @@ public class CrewController {
         return BaseResponse.success("크루 멤버 상태가 성공적으로 업데이트되었습니다.", null);
     }
 
-    @PatchMapping( value = "/{crewId}/modify", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PatchMapping(value = "/{crewId}/modify", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "크루 수정 API", description = "크루장이 본인의 크루를 수정합니다.")
     @ApiResponse(responseCode = "200", description = "크루 수정 성공",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
@@ -226,8 +228,8 @@ public class CrewController {
     ) {
 
         return BaseResponse.success(
-            "크루 수정에 성공했습니다.",
-            crewService.updateCrew(principalDetails.member(), crewId, request, representativeImage)
+                "크루 수정에 성공했습니다.",
+                crewService.updateCrew(principalDetails.member(), crewId, request, representativeImage)
         );
     }
 
@@ -240,8 +242,8 @@ public class CrewController {
             @PathVariable(value = "crewId") Long crewId
     ) {
         return BaseResponse.success(
-            "즐겨찾기 코스를 성공적으로 조회했습니다.",
-            crewService.getFavoriteCourses(principalDetails.member(), crewId)
+                "즐겨찾기 코스를 성공적으로 조회했습니다.",
+                crewService.getFavoriteCourses(principalDetails.member(), crewId)
         );
     }
 
@@ -255,8 +257,8 @@ public class CrewController {
             @PathVariable(value = "courseId") Long courseId
     ) {
         return BaseResponse.success(
-            "코스가 즐겨찾기에 추가되었습니다.",
-            crewService.addFavoriteCourse(principalDetails.member(), crewId, courseId)
+                "코스가 즐겨찾기에 추가되었습니다.",
+                crewService.addFavoriteCourse(principalDetails.member(), crewId, courseId)
         );
     }
 
@@ -283,8 +285,8 @@ public class CrewController {
             @RequestBody @Valid CrewRequest.CreateSchedule request
     ) {
         return BaseResponse.success(
-            "일정이 성공적으로 수정되었습니다.",
-            crewService.updateSchedule(principalDetails.member(), scheduleId, request));
+                "일정이 성공적으로 수정되었습니다.",
+                crewService.updateSchedule(principalDetails.member(), scheduleId, request));
     }
 
     @PatchMapping("/schedule/{scheduleId}/cancel")
@@ -424,7 +426,7 @@ public class CrewController {
             @PathVariable(value = "crewId") Long crewId,
             @PathVariable(value = "courseId") Long courseId
     ) {
-        crewService.deleteFavoriteCourse(principalDetails.member(), courseId,crewId);
+        crewService.deleteFavoriteCourse(principalDetails.member(), courseId, crewId);
         return BaseResponse.success("즐겨찾기가 성공적으로 삭제되었습니다.", null);
     }
 
@@ -439,10 +441,29 @@ public class CrewController {
             @PathVariable(value = "crewId") Long crewId
     ) {
         return BaseResponse.success(
-            "크루 가입 가능 여부 확인 성공",
-            crewService.canMemberJoinCrew(principalDetails.member(), crewId)
+                "크루 가입 가능 여부 확인 성공",
+                crewService.canMemberJoinCrew(principalDetails.member(), crewId)
         );
     }
 
-    //TODO: 크루 탈퇴 api 만들기
+    @DeleteMapping("/{crewId}/leave")
+    @Operation(summary = "크루 탈퇴 API", description = "주어진 크루에서 탈퇴합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "탈퇴 성공",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+            @ApiResponse(responseCode = "CREW009", description = "해당 크루를 찾을 수 없음",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+            @ApiResponse(responseCode = "CREW004", description = "해당 사용자에게 권한이 없습니다.",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+            @ApiResponse(responseCode = "CREW007", description = "해당 크루에 가입하지 않은 사용자입니다.",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+            @ApiResponse(responseCode = "CREW013", description = "해당 크루의 크루장입니다. 크루장을 변경해주세요.",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
+    })
+    public BaseResponse<Void> leaveCrew(
+            @AuthenticationPrincipal PrincipalDetails principalDetails,
+            @PathVariable(value = "crewId") Long crewId) {
+        crewService.leaveCrew(principalDetails.member(),crewId);
+        return BaseResponse.success("크루를 성공적으로 탈퇴했습니다.", null);
+    }
 }

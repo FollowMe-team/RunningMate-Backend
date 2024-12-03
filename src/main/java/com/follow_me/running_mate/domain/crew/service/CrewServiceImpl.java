@@ -478,6 +478,18 @@ public class CrewServiceImpl implements CrewService {
         return crewResponseMapper.toCrewSelectResponse(crew,crewImages,isUserLeaderOfCrew(member,crew));
     }
 
+    @Transactional
+    @Override
+    public void leaveCrew(Member member, Long crewId) {
+        Crew crew = crewRepository.getCrew(crewId);
+        if (isUserLeaderOfCrew(member,crew)){
+            throw new CustomException(CrewErrorCode.CREW_LEADER);
+        }
+        CrewMember crewMember = crewMemberRepository.findByCrewAndMember(crew, member)
+                .orElseThrow(() -> new IllegalArgumentException("해당 크루에 가입되어 있지 않습니다."));
+        crewMemberRepository.delete(crewMember);
+    }
+
     private boolean isUserLeaderOfCrew(Member member, Crew crew) {
         return crew.getLeader().getId().equals(member.getId());
     }
@@ -542,7 +554,7 @@ public class CrewServiceImpl implements CrewService {
                 .url(url)
                 .orderNumber(index.getAndIncrement())
                 .build())
-            .map(crewImageRepository::save);
+            .map(crewImageRepository::save).toList();
     }
 
     private void updateApplyStatus(CrewScheduleApply apply, List<Long> memberIds) {
