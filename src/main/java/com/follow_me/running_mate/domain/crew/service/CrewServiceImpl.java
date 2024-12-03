@@ -16,7 +16,8 @@ import com.follow_me.running_mate.domain.crew.mapper.CrewEntityMapper;
 import com.follow_me.running_mate.domain.crew.mapper.CrewResponseMapper;
 import com.follow_me.running_mate.domain.crew.repository.*;
 
-import com.follow_me.running_mate.domain.enums.CrewMemberStatus;
+import com.follow_me.running_mate.domain.enums.*;
+
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.YearMonth;
@@ -24,9 +25,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.follow_me.running_mate.domain.enums.ActivityTimeType;
-import com.follow_me.running_mate.domain.enums.CrewScheduleApplyStatus;
-import com.follow_me.running_mate.domain.enums.Status;
 import com.follow_me.running_mate.domain.member.entity.Member;
 import com.follow_me.running_mate.domain.member.repository.MemberRepository;
 import com.follow_me.running_mate.global.common.service.S3ImageService;
@@ -69,12 +67,39 @@ public class CrewServiceImpl implements CrewService {
     public CrewResponse.MyCrewListResponse getCrewsByMember(Member member) {
         List<Crew> myCrews = crewMemberRepository.findCrewsByMemberAndStatus(member, CrewMemberStatus.COMPLETE);
         List<Long> sumFootprint = crewMemberRepository.sumFootprintByCrewsAndStatus(myCrews,CrewMemberStatus.COMPLETE);
-        List<Crew> recommendedCrews = crewRepository.findTop4ByIdNotInOrderByCreatedAtDesc(myCrews);
-        List<Long> recommendSumFootprint = crewMemberRepository.sumFootprintByCrewsAndStatus(recommendedCrews,CrewMemberStatus.COMPLETE);
         //TODO: 분리하자
-        return new CrewResponse.MyCrewListResponse(crewResponseMapper.toCrewInfoResponse(myCrews,sumFootprint),
-                crewResponseMapper.toCrewInfoResponse(recommendedCrews,recommendSumFootprint));
+        return new CrewResponse.MyCrewListResponse(crewResponseMapper.toCrewInfoResponse(myCrews,sumFootprint));
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public CrewResponse.recommendedCrewListResponse searchCrews(
+            Member member, String keyword, String city,
+            String district, List<ActivityTimeType> activityTimes , Ranking ranking
+            ) {
+        List<Crew> myCrewMembers = crewMemberRepository.findCrewsByMemberAndStatus(member, CrewMemberStatus.COMPLETE);
+        List<Crew> searchCrews;
+        List<Long> searchSumFootprint;
+        if (keyword == null && city == null && district == null && (activityTimes == null || activityTimes.isEmpty())) {
+            // 추천 크루 가져오기
+            List<Crew> recommendedCrews = crewRepository.findTop4ByIdNotInOrderByCreatedAtDesc(myCrewMembers);
+            searchCrews = recommendedCrews;
+            searchSumFootprint = crewMemberRepository.sumFootprintByCrewsAndStatus(recommendedCrews, CrewMemberStatus.COMPLETE);
+        }
+        else {
+            // 검색 옵션이 있는 경우
+            List<String> activityTimeList = activityTimes.stream()
+                    .map(ActivityTimeType::name)
+                    .toList();
+            String rank = ranking.name();
+
+            searchCrews = crewRepository.searchCrews(keyword, city, district, activityTimeList , rank);
+            searchSumFootprint = crewMemberRepository.sumFootprintByCrewsAndStatus(searchCrews, CrewMemberStatus.COMPLETE);
+        }
+        return new CrewResponse.recommendedCrewListResponse(crewResponseMapper.toCrewInfoResponse(searchCrews,searchSumFootprint));
+    }
+
+
 
     @Override
     @Transactional
@@ -487,26 +512,6 @@ public class CrewServiceImpl implements CrewService {
         CrewCourse crewCourse = crewCourseRepository.findByCrewAndCourseId(crew, courseId)
                 .orElseThrow(() -> new CustomException(CrewErrorCode.NOT_FOUND_CREW_COURSE));
         crewCourse.delete();
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public CrewResponse.MyCrewListResponse searchCrews(
-            Member member, String keyword, String city,
-            String district, List<ActivityTimeType> activityTimes
-    ) {
-        List<Crew> myCrewMembers = crewMemberRepository.findCrewsByMemberAndStatus(member, CrewMemberStatus.COMPLETE);
-        List<String> activityTimeList = (activityTimes != null) ? activityTimes.stream()
-                .map(ActivityTimeType::name)
-                .toList() : List.of();
-
-        List<Crew> searchCrews = crewRepository.searchCrews(
-                keyword, city, district, activityTimeList
-        );
-        List<Long> sumFootprint = crewMemberRepository.sumFootprintByCrewsAndStatus(myCrewMembers,CrewMemberStatus.COMPLETE);
-        List<Long> searchSumFootprint = crewMemberRepository.sumFootprintByCrewsAndStatus(searchCrews,CrewMemberStatus.COMPLETE);
-        return new CrewResponse.MyCrewListResponse(crewResponseMapper.toCrewInfoResponse(myCrewMembers,sumFootprint),
-                crewResponseMapper.toCrewInfoResponse(searchCrews,searchSumFootprint));
     }
 
     @Override

@@ -6,6 +6,7 @@ import com.follow_me.running_mate.domain.crew.dto.response.CrewResponse;
 import com.follow_me.running_mate.domain.crew.service.CrewService;
 import com.follow_me.running_mate.domain.enums.ActivityTimeType;
 import com.follow_me.running_mate.domain.enums.CrewMemberStatus;
+import com.follow_me.running_mate.domain.enums.Ranking;
 import com.follow_me.running_mate.global.common.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -43,6 +44,44 @@ public class CrewController {
     public BaseResponse<CrewResponse.MyCrewListResponse> getMyCrews(@AuthenticationPrincipal PrincipalDetails principalDetails) {
         CrewResponse.MyCrewListResponse crewListResponse = crewService.getCrewsByMember(principalDetails.member());
         return BaseResponse.success("크루 조회에 성공했습니다.", crewListResponse); // 응답 객체 반환
+    }
+    @GetMapping("/search")
+    @Operation(summary = "크루 검색 API", description = "크루를 검색합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "크루 검색에 성공했습니다.",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+    })
+    public BaseResponse<CrewResponse.recommendedCrewListResponse> searchCrews(
+            @AuthenticationPrincipal PrincipalDetails principalDetails,
+            @Parameter(description = "검색어")
+            @RequestParam(value = "keyword", required = false) String keyword,
+
+            @Parameter(description = "도시")
+            @RequestParam(value = "city", required = false) String city,
+
+            @Parameter(description = "rank",
+                    example = "JOGGER, RUNNER, RACER, SPRINTER, MARATHONER, ULTRA_RUNNER, IRON_LEGS, SPEED_DEMON",
+                    schema = @Schema(implementation = String.class,
+                            allowableValues = {
+                                    "JOGGER", "RUNNER", "RACER", "SPRINTER", "MARATHONER",
+                                    "ULTRA_RUNNER", "IRON_LEGS", "SPEED_DEMON"}))
+            @RequestParam(value = "ranking", required = false) Ranking ranking,
+
+            @Parameter(description = "구역")
+            @RequestParam(value = "district", required = false) String district,
+
+            @Parameter(description = "활동 시간", example = "MONDAY,SATURDAY",
+                    schema = @Schema(implementation = String.class, allowableValues =
+                            {"MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY",
+                                    "SUNDAY", "HOLIDAY", "WEEKDAY", "WEEKEND", "EVERYDAY"}))
+            @RequestParam(value = "activityTimes", required = false) List<ActivityTimeType> activityTimes
+    ) {
+        return BaseResponse.success(
+                "크루 검색에 성공했습니다.",
+                crewService.searchCrews(
+                        principalDetails.member(), keyword, city, district, activityTimes , ranking
+                )
+        );
     }
 
     @GetMapping("/{crewId}/detail")
@@ -387,36 +426,7 @@ public class CrewController {
         crewService.deleteFavoriteCourse(principalDetails.member(), courseId,crewId);
         return BaseResponse.success("즐겨찾기가 성공적으로 삭제되었습니다.", null);
     }
-    @GetMapping("/search")
-    @Operation(summary = "크루 검색 API", description = "크루를 검색합니다.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "크루 검색에 성공했습니다.",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
-    })
-    public BaseResponse<CrewResponse.MyCrewListResponse> searchCrews(
-            @AuthenticationPrincipal PrincipalDetails principalDetails,
-            @Parameter(description = "검색어")
-            @RequestParam(value = "keyword", required = false) String keyword,
 
-            @Parameter(description = "도시")
-            @RequestParam(value = "city", required = false) String city,
-
-            @Parameter(description = "구역")
-            @RequestParam(value = "district", required = false) String district,
-
-            @Parameter(description = "활동 시간", example = "MONDAY,SATURDAY",
-                    schema = @Schema(implementation = String.class, allowableValues =
-                            {"MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY",
-                                    "SUNDAY", "HOLIDAY", "WEEKDAY", "WEEKEND", "EVERYDAY"}))
-            @RequestParam(value = "activityTimes", required = false) List<ActivityTimeType> activityTimes
-    ) {
-        return BaseResponse.success(
-                "크루 검색에 성공했습니다.",
-                crewService.searchCrews(
-                        principalDetails.member(), keyword, city, district, activityTimes
-                )
-        );
-    }
     @GetMapping("/{crewId}/canJoin")
     @Operation(summary = "크루 가입 가능 여부 확인 API", description = "사용자의 랭킹을 기반으로 크루에 가입할 수 있는지 확인합니다.")
     @ApiResponses(value = {

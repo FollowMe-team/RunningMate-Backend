@@ -74,6 +74,12 @@ public class CrewResponse {
     @AllArgsConstructor
     public static class MyCrewListResponse {
         List<MyCrewResponse> myCrews;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    public static class recommendedCrewListResponse {
         List<MyCrewResponse> recommendedCrews;
     }
     @Getter

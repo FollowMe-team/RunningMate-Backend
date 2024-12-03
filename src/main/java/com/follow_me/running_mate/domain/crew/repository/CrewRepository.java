@@ -27,12 +27,14 @@ public interface CrewRepository extends JpaRepository<Crew,Long> {
             "WHERE (:keyword IS NULL OR c.name ILIKE CONCAT('%', :keyword, '%')) " +
             "AND (:city IS NULL OR l.city ILIKE CONCAT('%', :city, '%')) " +
             "AND (:district IS NULL OR l.district ILIKE CONCAT('%', :district, '%')) " +
-            "AND (:activityTimes IS NULL OR a.type IN (:activityTimes))",
+            "AND (:activityTimes IS NULL OR a.type IN (:activityTimes))"+
+            "AND (:ranking IS NULL OR c.ranking = :ranking)",
             nativeQuery = true)
     List<Crew> searchCrews(
             @Param("keyword") String keyword,
             @Param("city") String city,
             @Param("district") String district,
-            @Param("activityTimes") List<String> activityTimes);
+            @Param("activityTimes") List<String> activityTimes,
+            @Param("ranking") String ranking);
 
 }
