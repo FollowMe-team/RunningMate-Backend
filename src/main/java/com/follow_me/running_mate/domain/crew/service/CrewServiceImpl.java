@@ -250,15 +250,13 @@ public class CrewServiceImpl implements CrewService {
         // 일정 존재 여부 확인
         CrewSchedule crewSchedule = crewScheduleRepository.findById(scheduleId)
                 .orElseThrow(() -> new CustomException(CrewErrorCode.NOT_FOUND));
-
-        // 크루에 이미 가입된 멤버인지 확인
-        CrewMember crewMember = crewMemberRepository.findByCrewAndMember(crewSchedule.getCrew(), member)
-                .orElseThrow(() -> new CustomException(CrewErrorCode.FORBIDDEN_ACCESS));
-
-        if (!crewMember.getStatus().equals(CrewMemberStatus.COMPLETE)) {
-            throw new CustomException(CrewErrorCode.FORBIDDEN_ACCESS);
+        // 현재 시간과 비교하여 일정 시간이 지난 경우 예외 처리
+        if (crewSchedule.getStartTime().isBefore(LocalDateTime.now())) {
+            throw new CustomException(CrewErrorCode.SCHEDULE_PAST);
         }
-
+        // 크루에 이미 가입된 멤버인지 확인
+        CrewMember crewMember = crewMemberRepository.findByCrewAndMemberAndStatus(crewSchedule.getCrew(), member,CrewMemberStatus.COMPLETE)
+                .orElseThrow(() -> new CustomException(CrewErrorCode.FORBIDDEN_ACCESS));
         // 일정 최대 인원 초과 여부 확인
         if (crewSchedule.getMemberCount() >= crewSchedule.getMemberMax()) {
             throw new CustomException(CrewErrorCode.SCHEDULE_FULL);

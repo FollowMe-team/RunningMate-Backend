@@ -192,9 +192,17 @@ public class CrewController {
     }
 
     @PostMapping("/apply/{scheduleId}")
-    @Operation(summary = "크루 일정 참여 신청 API", description = "특정 크루 일정에 참여 신청을 합니다.")
-    @ApiResponse(responseCode = "200", description = "참여 신청 성공",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
+    @Operation(summary = "크루 일정 참여 신청 API", description = "크루 일정에 참여 신청을 합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "참여 신청 성공",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+            @ApiResponse(responseCode = "CREW009", description = "해당 스케줄을 찾을 수 없음",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+            @ApiResponse(responseCode = "CREW004", description = "해당 사용자에게 권한이 없습니다.",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+            @ApiResponse(responseCode = "CREW017", description = "해당 일정은 신청 기간이 끝난 일정입니다.",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
+    })
     public BaseResponse<CrewResponse.CrewScheduleApplyIdResponse> applyToSchedule(
             @AuthenticationPrincipal PrincipalDetails principalDetails,
             @PathVariable(value = "scheduleId") Long scheduleId
