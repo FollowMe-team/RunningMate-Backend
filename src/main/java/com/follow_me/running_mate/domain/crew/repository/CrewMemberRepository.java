@@ -18,9 +18,12 @@ public interface CrewMemberRepository extends JpaRepository<CrewMember, Long> {
     @Query("SELECT SUM(cm.member.footprint) FROM CrewMember cm WHERE cm.crew IN :crews AND cm.status = :status GROUP BY cm.crew")
     List<Long> sumFootprintByCrewsAndStatus(@Param("crews") List<Crew> crews, @Param("status") CrewMemberStatus status);
 
+    Optional<CrewMember> findByCrewAndMemberAndStatus(Crew crew, Member member , CrewMemberStatus status);
     Optional<CrewMember> findByCrewAndMember(Crew crew, Member member);
 
     Optional<CrewMember> findByMemberIdAndCrew(Long newLeaderId,Crew crew);
+
+    boolean existsByCrewAndMemberAndStatus(Crew crew, Member member , CrewMemberStatus status);
 
     List<CrewMember> findAllByCrew(Crew crew);
 }

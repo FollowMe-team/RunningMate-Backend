@@ -37,7 +37,7 @@ public interface CrewService {
     CrewResponse.CrewScheduleIdResponse updateSchedule(Member member, Long scheduleId, CrewRequest.CreateSchedule request);
     void cancelScheduleApply(Member member, Long scheduleId);
     void attendSchedule(Member member, Long scheduleId, List<Long> memberIds);
-    void changeLeader(Member currentMember, Long newLeaderId);
+    void changeLeader(Member currentMember, Long crewId, Long newLeaderId);
     void cancelCrewApplication(Member member, Long crewId);
     void deleteCrew(Member member, Long crewId);
     void deleteCrewSchedule(Member member, Long scheduleId);
@@ -46,6 +46,6 @@ public interface CrewService {
             Member member, String keyword, String city,
             String district, List<ActivityTimeType> activityTimes , Ranking ranking
     );
-    boolean canMemberJoinCrew(Member currentUser,Long crewId);
+    CrewResponse.CheckJoinCrewResponse canMemberJoinCrew(Member currentUser, Long crewId);
     CrewResponse.CrewSelectResponse getCrewSelectDetail(Member member, Long crewId);
 }

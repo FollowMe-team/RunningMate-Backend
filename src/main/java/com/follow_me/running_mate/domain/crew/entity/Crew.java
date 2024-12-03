@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.SQLRestriction;
 
 @Getter
@@ -24,6 +25,7 @@ public class Crew extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Setter
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn
     private Member leader;
@@ -63,10 +65,6 @@ public class Crew extends BaseEntity {
         this.detailDescription = request.getDetailDescription();
         this.openChatUrl = request.getOpenChatUrl();
         this.ranking = request.getRanking();
-    }
-
-    public void setLeader(Member newLeader) {
-        this.leader = newLeader;
     }
 
     public boolean canJoin(Member member) {
