@@ -301,7 +301,7 @@ public class MemberController {
         return BaseResponse.success("발자국 남기기에 성공했습니다.", null);
     }
 
-    @GetMapping("/footprint/{memberId}")
+    @GetMapping( value = {"/footprint/{memberId}", "/footprint"})
     @Operation(summary = "발자국 조회 API", description = "특정 사용자에게 남긴 발자국을 조회합니다.(memberId가 없을 시 자신의 발자국 조회)")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "발자국 조회에 성공했습니다.",
