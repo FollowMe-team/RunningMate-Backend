@@ -73,7 +73,7 @@ public class Crew extends BaseEntity {
         return memberRank >= requiredRank;
     }
 
-    private int getRankingValue(Ranking ranking) {
+    public int getRankingValue(Ranking ranking) {
         return switch (ranking) {
             case JOGGER -> 1;            // 조깅러
             case RUNNER -> 2;           // 러너

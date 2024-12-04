@@ -28,6 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.YearMonth;
@@ -35,6 +36,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -87,27 +89,37 @@ public class CrewServiceImpl implements CrewService {
 
         List<Crew> searchCrews;
         List<Long> searchSumFootprint;
-        if (keyword == null && city == null && district == null && (activityTimes == null || activityTimes.isEmpty())) {
+        if (keyword == null && city == null && district == null && (activityTimes == null || activityTimes.isEmpty()) && ranking == null) {
             // 추천 크루 가져오기
-            List<Crew> recommendedCrews = crewRepository.findTop4ByIdNotInOrderByCreatedAtDesc(myCrewMembers);
-            searchCrews = recommendedCrews;
-            searchSumFootprint = crewMemberRepository.sumFootprintByCrewsAndStatus(recommendedCrews, CrewMemberStatus.COMPLETE);
+            searchCrews = crewRepository.findTop4ByIdNotInOrderByCreatedAtDesc(myCrewMembers);
         } else {
             List<String> activityTimeList = (activityTimes == null || activityTimes.isEmpty())
                     ? List.of()
                     : activityTimes.stream()
                     .map(ActivityTimeType::name)
                     .toList();
-            String rank = (ranking != null) ? ranking.name() : null;
-
-            searchCrews = crewRepository.searchCrews(keyword, city, district, activityTimeList, rank,myCrewIds);
-            searchSumFootprint = crewMemberRepository.sumFootprintByCrewsAndStatus(searchCrews, CrewMemberStatus.COMPLETE);
+            searchCrews = crewRepository.searchCrews(keyword, city, district, activityTimeList,myCrewIds);
+            searchCrews = searchCrews.stream()
+                    .filter(crew -> {
+                        if (ranking == null) {
+                            return true;
+                        }
+                        return crew.getRankingValue(crew.getRanking()) >= crew.getRankingValue(ranking);
+                    })
+                    .collect(Collectors.toList());
+            if(searchCrews.isEmpty()){
+                return new CrewResponse.recommendedCrewListResponse(List.of());
+            }
         }
         if ("RECENT".equalsIgnoreCase(sortType)) {
             searchCrews.sort(Comparator.comparing(Crew::getCreatedAt).reversed()); // 최신순
         } else if ("OLDEST".equalsIgnoreCase(sortType)) {
             searchCrews.sort(Comparator.comparing(Crew::getCreatedAt)); // 오래된 순
         }
+        searchSumFootprint = searchCrews.stream()
+                .map(crews -> crewMemberRepository.sumFootprintByCrewAndStatus(crews, CrewMemberStatus.COMPLETE))
+                .toList();
+
         return new CrewResponse.recommendedCrewListResponse(crewResponseMapper.toCrewInfoResponse(searchCrews, searchSumFootprint));
     }
 

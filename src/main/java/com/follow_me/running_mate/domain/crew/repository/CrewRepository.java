@@ -28,7 +28,6 @@ public interface CrewRepository extends JpaRepository<Crew,Long> {
             "AND (:city IS NULL OR l.city ILIKE CONCAT('%', :city, '%')) " +
             "AND (:district IS NULL OR l.district ILIKE CONCAT('%', :district, '%')) " +
             "AND (:activityTimes IS NULL OR a.type IN (:activityTimes))"+
-            "AND (:ranking IS NULL OR c.ranking = :ranking)"+
             "AND (:myCrewIds IS NULL OR c.id NOT IN (:myCrewIds))",
             nativeQuery = true)
     List<Crew> searchCrews(
@@ -36,7 +35,6 @@ public interface CrewRepository extends JpaRepository<Crew,Long> {
             @Param("city") String city,
             @Param("district") String district,
             @Param("activityTimes") List<String> activityTimes,
-            @Param("ranking") String ranking,
             @Param("myCrewIds") List<Long> myCrewIds);
 
 }
