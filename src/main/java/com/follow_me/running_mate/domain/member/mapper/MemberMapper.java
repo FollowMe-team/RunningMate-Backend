@@ -142,7 +142,7 @@ public class MemberMapper {
     }
 
     public MemberResponse.OtherProfileResponse toOtherProfileResponse(
-        Member member, Double runningDistance, Long runningCount, Boolean isSameCrew
+        Member member, Double runningDistance, Long runningCount, Boolean isFollowing
     ) {
         return MemberResponse.OtherProfileResponse.builder()
             .profileImageUrl(member.getProfileImageUrl())
@@ -154,7 +154,7 @@ public class MemberMapper {
             .runningDistance(runningDistance)
             .runningCount(runningCount)
             .footPrint(member.getFootprint())
-            .isSameCrew(isSameCrew)
+            .isFollowing(isFollowing)
             .build();
     }
 

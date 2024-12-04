@@ -17,12 +17,7 @@ public interface MemberFollowRepository extends JpaRepository<MemberFollow, Long
     @Query("SELECT f.follower FROM MemberFollow f WHERE f.following = :following AND f.isActive = true")
     List<Member> findFollowerByFollowing(Member following);
 
-    @Query("SELECT CASE WHEN COUNT(f) > 0 THEN true ELSE false END " +
-        "FROM MemberFollow f " +
-        "WHERE f.follower.id = :followerId AND f.following.id = :followingId AND f.isActive = true"
-    )
-    boolean existsActiveFollowByFollowerIdAndFollowedId(
-        @Param("followerId") Long followerId, @Param("followingId") Long followingId
-    );
+    Boolean existsByFollowerAndFollowingAndIsActiveTrue(Member follower, Member following);
+
     Optional<MemberFollow> findByFollowerAndFollowing(Member follower, Member following);
 }

@@ -206,13 +206,11 @@ public class MemberServiceImpl implements MemberService {
 
         List<CourseRecord> recordsByMember = courseRecordService.getRecordsByMember(otherMember);
 
-        // TODO: 같은 크루 소속 여부 체크
-
         return memberMapper.toOtherProfileResponse(
             otherMember,
             calculateTotalDistance(recordsByMember),
             (long) recordsByMember.size(),
-            false
+            memberFollowRepository.existsByFollowerAndFollowingAndIsActiveTrue(member, otherMember)
         );
     }
 
