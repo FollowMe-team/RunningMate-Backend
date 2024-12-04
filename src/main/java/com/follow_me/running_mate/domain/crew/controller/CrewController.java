@@ -75,12 +75,16 @@ public class CrewController {
                     schema = @Schema(implementation = String.class, allowableValues =
                             {"MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY",
                                     "SUNDAY", "HOLIDAY", "WEEKDAY", "WEEKEND", "EVERYDAY"}))
-            @RequestParam(value = "activityTimes", required = false) List<ActivityTimeType> activityTimes
+            @RequestParam(value = "activityTimes", required = false) List<ActivityTimeType> activityTimes,
+
+            @Parameter(description = "정렬 기준", example = "RECENT",
+                    schema = @Schema(implementation = String.class, allowableValues = {"RECENT", "OLDEST"}))
+            @RequestParam(value = "orderBy", required = false, defaultValue = "RECENT") String orderBy
     ) {
         return BaseResponse.success(
                 "크루 검색에 성공했습니다.",
                 crewService.searchCrews(
-                        principalDetails.member(), keyword, city, district, activityTimes, ranking
+                        principalDetails.member(), keyword, city, district, activityTimes, ranking , orderBy
                 )
         );
     }
@@ -471,7 +475,7 @@ public class CrewController {
     public BaseResponse<Void> leaveCrew(
             @AuthenticationPrincipal PrincipalDetails principalDetails,
             @PathVariable(value = "crewId") Long crewId) {
-        crewService.leaveCrew(principalDetails.member(),crewId);
+        crewService.leaveCrew(principalDetails.member(), crewId);
         return BaseResponse.success("크루를 성공적으로 탈퇴했습니다.", null);
     }
 }

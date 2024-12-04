@@ -7,7 +7,6 @@ import com.follow_me.running_mate.domain.member.dto.response.MemberResponse;
 import com.follow_me.running_mate.domain.member.service.MemberService;
 import com.follow_me.running_mate.global.common.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

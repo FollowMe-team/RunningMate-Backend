@@ -44,8 +44,7 @@ public interface CrewService {
     void deleteFavoriteCourse(Member member, Long courseId,Long crewId);
     CrewResponse.recommendedCrewListResponse searchCrews(
             Member member, String keyword, String city,
-            String district, List<ActivityTimeType> activityTimes , Ranking ranking
-    );
+            String district, List<ActivityTimeType> activityTimes , Ranking ranking , String sortType);
     CrewResponse.CheckJoinCrewResponse canMemberJoinCrew(Member currentUser, Long crewId);
     CrewResponse.CrewSelectResponse getCrewSelectDetail(Member member, Long crewId);
     void leaveCrew(Member member, Long crewId);

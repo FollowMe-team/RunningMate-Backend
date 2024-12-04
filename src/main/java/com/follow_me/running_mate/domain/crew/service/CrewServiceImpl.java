@@ -15,23 +15,26 @@ import com.follow_me.running_mate.domain.crew.exception.CrewErrorCode;
 import com.follow_me.running_mate.domain.crew.mapper.CrewEntityMapper;
 import com.follow_me.running_mate.domain.crew.mapper.CrewResponseMapper;
 import com.follow_me.running_mate.domain.crew.repository.*;
-import com.follow_me.running_mate.domain.enums.*;
+import com.follow_me.running_mate.domain.enums.ActivityTimeType;
 import com.follow_me.running_mate.domain.enums.CrewMemberStatus;
-import com.follow_me.running_mate.domain.member.service.MemberService;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.YearMonth;
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
-
+import com.follow_me.running_mate.domain.enums.CrewScheduleApplyStatus;
+import com.follow_me.running_mate.domain.enums.Ranking;
 import com.follow_me.running_mate.domain.member.entity.Member;
+import com.follow_me.running_mate.domain.member.service.MemberService;
 import com.follow_me.running_mate.global.common.service.S3ImageService;
 import com.follow_me.running_mate.global.error.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.YearMonth;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 @RequiredArgsConstructor
@@ -65,18 +68,23 @@ public class CrewServiceImpl implements CrewService {
     @Transactional
     public CrewResponse.MyCrewListResponse getCrewsByMember(Member member) {
         List<Crew> myCrews = crewMemberRepository.findCrewsByMemberAndStatus(member, CrewMemberStatus.COMPLETE);
-        List<Long> sumFootprint = crewMemberRepository.sumFootprintByCrewsAndStatus(myCrews,CrewMemberStatus.COMPLETE);
+        List<Long> sumFootprint = crewMemberRepository.sumFootprintByCrewsAndStatus(myCrews, CrewMemberStatus.COMPLETE);
         //TODO: 분리하자
-        return new CrewResponse.MyCrewListResponse(crewResponseMapper.toCrewInfoResponse(myCrews,sumFootprint));
+        return new CrewResponse.MyCrewListResponse(crewResponseMapper.toCrewInfoResponse(myCrews, sumFootprint));
     }
 
     @Override
     @Transactional(readOnly = true)
     public CrewResponse.recommendedCrewListResponse searchCrews(
             Member member, String keyword, String city,
-            String district, List<ActivityTimeType> activityTimes , Ranking ranking
-            ) {
+            String district, List<ActivityTimeType> activityTimes, Ranking ranking, String sortType
+    ) {
         List<Crew> myCrewMembers = crewMemberRepository.findCrewsByMemberAndStatus(member, CrewMemberStatus.COMPLETE);
+        List<Long> myCrewIds = (myCrewMembers == null || myCrewMembers.isEmpty()) ? List.of()
+                : myCrewMembers.stream()
+                .map(Crew::getId)
+                .toList();
+
         List<Crew> searchCrews;
         List<Long> searchSumFootprint;
         if (keyword == null && city == null && district == null && (activityTimes == null || activityTimes.isEmpty())) {
@@ -84,32 +92,36 @@ public class CrewServiceImpl implements CrewService {
             List<Crew> recommendedCrews = crewRepository.findTop4ByIdNotInOrderByCreatedAtDesc(myCrewMembers);
             searchCrews = recommendedCrews;
             searchSumFootprint = crewMemberRepository.sumFootprintByCrewsAndStatus(recommendedCrews, CrewMemberStatus.COMPLETE);
-        }
-        else {
-            // 검색 옵션이 있는 경우
-            List<String> activityTimeList = activityTimes.stream()
+        } else {
+            List<String> activityTimeList = (activityTimes == null || activityTimes.isEmpty())
+                    ? List.of()
+                    : activityTimes.stream()
                     .map(ActivityTimeType::name)
                     .toList();
-            String rank = ranking.name();
+            String rank = (ranking != null) ? ranking.name() : null;
 
-            searchCrews = crewRepository.searchCrews(keyword, city, district, activityTimeList , rank);
+            searchCrews = crewRepository.searchCrews(keyword, city, district, activityTimeList, rank,myCrewIds);
             searchSumFootprint = crewMemberRepository.sumFootprintByCrewsAndStatus(searchCrews, CrewMemberStatus.COMPLETE);
         }
-        return new CrewResponse.recommendedCrewListResponse(crewResponseMapper.toCrewInfoResponse(searchCrews,searchSumFootprint));
+        if ("RECENT".equalsIgnoreCase(sortType)) {
+            searchCrews.sort(Comparator.comparing(Crew::getCreatedAt).reversed()); // 최신순
+        } else if ("OLDEST".equalsIgnoreCase(sortType)) {
+            searchCrews.sort(Comparator.comparing(Crew::getCreatedAt)); // 오래된 순
+        }
+        return new CrewResponse.recommendedCrewListResponse(crewResponseMapper.toCrewInfoResponse(searchCrews, searchSumFootprint));
     }
-
 
 
     @Override
     @Transactional
-    public CrewResponse.CrewDetailResponse getCrewDetail(Member member ,Long crewId) {
+    public CrewResponse.CrewDetailResponse getCrewDetail(Member member, Long crewId) {
         Crew crew = crewRepository.getCrew(crewId);
 
         return crewResponseMapper.toCrewDetailInfo(
                 crew,
                 getCrewActivityTime(crew),
                 getCrewLocationInfo(crew),
-                this.getCrewCourses(member,crew)
+                this.getCrewCourses(member, crew)
         );
     }
 
@@ -124,7 +136,8 @@ public class CrewServiceImpl implements CrewService {
         //같은 시간대인 요일은 묶고, 그리고 월,화,수 순으로 정렬되도록 보내줘야할 거 같은데
         //디자인처럼
     }
-    private CourseResponse.CourseListResponse getCrewCourses(Member member , Crew crew) {
+
+    private CourseResponse.CourseListResponse getCrewCourses(Member member, Crew crew) {
 
         List<Course> myCourses = crewCourseRepository.findTop3CoursesByCrewOrderByCreatedAtDesc(crew);
 
@@ -152,7 +165,7 @@ public class CrewServiceImpl implements CrewService {
         List<CrewResponse.CrewScheduleInfo> scheduleInfos = crewSchedules.stream().map(schedule ->
                 crewResponseMapper.toCrewScheduleInfo(
                         schedule,
-                        getCrewScheduleCourses(member,schedule.getCourse())
+                        getCrewScheduleCourses(member, schedule.getCourse())
                 )).toList();
 
         return CrewResponse.CrewScheduleListResponse.builder()
@@ -161,7 +174,8 @@ public class CrewServiceImpl implements CrewService {
                 .crewSchedule(scheduleInfos)
                 .build();
     }
-    private CourseResponse.SummaryInfo getCrewScheduleCourses(Member member,Course course) {
+
+    private CourseResponse.SummaryInfo getCrewScheduleCourses(Member member, Course course) {
         return courseResponseMapper.toSummaryInfo(
                 course,
                 courseReviewService.getAverageRating(course),
@@ -190,7 +204,7 @@ public class CrewServiceImpl implements CrewService {
         String imageUrl = (representativeImage != null) ? s3ImageService.upload(representativeImage) : null;
         crew = crewEntityMapper.toCrew(leader, request, imageUrl);
         Crew savedCrew = crewRepository.save(crew);
-        crewLocationRepository.save(crewEntityMapper.toCrewLocation(savedCrew,request));
+        crewLocationRepository.save(crewEntityMapper.toCrewLocation(savedCrew, request));
         crewMemberRepository.save(CrewMember.builder()
                 .crew(savedCrew)
                 .status(CrewMemberStatus.COMPLETE)
@@ -213,9 +227,8 @@ public class CrewServiceImpl implements CrewService {
         Optional<CrewMember> crewMember = crewMemberRepository.findByCrewAndMember(crew, member);
         if (crewMember.isEmpty()) {
             crewMemberRepository.save(crewEntityMapper.toCrewMember(crew, member));
-        }
-        else if(crewMember.get().getStatus() == CrewMemberStatus.REJECT) {
-           crewMember.get().updateStatus(CrewMemberStatus.READY);
+        } else if (crewMember.get().getStatus() == CrewMemberStatus.REJECT) {
+            crewMember.get().updateStatus(CrewMemberStatus.READY);
         }
         throw new CustomException(CrewErrorCode.CREW_APPLY_REJECT);
     }
@@ -228,7 +241,7 @@ public class CrewServiceImpl implements CrewService {
 
         // 코스 존재 여부 확인
         Course course = courseRepository.getCourse(request.getCourseId());
-        if(crewCourseRepository.existsByCrewAndCourse(crew, course)){
+        if (crewCourseRepository.existsByCrewAndCourse(crew, course)) {
             throw new CustomException(CrewErrorCode.NOT_FOUND_CREW_COURSE);
         }
         if (!crew.getLeader().getId().equals(member.getId())) {
@@ -255,7 +268,7 @@ public class CrewServiceImpl implements CrewService {
             throw new CustomException(CrewErrorCode.SCHEDULE_PAST);
         }
         // 크루에 이미 가입된 멤버인지 확인
-        CrewMember crewMember = crewMemberRepository.findByCrewAndMemberAndStatus(crewSchedule.getCrew(), member,CrewMemberStatus.COMPLETE)
+        CrewMember crewMember = crewMemberRepository.findByCrewAndMemberAndStatus(crewSchedule.getCrew(), member, CrewMemberStatus.COMPLETE)
                 .orElseThrow(() -> new CustomException(CrewErrorCode.FORBIDDEN_ACCESS));
         // 일정 최대 인원 초과 여부 확인
         if (crewSchedule.getMemberCount() >= crewSchedule.getMemberMax()) {
@@ -341,14 +354,14 @@ public class CrewServiceImpl implements CrewService {
         }
 
         return new CrewResponse.CrewCourseIdResponse(
-            crewCourseRepository.save(crewEntityMapper.toCrewCourse(crew, course)).getId()
+                crewCourseRepository.save(crewEntityMapper.toCrewCourse(crew, course)).getId()
         );
     }
 
     @Override
     @Transactional
     public void uploadCrewImages(
-        Member member, Long crewId, List<MultipartFile> images
+            Member member, Long crewId, List<MultipartFile> images
     ) {
         // 크루 존재 확인
         Crew crew = crewRepository.getCrew(crewId);
@@ -362,7 +375,7 @@ public class CrewServiceImpl implements CrewService {
     @Override
     @Transactional
     public CrewResponse.CrewScheduleIdResponse updateSchedule(
-        Member member, Long scheduleId, CrewRequest.CreateSchedule request
+            Member member, Long scheduleId, CrewRequest.CreateSchedule request
     ) {
         CrewSchedule schedule = crewScheduleRepository.getCrewSchedule(scheduleId);
 
@@ -385,8 +398,8 @@ public class CrewServiceImpl implements CrewService {
 
         // 참여 신청 존재 여부 확인
         CrewScheduleApply crewScheduleApply =
-            crewScheduleApplyRepository.findByCrewScheduleAndCrewMember(crewSchedule, crewMember)
-                .orElseThrow(() -> new CustomException(CrewErrorCode.APPLY_NOT_FOUND));
+                crewScheduleApplyRepository.findByCrewScheduleAndCrewMember(crewSchedule, crewMember)
+                        .orElseThrow(() -> new CustomException(CrewErrorCode.APPLY_NOT_FOUND));
 
         crewScheduleApply.setStatus(CrewScheduleApplyStatus.CANCEL);
         crewSchedule.decreaseMemberCount();
@@ -470,14 +483,14 @@ public class CrewServiceImpl implements CrewService {
         Crew crew = crewRepository.getCrew(crewId);
         List<CrewImage> crewImages = crewImageRepository.findAllByCrewOrderByOrderNumberAsc(crew);
 
-        return crewResponseMapper.toCrewSelectResponse(crew,crewImages,isUserLeaderOfCrew(member,crew));
+        return crewResponseMapper.toCrewSelectResponse(crew, crewImages, isUserLeaderOfCrew(member, crew));
     }
 
     @Transactional
     @Override
     public void leaveCrew(Member member, Long crewId) {
         Crew crew = crewRepository.getCrew(crewId);
-        if (isUserLeaderOfCrew(member,crew)){
+        if (isUserLeaderOfCrew(member, crew)) {
             throw new CustomException(CrewErrorCode.CREW_LEADER);
         }
         CrewMember crewMember = crewMemberRepository.findByCrewAndMember(crew, member)
@@ -499,6 +512,7 @@ public class CrewServiceImpl implements CrewService {
                 .orElseThrow(() -> new CustomException(CrewErrorCode.NOT_FOUND_CREW_COURSE));
         crewCourse.delete();
     }
+
     @Override
     @Transactional(readOnly = true)
     public CrewResponse.CheckJoinCrewResponse canMemberJoinCrew(Member currentUser, Long crewId) {
@@ -510,7 +524,7 @@ public class CrewServiceImpl implements CrewService {
     @Override
     @Transactional
     public CrewResponse.CrewIdResponse updateCrew(
-        Member member, Long crewId, CrewRequest.UpdateCrewRequest request, MultipartFile representativeImage
+            Member member, Long crewId, CrewRequest.UpdateCrewRequest request, MultipartFile representativeImage
     ) {
         // 크루 조회
         Crew crew = crewRepository.getCrew(crewId);
@@ -526,7 +540,7 @@ public class CrewServiceImpl implements CrewService {
         crewActivityTimeRepository.deleteByCrew(crew);
 
         crewActivityTimeRepository.saveAll(
-            crewEntityMapper.toCrewActivityTimes(crew, request.getActivityTimes())
+                crewEntityMapper.toCrewActivityTimes(crew, request.getActivityTimes())
         );
 
         return new CrewResponse.CrewIdResponse(crew.getId());
@@ -539,24 +553,24 @@ public class CrewServiceImpl implements CrewService {
     }
 
     private void saveImages(
-        Crew crew, List<MultipartFile> images, Integer orderNumber
+            Crew crew, List<MultipartFile> images, Integer orderNumber
     ) {
         AtomicInteger index = new AtomicInteger(orderNumber);
         images.stream()
-            .map(s3ImageService::upload)
-            .map(url -> CrewImage.builder()
-                .crew(crew)
-                .url(url)
-                .orderNumber(index.getAndIncrement())
-                .build())
-            .map(crewImageRepository::save).toList();
+                .map(s3ImageService::upload)
+                .map(url -> CrewImage.builder()
+                        .crew(crew)
+                        .url(url)
+                        .orderNumber(index.getAndIncrement())
+                        .build())
+                .forEach(crewImageRepository::save);
     }
 
     private void updateApplyStatus(CrewScheduleApply apply, List<Long> memberIds) {
         Long existingMemberId = apply.getCrewMember().getMember().getId();
         CrewScheduleApplyStatus status = memberIds.contains(existingMemberId)
-            ? CrewScheduleApplyStatus.PARTICIPATE
-            : CrewScheduleApplyStatus.ABSENCE;
+                ? CrewScheduleApplyStatus.PARTICIPATE
+                : CrewScheduleApplyStatus.ABSENCE;
         apply.setStatus(status);
     }
 }
