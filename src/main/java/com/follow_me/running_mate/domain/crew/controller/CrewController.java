@@ -275,7 +275,7 @@ public class CrewController {
         );
     }
 
-    @PostMapping("/{crewId}/image")
+    @PostMapping(value = "/{crewId}/image",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "크루 활동 사진 업로드 API", description = "크루의 활동 사진을 여러 장 업로드합니다.")
     @ApiResponse(responseCode = "200", description = "이미지 업로드 성공",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
