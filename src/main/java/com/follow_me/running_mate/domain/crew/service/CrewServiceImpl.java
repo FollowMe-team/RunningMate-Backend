@@ -28,7 +28,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.YearMonth;
@@ -556,7 +555,6 @@ public class CrewServiceImpl implements CrewService {
         // 크루 조회
         Crew crew = crewRepository.getCrew(crewId);
         validateCrewLeader(member, crew);
-
         // 크루 정보 수정
         crew.update(request);
         // 크루 활동 위치 수정
