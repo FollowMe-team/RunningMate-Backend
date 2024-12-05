@@ -464,8 +464,13 @@ public class CrewServiceImpl implements CrewService {
     @Transactional
     public void deleteCrew(Member member, Long crewId) {
         Crew crew = crewRepository.getCrew(crewId);
+        List<CrewMember> crewMembers = crewMemberRepository.findAllByCrew(crew);
+        boolean isOnlyLeader = crewMembers.size() == 1 && isUserLeaderOfCrew(crewMembers.get(0).getMember(),crew);
 
-        validateCrewLeader(member, crew);
+        // 크루에 다른 멤버가 있다면 리더 검증
+        if (!isOnlyLeader) {
+            validateCrewLeader(member, crew);
+        }
 
         crewActivityTimeRepository.findAllByCrew(crew).forEach(CrewActivityTime::delete);
         crewCourseRepository.findAllByCrew(crew).forEach(CrewCourse::delete);
