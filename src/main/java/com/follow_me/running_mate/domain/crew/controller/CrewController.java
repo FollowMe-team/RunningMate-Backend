@@ -7,6 +7,7 @@ import com.follow_me.running_mate.domain.crew.service.CrewService;
 import com.follow_me.running_mate.domain.enums.ActivityTimeType;
 import com.follow_me.running_mate.domain.enums.CrewMemberStatus;
 import com.follow_me.running_mate.domain.enums.Ranking;
+import com.follow_me.running_mate.domain.member.dto.response.MemberResponse;
 import com.follow_me.running_mate.global.common.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -155,7 +156,7 @@ public class CrewController {
     }
 
     //TODO: 아직 프로필 리스트 화면이 나오지 않아 임시로 팔로워랑 똑같이 작성해둠
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "크루 생성 API", description = "크루를 생성합니다.")
     @ApiResponse(responseCode = "200", description = "크루 생성에 성공했습니다.",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
