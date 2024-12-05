@@ -202,7 +202,7 @@ public class CrewServiceImpl implements CrewService {
         CrewSchedule crewSchedule = crewScheduleRepository.findById(scheduleId)
                 .orElseThrow(() -> new CustomException(CrewErrorCode.NOT_FOUND_SCHEDULE));
         List<CrewMember> crewMembers = crewScheduleApplyRepository
-                .findAllCrewMembersByScheduleIdAndStatus(crewSchedule, CrewScheduleApplyStatus.PARTICIPATE);
+                .findAllCrewMembersByScheduleIdAndStatus(crewSchedule, CrewScheduleApplyStatus.APPLY); // 참여 신청한 멤버만 조회
         return crewMembers.stream()
                 .map(crewMember -> crewResponseMapper.toCrewMemberInfo(crewMember.getMember()))
                 .toList();
