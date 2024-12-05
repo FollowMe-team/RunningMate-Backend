@@ -479,4 +479,18 @@ public class CrewController {
         crewService.leaveCrew(principalDetails.member(), crewId);
         return BaseResponse.success("크루를 성공적으로 탈퇴했습니다.", null);
     }
+
+    @GetMapping("/check/name")
+    @Operation(summary = "크루 이름 중복 확인 API", description = "입력된 크루명이 중복되었는지 확인합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "닉네임 중복 확인에 성공했습니다.",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+            @ApiResponse(responseCode = "400", description = "입력 값이 유효하지 않습니다.",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
+    })
+    public BaseResponse<CrewResponse.DuplicateCheckResponse> checkNicknameDuplicate(
+            @RequestParam(value = "name") String name
+    ) {
+        return BaseResponse.success("크루명 중복 확인에 성공했습니다.", crewService.isNicknameDuplicate(name));
+    }
 }

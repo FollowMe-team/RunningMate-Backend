@@ -509,6 +509,13 @@ public class CrewServiceImpl implements CrewService {
                 .orElseThrow(() -> new IllegalArgumentException("해당 크루에 가입되어 있지 않습니다."));
         crewMemberRepository.delete(crewMember);
     }
+    @Override
+    @Transactional
+    public CrewResponse.DuplicateCheckResponse isNicknameDuplicate(String name) {
+        return new CrewResponse.DuplicateCheckResponse(
+                crewRepository.existsByName(name)
+        );
+    }
 
     private boolean isUserLeaderOfCrew(Member member, Crew crew) {
         return crew.getLeader().getId().equals(member.getId());

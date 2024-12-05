@@ -49,4 +49,6 @@ public interface CrewService {
     CrewResponse.CrewSelectResponse getCrewSelectDetail(Member member, Long crewId);
     void leaveCrew(Member member, Long crewId);
 
+    CrewResponse.DuplicateCheckResponse isNicknameDuplicate(String nickname);
+
 }

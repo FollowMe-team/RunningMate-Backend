@@ -75,7 +75,11 @@ public class CrewResponse {
     public static class MyCrewListResponse {
         List<MyCrewResponse> myCrews;
     }
-
+    @Getter
+    @AllArgsConstructor
+    public static class DuplicateCheckResponse {
+        private Boolean isDuplicated;
+    }
     @Getter
     @Builder
     @AllArgsConstructor
