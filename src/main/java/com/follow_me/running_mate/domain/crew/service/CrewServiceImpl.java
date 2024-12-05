@@ -239,8 +239,10 @@ public class CrewServiceImpl implements CrewService {
         Optional<CrewMember> crewMember = crewMemberRepository.findByCrewAndMember(crew, member);
         if (crewMember.isEmpty()) {
             crewMemberRepository.save(crewEntityMapper.toCrewMember(crew, member));
+            return;
         } else if (crewMember.get().getStatus() == CrewMemberStatus.REJECT) {
             crewMember.get().updateStatus(CrewMemberStatus.READY);
+            return;
         }
         throw new CustomException(CrewErrorCode.CREW_APPLY_REJECT);
     }
