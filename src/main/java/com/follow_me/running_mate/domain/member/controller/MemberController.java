@@ -122,7 +122,7 @@ public class MemberController {
         return BaseResponse.success("배지 조회에 성공했습니다.", memberService.getMemberBadges(principalDetails.member()));
     }
 
-    @GetMapping("/check/nickname=")
+    @GetMapping("/check/nickname")
     @Operation(summary = "닉네임 중복 확인 API", description = "입력된 닉네임이 중복되었는지 확인합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "닉네임 중복 확인에 성공했습니다.",
@@ -138,7 +138,7 @@ public class MemberController {
         return BaseResponse.success("닉네임 중복 확인에 성공했습니다.", memberService.isNicknameDuplicate(nickname));
     }
 
-    @GetMapping("/check/email=")
+    @GetMapping("/check/email")
     @Operation(summary = "이메일 중복 확인 API", description = "입력된 이메일이 중복되었는지 확인합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "이메일 중복 확인에 성공했습니다.",
