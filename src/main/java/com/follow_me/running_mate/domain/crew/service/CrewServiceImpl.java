@@ -268,6 +268,7 @@ public class CrewServiceImpl implements CrewService {
             throw new CustomException(CrewErrorCode.SCHEDULE_CONFLICT);
         }
         CrewSchedule crewSchedule = crewScheduleRepository.save(crewEntityMapper.toCrewSchedule(crew, course, request));
+        applyToSchedule(member, crewSchedule.getId()); // 크루장은 자동으로 참여 신청
         return new CrewResponse.CrewScheduleIdResponse(crewSchedule.getId());
     }
 
