@@ -7,7 +7,6 @@ import com.follow_me.running_mate.domain.member.dto.response.MemberResponse;
 import com.follow_me.running_mate.domain.member.service.MemberService;
 import com.follow_me.running_mate.global.common.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -18,8 +17,16 @@ import java.time.YearMonth;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
-
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
@@ -123,7 +130,7 @@ public class MemberController {
         return BaseResponse.success("배지 조회에 성공했습니다.", memberService.getMemberBadges(principalDetails.member()));
     }
 
-    @GetMapping("/check/nickname=")
+    @GetMapping("/check/nickname")
     @Operation(summary = "닉네임 중복 확인 API", description = "입력된 닉네임이 중복되었는지 확인합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "닉네임 중복 확인에 성공했습니다.",
@@ -139,7 +146,7 @@ public class MemberController {
         return BaseResponse.success("닉네임 중복 확인에 성공했습니다.", memberService.isNicknameDuplicate(nickname));
     }
 
-    @GetMapping("/check/email=")
+    @GetMapping("/check/email")
     @Operation(summary = "이메일 중복 확인 API", description = "입력된 이메일이 중복되었는지 확인합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "이메일 중복 확인에 성공했습니다.",

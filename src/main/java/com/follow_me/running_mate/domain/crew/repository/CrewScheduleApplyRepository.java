@@ -1,0 +1,28 @@
+package com.follow_me.running_mate.domain.crew.repository;
+
+import com.follow_me.running_mate.domain.crew.entity.CrewMember;
+import com.follow_me.running_mate.domain.crew.entity.CrewSchedule;
+import com.follow_me.running_mate.domain.crew.entity.CrewScheduleApply;
+import com.follow_me.running_mate.domain.enums.CrewScheduleApplyStatus;
+import io.lettuce.core.dynamic.annotation.Param;
+import java.util.List;
+import java.util.Optional;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+
+public interface CrewScheduleApplyRepository extends JpaRepository<CrewScheduleApply, Long> {
+
+    @Query("SELECT c.crewMember FROM CrewScheduleApply c " +
+            "JOIN c.crewSchedule cs " +
+            "WHERE cs = :crewSchedule AND c.status = :status ORDER BY  c.crewMember.createdAt DESC")
+    List<CrewMember> findAllCrewMembersByScheduleIdAndStatus(
+            @Param("crewSchedule") CrewSchedule crewSchedule,
+            @Param("status") CrewScheduleApplyStatus status);
+
+    boolean existsByCrewScheduleAndCrewMember(CrewSchedule crewSchedule, CrewMember crewMember);
+
+    Optional<CrewScheduleApply> findByCrewScheduleAndCrewMember(CrewSchedule crewSchedule, CrewMember crewMember);
+    List<CrewScheduleApply> findAllByCrewScheduleId(Long scheduleId);
+    List<CrewScheduleApply> findAllByCrewSchedule(CrewSchedule schedule);
+}
+

@@ -1,7 +1,13 @@
 package com.follow_me.running_mate.domain.course.mapper;
 
 import com.follow_me.running_mate.domain.course.dto.response.CourseResponse;
-import com.follow_me.running_mate.domain.course.entity.*;
+import com.follow_me.running_mate.domain.course.entity.Course;
+import com.follow_me.running_mate.domain.course.entity.CourseImage;
+import com.follow_me.running_mate.domain.course.entity.CourseOption;
+import com.follow_me.running_mate.domain.course.entity.CoursePoint;
+import com.follow_me.running_mate.domain.course.entity.CourseRecord;
+import com.follow_me.running_mate.domain.course.entity.CourseReview;
+import com.follow_me.running_mate.domain.course.entity.CourseReviewImage;
 import com.follow_me.running_mate.domain.crew.entity.Crew;
 import com.follow_me.running_mate.domain.enums.CourseOptionType;
 import com.follow_me.running_mate.domain.member.entity.Member;
@@ -15,7 +21,6 @@ public class CourseResponseMapper {
     public CourseResponse.SummaryInfo toSummaryInfo(
         Course course,
         Double rating,
-        Integer runningCount,
         Boolean isBookmarked,
         List<CourseOption> courseOptions,
         List<CoursePoint> coursePointInfos
@@ -29,7 +34,7 @@ public class CourseResponseMapper {
             .duration(FormatterUtil.formatDuration(course.getDuration()))
             .difficulty(course.getDifficulty())
             .rating(FormatterUtil.formatRating(rating))
-            .runningCount(runningCount)
+            .runningCount(course.getRunningCount())
             .isBookmarked(isBookmarked)
             .courseOptionTypes(toCourseOptionTypes(courseOptions))
             .coursePointInfos(toCoursePointInfos(coursePointInfos))
@@ -39,7 +44,6 @@ public class CourseResponseMapper {
     public CourseResponse.MyCourseInfo toMyCourseInfo(
         Course course,
         Double rating,
-        Integer runningCount,
         Boolean isBookmarked,
         List<CourseOption> courseOptions,
         List<CoursePoint> coursePointInfos
@@ -54,7 +58,7 @@ public class CourseResponseMapper {
             .difficulty(course.getDifficulty())
             .status(course.getStatus())
             .rating(FormatterUtil.formatRating(rating))
-            .runningCount(runningCount)
+            .runningCount(course.getRunningCount())
             .isBookmarked(isBookmarked)
             .courseOptionTypes(toCourseOptionTypes(courseOptions))
             .coursePointInfos(toCoursePointInfos(coursePointInfos))

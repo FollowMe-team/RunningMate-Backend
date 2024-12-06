@@ -1,7 +1,10 @@
 package com.follow_me.running_mate.domain.crew.entity;
 
 import com.follow_me.running_mate.domain.course.entity.Course;
+import com.follow_me.running_mate.domain.crew.dto.request.CrewRequest;
+import com.follow_me.running_mate.domain.crew.exception.CrewErrorCode;
 import com.follow_me.running_mate.global.common.BaseEntity;
+import com.follow_me.running_mate.global.error.exception.CustomException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -43,4 +46,33 @@ public class CrewSchedule extends BaseEntity {
 
     @Column(nullable = false)
     private LocalDateTime endTime;
+    @Column(nullable = false)
+    @Builder.Default
+    private Integer memberCount = 0;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private Integer memberMax = 30;
+    public void increaseMemberCount() {
+        this.memberCount++;
+    }
+
+    @Column(nullable = false)
+    private String meetingPlace;
+
+    public void update(Course course, CrewRequest.CreateSchedule request) {
+        this.course = course;
+        this.startTime = request.getStartTime();
+        this.endTime = request.getEndTime();
+        this.memberMax = request.getMemberMax();
+        this.meetingPlace = request.getMeetingPlace();
+    }
+
+    public void decreaseMemberCount() {
+        if (this.memberCount > 0) {
+            this.memberCount--;
+        } else {
+            throw new CustomException(CrewErrorCode.INVALID_MEMBER_COUNT);
+        }
+    }
 }

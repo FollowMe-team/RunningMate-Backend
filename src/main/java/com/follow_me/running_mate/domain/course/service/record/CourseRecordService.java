@@ -5,7 +5,6 @@ import com.follow_me.running_mate.domain.course.dto.response.CourseResponse;
 import com.follow_me.running_mate.domain.course.entity.Course;
 import com.follow_me.running_mate.domain.course.entity.CourseRecord;
 import com.follow_me.running_mate.domain.member.entity.Member;
-
 import java.time.YearMonth;
 import java.util.List;
 

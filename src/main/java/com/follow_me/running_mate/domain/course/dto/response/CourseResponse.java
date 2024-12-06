@@ -6,10 +6,8 @@ import com.follow_me.running_mate.domain.enums.CoursePointVoice;
 import com.follow_me.running_mate.domain.enums.Difficulty;
 import com.follow_me.running_mate.domain.enums.Ranking;
 import com.follow_me.running_mate.domain.enums.Status;
-
 import java.time.LocalDateTime;
 import java.util.List;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -63,7 +61,7 @@ public class CourseResponse {
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class SummaryInfo {
+    public static class SummaryInfo { //코스 정보 조회시
         private Long id;
         private String name;
         private String description;
@@ -82,7 +80,7 @@ public class CourseResponse {
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class MyCourseInfo {
+    public static class MyCourseInfo { // 내가 등록한 코스 정보
         private Long id;
         private String name;
         private String description;

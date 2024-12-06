@@ -1,6 +1,6 @@
 package com.follow_me.running_mate.domain.crew.entity;
 
-import com.follow_me.running_mate.domain.enums.Status;
+import com.follow_me.running_mate.domain.enums.CrewMemberStatus;
 import com.follow_me.running_mate.domain.member.entity.Member;
 import com.follow_me.running_mate.global.common.BaseEntity;
 import jakarta.persistence.Column;
@@ -42,5 +42,9 @@ public class CrewMember extends BaseEntity {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private Status status;
+    private CrewMemberStatus status;
+
+    public void updateStatus(CrewMemberStatus newStatus) {
+        this.status = newStatus;
+    }
 }
