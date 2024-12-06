@@ -60,7 +60,7 @@ public class MemberResponse {
         private Double runningDistance;
         private Long runningCount;
         private Long footPrint;
-        private Boolean isSameCrew;
+        private Boolean isFollowing;
     }
 
     @Getter
