@@ -4,13 +4,12 @@ import com.follow_me.running_mate.domain.course.dto.response.CourseResponse;
 import com.follow_me.running_mate.domain.enums.ActivityTimeType;
 import com.follow_me.running_mate.domain.enums.CourseImageType;
 import com.follow_me.running_mate.domain.enums.Ranking;
+import java.time.LocalDateTime;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 public class CrewResponse {
     @Getter
@@ -59,8 +58,7 @@ public class CrewResponse {
         private Integer memberCount;
         private String shortDescription;
         private String profileImageUrl;
-        private Long footprintaverage;
-        //TODO: 크루 발자국 어떻게 처리할지 고민하기
+        private Long footprintAverage;
     }
     @Getter
     @Builder

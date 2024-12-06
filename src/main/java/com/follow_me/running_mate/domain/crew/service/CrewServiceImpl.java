@@ -10,11 +10,25 @@ import com.follow_me.running_mate.domain.course.service.point.CoursePointService
 import com.follow_me.running_mate.domain.course.service.review.CourseReviewService;
 import com.follow_me.running_mate.domain.crew.dto.request.CrewRequest;
 import com.follow_me.running_mate.domain.crew.dto.response.CrewResponse;
-import com.follow_me.running_mate.domain.crew.entity.*;
+import com.follow_me.running_mate.domain.crew.entity.Crew;
+import com.follow_me.running_mate.domain.crew.entity.CrewActivityTime;
+import com.follow_me.running_mate.domain.crew.entity.CrewCourse;
+import com.follow_me.running_mate.domain.crew.entity.CrewImage;
+import com.follow_me.running_mate.domain.crew.entity.CrewLocation;
+import com.follow_me.running_mate.domain.crew.entity.CrewMember;
+import com.follow_me.running_mate.domain.crew.entity.CrewSchedule;
+import com.follow_me.running_mate.domain.crew.entity.CrewScheduleApply;
 import com.follow_me.running_mate.domain.crew.exception.CrewErrorCode;
 import com.follow_me.running_mate.domain.crew.mapper.CrewEntityMapper;
 import com.follow_me.running_mate.domain.crew.mapper.CrewResponseMapper;
-import com.follow_me.running_mate.domain.crew.repository.*;
+import com.follow_me.running_mate.domain.crew.repository.CrewActivityTimeRepository;
+import com.follow_me.running_mate.domain.crew.repository.CrewCourseRepository;
+import com.follow_me.running_mate.domain.crew.repository.CrewImageRepository;
+import com.follow_me.running_mate.domain.crew.repository.CrewLocationRepository;
+import com.follow_me.running_mate.domain.crew.repository.CrewMemberRepository;
+import com.follow_me.running_mate.domain.crew.repository.CrewRepository;
+import com.follow_me.running_mate.domain.crew.repository.CrewScheduleApplyRepository;
+import com.follow_me.running_mate.domain.crew.repository.CrewScheduleRepository;
 import com.follow_me.running_mate.domain.enums.ActivityTimeType;
 import com.follow_me.running_mate.domain.enums.CrewMemberStatus;
 import com.follow_me.running_mate.domain.enums.CrewScheduleApplyStatus;
@@ -23,11 +37,6 @@ import com.follow_me.running_mate.domain.member.entity.Member;
 import com.follow_me.running_mate.domain.member.service.MemberService;
 import com.follow_me.running_mate.global.common.service.S3ImageService;
 import com.follow_me.running_mate.global.error.exception.CustomException;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.YearMonth;
@@ -36,6 +45,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -87,7 +100,6 @@ public class CrewServiceImpl implements CrewService {
                 .toList();
 
         List<Crew> searchCrews;
-        List<Long> searchSumFootprint;
         if (keyword == null && city == null && district == null && (activityTimes == null || activityTimes.isEmpty()) && ranking == null) {
             // 추천 크루 가져오기
             searchCrews = crewRepository.findTop4ByIdNotInOrderByCreatedAtDesc(myCrewMembers);
@@ -115,9 +127,9 @@ public class CrewServiceImpl implements CrewService {
         } else if ("OLDEST".equalsIgnoreCase(sortType)) {
             searchCrews.sort(Comparator.comparing(Crew::getCreatedAt)); // 오래된 순
         }
-        searchSumFootprint = searchCrews.stream()
-                .map(crews -> crewMemberRepository.sumFootprintByCrewAndStatus(crews, CrewMemberStatus.COMPLETE))
-                .toList();
+        List<Long> searchSumFootprint = searchCrews.stream()
+            .map(crews -> crewMemberRepository.sumFootprintByCrewAndStatus(crews, CrewMemberStatus.COMPLETE))
+            .toList();
 
         return new CrewResponse.recommendedCrewListResponse(crewResponseMapper.toCrewInfoResponse(searchCrews, searchSumFootprint));
     }
@@ -518,7 +530,7 @@ public class CrewServiceImpl implements CrewService {
     }
     @Override
     @Transactional
-    public CrewResponse.DuplicateCheckResponse isNicknameDuplicate(String name) {
+    public CrewResponse.DuplicateCheckResponse isNameDuplicate(String name) {
         return new CrewResponse.DuplicateCheckResponse(
                 crewRepository.existsByName(name)
         );

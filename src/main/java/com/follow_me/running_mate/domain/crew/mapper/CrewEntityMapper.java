@@ -2,13 +2,18 @@ package com.follow_me.running_mate.domain.crew.mapper;
 
 import com.follow_me.running_mate.domain.course.entity.Course;
 import com.follow_me.running_mate.domain.crew.dto.request.CrewRequest;
-import com.follow_me.running_mate.domain.crew.entity.*;
-import com.follow_me.running_mate.domain.enums.CrewScheduleApplyStatus;
+import com.follow_me.running_mate.domain.crew.entity.Crew;
+import com.follow_me.running_mate.domain.crew.entity.CrewActivityTime;
+import com.follow_me.running_mate.domain.crew.entity.CrewCourse;
+import com.follow_me.running_mate.domain.crew.entity.CrewLocation;
+import com.follow_me.running_mate.domain.crew.entity.CrewMember;
+import com.follow_me.running_mate.domain.crew.entity.CrewSchedule;
+import com.follow_me.running_mate.domain.crew.entity.CrewScheduleApply;
 import com.follow_me.running_mate.domain.enums.CrewMemberStatus;
+import com.follow_me.running_mate.domain.enums.CrewScheduleApplyStatus;
 import com.follow_me.running_mate.domain.member.entity.Member;
-import org.springframework.stereotype.Component;
-
 import java.util.List;
+import org.springframework.stereotype.Component;
 
 @Component
 public class CrewEntityMapper {

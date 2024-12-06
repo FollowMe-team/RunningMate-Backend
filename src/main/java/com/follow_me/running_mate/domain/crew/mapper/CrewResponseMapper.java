@@ -2,12 +2,15 @@ package com.follow_me.running_mate.domain.crew.mapper;
 
 import com.follow_me.running_mate.domain.course.dto.response.CourseResponse;
 import com.follow_me.running_mate.domain.crew.dto.response.CrewResponse;
-import com.follow_me.running_mate.domain.crew.entity.*;
+import com.follow_me.running_mate.domain.crew.entity.Crew;
+import com.follow_me.running_mate.domain.crew.entity.CrewActivityTime;
+import com.follow_me.running_mate.domain.crew.entity.CrewImage;
+import com.follow_me.running_mate.domain.crew.entity.CrewLocation;
+import com.follow_me.running_mate.domain.crew.entity.CrewSchedule;
 import com.follow_me.running_mate.domain.member.entity.Member;
-import org.springframework.stereotype.Component;
-
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.springframework.stereotype.Component;
 
 @Component
 public class CrewResponseMapper {
@@ -21,7 +24,7 @@ public class CrewResponseMapper {
                                 .memberCount(crew.getMemberCount())
                                 .shortDescription(crew.getShortDescription())
                                 .profileImageUrl(crew.getProfileImageUrl())
-                                .footprintaverage(SumFoot.get(index.getAndIncrement())/crew.getMemberCount())
+                                .footprintAverage(SumFoot.get(index.getAndIncrement())/crew.getMemberCount())
                                 .build())
                 .toList();
     }

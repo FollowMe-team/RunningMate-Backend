@@ -4,7 +4,6 @@ import com.follow_me.running_mate.domain.course.dto.response.CourseResponse;
 import com.follow_me.running_mate.domain.member.dto.request.MemberRequest;
 import com.follow_me.running_mate.domain.member.dto.response.MemberResponse;
 import com.follow_me.running_mate.domain.member.entity.Member;
-
 import java.time.YearMonth;
 import org.springframework.web.multipart.MultipartFile;
 

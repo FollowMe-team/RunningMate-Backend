@@ -17,8 +17,16 @@ import java.time.YearMonth;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
-
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
@@ -279,31 +287,8 @@ public class MemberController {
         return BaseResponse.success("팔로우 취소에 성공했습니다.", null);
     }
 
-
-
-    @GetMapping(value = {"/footprint/{memberId}", "/footprint" })
-    @Operation(summary = "발자국 조회 API", description = "특정 사용자에게 남긴 발자국을 조회합니다.(memberId가 없을 시 자신의 발자국 조회)")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "발자국 조회에 성공했습니다.",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
-        @ApiResponse(responseCode = "MEMBER001", description = "회원을 찾을 수 없습니다.",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
-        @ApiResponse(responseCode = "MEMBER008", description = "존재하지 않는 대상 사용자입니다.",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
-    })
-    public BaseResponse<MemberResponse.FootprintListResponse> getFootprints(
-        @AuthenticationPrincipal PrincipalDetails principalDetails,
-        @PathVariable(value = "memberId", required = false) Long memberId
-    ) {
-        return BaseResponse.success(
-            "발자국 조회에 성공했습니다.",
-            memberService.getFootprints(principalDetails.member(), memberId)
-        );
-    }
-
-
-    @GetMapping( value = {"/footprint/{memberId}", "/footprint"})
-    @Operation(summary = "발자국 조회 API", description = "특정 사용자에게 남긴 발자국을 조회합니다.(memberId가 없을 시 자신의 발자국 조회)")
+    @PostMapping("/footprint/{memberId}")
+    @Operation(summary = "발자국 남기기 API", description = "특정 사용자에게 발자국을 남깁니다.")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "발자국 남기기에 성공했습니다.",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
@@ -321,5 +306,25 @@ public class MemberController {
     ) {
         memberService.createFootprint(principalDetails.member(), memberId, request);
         return BaseResponse.success("발자국 남기기에 성공했습니다.", null);
+    }
+
+    @GetMapping( value = {"/footprint/{memberId}", "/footprint"})
+    @Operation(summary = "발자국 조회 API", description = "특정 사용자에게 남긴 발자국을 조회합니다.(memberId가 없을 시 자신의 발자국 조회)")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "발자국 조회에 성공했습니다.",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+        @ApiResponse(responseCode = "MEMBER001", description = "회원을 찾을 수 없습니다.",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+        @ApiResponse(responseCode = "MEMBER008", description = "존재하지 않는 대상 사용자입니다.",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+    })
+    public BaseResponse<MemberResponse.FootprintListResponse> getFootprints(
+        @AuthenticationPrincipal PrincipalDetails principalDetails,
+        @PathVariable(value = "memberId", required = false) Long memberId
+    ) {
+        return BaseResponse.success(
+            "발자국 조회에 성공했습니다.",
+            memberService.getFootprints(principalDetails.member(), memberId)
+        );
     }
 }

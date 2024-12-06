@@ -1,12 +1,11 @@
 package com.follow_me.running_mate.domain.member.repository;
 
 import com.follow_me.running_mate.domain.enums.BadgeType;
-import com.follow_me.running_mate.domain.member.entity.MemberBadge;
 import com.follow_me.running_mate.domain.member.entity.Member;
-import org.springframework.data.jpa.repository.JpaRepository;
-
+import com.follow_me.running_mate.domain.member.entity.MemberBadge;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface MemberBadgeRepository extends JpaRepository<MemberBadge, Long> {
 

@@ -3,7 +3,6 @@ package com.follow_me.running_mate.domain.crew.validation.annotation;
 import com.follow_me.running_mate.domain.crew.validation.validator.UniqueCrewNameValidator;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

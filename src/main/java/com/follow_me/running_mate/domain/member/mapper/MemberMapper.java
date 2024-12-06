@@ -13,12 +13,11 @@ import com.follow_me.running_mate.domain.member.entity.MemberLocation;
 import com.follow_me.running_mate.domain.member.entity.MemberWithdraw;
 import com.follow_me.running_mate.global.common.util.FormatterUtil;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import org.springframework.stereotype.Component;
-
-import java.util.List;
 import java.util.stream.Collectors;
+import org.springframework.stereotype.Component;
 
 @Component
 public class MemberMapper {

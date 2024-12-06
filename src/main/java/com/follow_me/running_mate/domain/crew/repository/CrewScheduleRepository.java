@@ -4,10 +4,9 @@ import com.follow_me.running_mate.domain.crew.entity.Crew;
 import com.follow_me.running_mate.domain.crew.entity.CrewSchedule;
 import com.follow_me.running_mate.domain.crew.exception.CrewErrorCode;
 import com.follow_me.running_mate.global.error.exception.CustomException;
-import org.springframework.data.jpa.repository.JpaRepository;
-
 import java.time.LocalDateTime;
 import java.util.List;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface CrewScheduleRepository extends JpaRepository<CrewSchedule, Long> {
 

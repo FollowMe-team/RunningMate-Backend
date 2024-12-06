@@ -15,12 +15,11 @@ import com.follow_me.running_mate.domain.course.service.point.CoursePointService
 import com.follow_me.running_mate.domain.enums.CourseOptionType;
 import com.follow_me.running_mate.domain.enums.CoursePointVoice;
 import com.follow_me.running_mate.domain.enums.Difficulty;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 import org.springframework.transaction.annotation.Transactional;
 
 

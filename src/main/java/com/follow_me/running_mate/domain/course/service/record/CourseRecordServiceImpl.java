@@ -9,12 +9,10 @@ import com.follow_me.running_mate.domain.course.mapper.CourseResponseMapper;
 import com.follow_me.running_mate.domain.course.repository.CourseRecordPointRepository;
 import com.follow_me.running_mate.domain.course.repository.CourseRecordRepository;
 import com.follow_me.running_mate.domain.member.entity.Member;
-
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.YearMonth;
 import java.util.List;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

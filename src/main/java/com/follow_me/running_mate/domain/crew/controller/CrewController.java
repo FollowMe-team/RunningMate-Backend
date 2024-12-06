@@ -7,7 +7,6 @@ import com.follow_me.running_mate.domain.crew.service.CrewService;
 import com.follow_me.running_mate.domain.enums.ActivityTimeType;
 import com.follow_me.running_mate.domain.enums.CrewMemberStatus;
 import com.follow_me.running_mate.domain.enums.Ranking;
-import com.follow_me.running_mate.domain.member.dto.response.MemberResponse;
 import com.follow_me.running_mate.global.common.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -17,14 +16,22 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.time.YearMonth;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.time.YearMonth;
-import java.util.List;
 
 @RestController
 @RequestMapping("/crew")
@@ -74,8 +81,7 @@ public class CrewController {
 
             @Parameter(description = "활동 시간", example = "MONDAY,SATURDAY",
                     schema = @Schema(implementation = String.class, allowableValues =
-                            {"MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY",
-                                    "SUNDAY", "HOLIDAY", "WEEKDAY", "WEEKEND", "EVERYDAY"}))
+                            {"MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"}))
             @RequestParam(value = "activityTimes", required = false) List<ActivityTimeType> activityTimes,
 
             @Parameter(description = "정렬 기준", example = "RECENT",
@@ -488,9 +494,9 @@ public class CrewController {
             @ApiResponse(responseCode = "400", description = "입력 값이 유효하지 않습니다.",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
     })
-    public BaseResponse<CrewResponse.DuplicateCheckResponse> checkNicknameDuplicate(
+    public BaseResponse<CrewResponse.DuplicateCheckResponse> checkNameDuplicate(
             @RequestParam(value = "name") String name
     ) {
-        return BaseResponse.success("크루명 중복 확인에 성공했습니다.", crewService.isNicknameDuplicate(name));
+        return BaseResponse.success("크루명 중복 확인에 성공했습니다.", crewService.isNameDuplicate(name));
     }
 }

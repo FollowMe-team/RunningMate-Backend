@@ -6,10 +6,8 @@ import com.follow_me.running_mate.domain.enums.CoursePointVoice;
 import com.follow_me.running_mate.domain.enums.Difficulty;
 import com.follow_me.running_mate.domain.enums.Ranking;
 import com.follow_me.running_mate.domain.enums.Status;
-
 import java.time.LocalDateTime;
 import java.util.List;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

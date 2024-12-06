@@ -24,13 +24,12 @@ import com.follow_me.running_mate.global.common.service.S3ImageService;
 import com.follow_me.running_mate.global.common.util.FormatterUtil;
 import com.follow_me.running_mate.global.error.exception.CustomException;
 import java.time.YearMonth;
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service

@@ -12,11 +12,7 @@ public enum ActivityTimeType {
     THURSDAY("목요일"),
     FRIDAY("금요일"),
     SATURDAY("토요일"),
-    SUNDAY("일요일"),
-    HOLIDAY("공휴일"),
-    WEEKDAY("평일"),
-    WEEKEND("주말"),
-    EVERYDAY("매일"),
+    SUNDAY("일요일")
     ;
 
     private final String toKorean;
