@@ -43,6 +43,7 @@ public class CrewResponseMapper {
                 .crewActivityTimeList(toCrewActivityTimes(crewActivityTimes))
                 .crewLocationInfos(toCrewLocation(crewLocations))
                 .crewCourses(myCourseListResponse)
+                .ranking(crew.getRanking())
                 .build();
     }
     public List<CrewResponse.CrewActivityTime> toCrewActivityTimes(List<CrewActivityTime> crewActivityTimes) {
@@ -76,18 +77,6 @@ public class CrewResponseMapper {
                 .build();
     }
 
-    public List<CrewResponse.CrewActivityImageResponse> toCrewActivityImages(
-            List<CrewImage> crewImages
-    ){
-        return crewImages.stream()
-                .map(crewImage ->
-                        CrewResponse.CrewActivityImageResponse.builder()
-                                .imageUrls(crewImage.getUrl())
-                                .CrewActivityId(crewImage.getId())
-                                .OrderNumber(crewImage.getOrderNumber())
-                                .build()
-                ) .toList();
-    }
     public CrewResponse.CrewMemberInfo toCrewMemberInfo(Member member){
         return CrewResponse.CrewMemberInfo.builder()
                 .memberId(member.getId())
