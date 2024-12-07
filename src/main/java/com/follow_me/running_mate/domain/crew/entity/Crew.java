@@ -45,7 +45,6 @@ public class Crew extends BaseEntity {
     @Column(nullable = false)
     private String openChatUrl;
 
-    @Column(nullable = false)
     private String profileImageUrl;
 
     @Column(nullable = false)
@@ -56,7 +55,7 @@ public class Crew extends BaseEntity {
 
     @Column(nullable = false)
     @Builder.Default
-    private Integer memberCount = 0;
+    private Integer memberCount = 1;
 
     @Enumerated(EnumType.STRING)
     private Ranking ranking;

@@ -221,11 +221,11 @@ public class CrewServiceImpl implements CrewService {
 
     @Override
     @Transactional
-    public CrewResponse.CrewIdResponse createCrew(Member leader, CrewRequest.createCrew request
-            , MultipartFile representativeImage) {
-        Crew crew;
+    public CrewResponse.CrewIdResponse createCrew(
+        Member leader, CrewRequest.createCrew request, MultipartFile representativeImage
+    ) {
         String imageUrl = (representativeImage != null) ? s3ImageService.upload(representativeImage) : null;
-        crew = crewEntityMapper.toCrew(leader, request, imageUrl);
+        Crew crew = crewEntityMapper.toCrew(leader, request, imageUrl);
         Crew savedCrew = crewRepository.save(crew);
         crewLocationRepository.save(crewEntityMapper.toCrewLocation(savedCrew, request));
         crewMemberRepository.save(CrewMember.builder()
