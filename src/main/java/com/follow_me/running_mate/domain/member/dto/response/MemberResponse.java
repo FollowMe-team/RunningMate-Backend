@@ -156,4 +156,10 @@ public class MemberResponse {
     public static class DuplicateCheckResponse {
         private Boolean isDuplicated;
     }
+
+    @Getter
+    @AllArgsConstructor
+    public static class EmailResponse {
+        private String email;
+    }
 }

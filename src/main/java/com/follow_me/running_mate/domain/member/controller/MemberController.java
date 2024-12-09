@@ -308,7 +308,7 @@ public class MemberController {
         return BaseResponse.success("발자국 남기기에 성공했습니다.", null);
     }
 
-    @GetMapping( value = {"/footprint/{memberId}", "/footprint"})
+    @GetMapping(value = {"/footprint/{memberId}", "/footprint"})
     @Operation(summary = "발자국 조회 API", description = "특정 사용자에게 남긴 발자국을 조회합니다.(memberId가 없을 시 자신의 발자국 조회)")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "발자국 조회에 성공했습니다.",
@@ -325,6 +325,21 @@ public class MemberController {
         return BaseResponse.success(
             "발자국 조회에 성공했습니다.",
             memberService.getFootprints(principalDetails.member(), memberId)
+        );
+    }
+
+    @GetMapping("/email")
+    @Operation(summary = "이메일 조회 API", description = "로그인한 사용자의 이메일을 조회합니다.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "이메일 조회에 성공했습니다.",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+    })
+    public BaseResponse<MemberResponse.EmailResponse> getEmail(
+        @AuthenticationPrincipal PrincipalDetails principalDetails
+    ) {
+        return BaseResponse.success(
+            "이메일 조회에 성공했습니다.",
+            new MemberResponse.EmailResponse(principalDetails.getUsername())
         );
     }
 }

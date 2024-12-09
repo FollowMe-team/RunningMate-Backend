@@ -75,7 +75,7 @@ public class AuthController {
     })
     public BaseResponse<Void> signup(
         @RequestPart(name = "request") @Valid MemberRequest.SignUpRequest request,
-        @RequestPart(name = "profileImage", required = false)MultipartFile profileImage
+        @RequestPart(name = "profileImage", required = false) MultipartFile profileImage
     ) {
         memberService.signup(request, profileImage);
         return BaseResponse.success("회원 가입에 성공했습니다.", null);
