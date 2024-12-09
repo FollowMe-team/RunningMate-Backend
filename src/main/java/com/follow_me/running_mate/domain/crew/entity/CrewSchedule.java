@@ -46,6 +46,7 @@ public class CrewSchedule extends BaseEntity {
 
     @Column(nullable = false)
     private LocalDateTime endTime;
+
     @Column(nullable = false)
     @Builder.Default
     private Integer memberCount = 0;
@@ -53,6 +54,7 @@ public class CrewSchedule extends BaseEntity {
     @Column(nullable = false)
     @Builder.Default
     private Integer memberMax = 30;
+
     public void increaseMemberCount() {
         this.memberCount++;
     }

@@ -23,29 +23,17 @@ public class CrewResponse {
     public static class CrewScheduleIdResponse {
         private Long scheduleId;
     }
+
     @Getter
     @AllArgsConstructor
     public static class CrewCourseIdResponse {
         private Long crewCourseId;
     }
+
     @Getter
     @AllArgsConstructor
     public static class CrewScheduleApplyIdResponse {
         private Long ScheduleApplyId;
-    }
-    @Getter
-    @Builder
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class CrewActivityImageResponse {
-        private Long CrewActivityId;
-        private Integer OrderNumber;
-        private String imageUrls;
-    }
-    @Getter
-    @AllArgsConstructor
-    public static class ActivityImageListResponse {
-        private List<CrewActivityImageResponse> imageUrls;
     }
 
     @Getter
@@ -60,12 +48,6 @@ public class CrewResponse {
         private String profileImageUrl;
         private Long footprintAverage;
     }
-    @Getter
-    @Builder
-    @AllArgsConstructor
-    public static class SearchCrewListResponse {
-        List<MyCrewResponse> SearchCrews;
-    }
 
     @Getter
     @Builder
@@ -73,33 +55,26 @@ public class CrewResponse {
     public static class MyCrewListResponse {
         List<MyCrewResponse> myCrews;
     }
+
     @Getter
     @AllArgsConstructor
     public static class DuplicateCheckResponse {
         private Boolean isDuplicated;
     }
+
     @Getter
     @Builder
     @AllArgsConstructor
     public static class recommendedCrewListResponse {
         List<MyCrewResponse> recommendedCrews;
     }
+
     @Getter
     @AllArgsConstructor
     public static class CrewCourseListResponse {
         private Long crewId;
         private Boolean IsCrewLeader;
         private List<CourseResponse.SummaryInfo> courses;
-    }
-
-    @Getter
-    @Builder
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class CrewCourse {
-        private Long id;
-        private String imageUrl;
-        private CourseImageType type;
     }
 
     @Getter
@@ -114,7 +89,9 @@ public class CrewResponse {
         private List<CrewActivityTime> crewActivityTimeList;
         private CrewLocationInfo crewLocationInfos;
         private CourseResponse.CourseListResponse crewCourses;
+        private Ranking ranking;
     }
+
     @Getter
     @Builder
     @AllArgsConstructor
@@ -126,6 +103,7 @@ public class CrewResponse {
         private String openChatUrl;
         private List<CrewImageInfo> images;
     }
+
     @Getter
     @Builder
     @AllArgsConstructor
@@ -144,7 +122,6 @@ public class CrewResponse {
         private String startTime;
         private String endTime;
     }
-
 
     @Getter
     @Builder
@@ -184,6 +161,7 @@ public class CrewResponse {
     public static class CrewScheduleMemberListResponse {
         private List<CrewMemberInfo> CrewScheduleMembers;
     }
+
     @Getter
     @Builder
     @AllArgsConstructor
@@ -199,5 +177,21 @@ public class CrewResponse {
     @AllArgsConstructor
     public static class CheckJoinCrewResponse {
         private Boolean isAvailable;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class CrewUpdateResponse {
+        private Long id;
+        private String name;
+        private String shortDescription;
+        private String detailDescription;
+        private String profileImageUrl;
+        private Ranking ranking;
+        private List<CrewActivityTime> crewActivityTimeList;
+        private CrewLocationInfo crewLocationInfos;
+        private String openChatUrl;
     }
 }

@@ -221,11 +221,11 @@ public class CrewServiceImpl implements CrewService {
 
     @Override
     @Transactional
-    public CrewResponse.CrewIdResponse createCrew(Member leader, CrewRequest.createCrew request
-            , MultipartFile representativeImage) {
-        Crew crew;
+    public CrewResponse.CrewIdResponse createCrew(
+        Member leader, CrewRequest.createCrew request, MultipartFile representativeImage
+    ) {
         String imageUrl = (representativeImage != null) ? s3ImageService.upload(representativeImage) : null;
-        crew = crewEntityMapper.toCrew(leader, request, imageUrl);
+        Crew crew = crewEntityMapper.toCrew(leader, request, imageUrl);
         Crew savedCrew = crewRepository.save(crew);
         crewLocationRepository.save(crewEntityMapper.toCrewLocation(savedCrew, request));
         crewMemberRepository.save(CrewMember.builder()
@@ -533,6 +533,18 @@ public class CrewServiceImpl implements CrewService {
     public CrewResponse.DuplicateCheckResponse isNameDuplicate(String name) {
         return new CrewResponse.DuplicateCheckResponse(
                 crewRepository.existsByName(name)
+        );
+    }
+
+    @Override
+    public CrewResponse.CrewUpdateResponse getUpdateCrewInfo(Member member, Long crewId) {
+        Crew crew = crewRepository.getCrew(crewId);
+        validateCrewLeader(member, crew);
+
+        return crewResponseMapper.toCrewUpdateResponse(
+            crew,
+            getCrewActivityTime(crew),
+            getCrewLocationInfo(crew)
         );
     }
 
