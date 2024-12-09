@@ -19,7 +19,7 @@ public class CrewResponseMapper {
         return CrewList.stream()
                 .map(crew ->
                         CrewResponse.MyCrewResponse.builder()
-                                .id(crew.getLeader().getId())
+                                .id(crew.getId())
                                 .name(crew.getName())
                                 .memberCount(crew.getMemberCount())
                                 .shortDescription(crew.getShortDescription())
