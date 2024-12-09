@@ -494,8 +494,7 @@ public class CrewServiceImpl implements CrewService {
             crewScheduleApplyRepository.findAllByCrewSchedule(schedule).forEach(CrewScheduleApply::delete);
             schedule.delete();
         }
-        crew.delete();
-        crewRepository.save(crew);
+        crewRepository.delete(crew);
     }
 
     @Override
