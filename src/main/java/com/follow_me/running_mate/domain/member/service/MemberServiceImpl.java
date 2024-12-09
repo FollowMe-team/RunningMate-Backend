@@ -3,6 +3,8 @@ package com.follow_me.running_mate.domain.member.service;
 import com.follow_me.running_mate.domain.course.dto.response.CourseResponse;
 import com.follow_me.running_mate.domain.course.entity.CourseRecord;
 import com.follow_me.running_mate.domain.course.service.record.CourseRecordService;
+import com.follow_me.running_mate.domain.crew.entity.*;
+import com.follow_me.running_mate.domain.crew.repository.*;
 import com.follow_me.running_mate.domain.enums.FootprintType;
 import com.follow_me.running_mate.domain.member.dto.request.MemberRequest;
 import com.follow_me.running_mate.domain.member.dto.response.MemberResponse;
@@ -48,6 +50,15 @@ public class MemberServiceImpl implements MemberService {
     private final MemberLocationRepository memberLocationRepository;
     private final MemberFootprintRepository memberFootprintRepository;
     private final MemberWithdrawRepository memberWithdrawRepository;
+    private final CrewRepository crewRepository;
+    private final CrewMemberRepository crewMemberRepository;
+    private final CrewActivityTimeRepository crewActivityTimeRepository;
+    private final CrewCourseRepository crewCourseRepository;
+    private final CrewImageRepository crewImageRepository;
+    private final CrewLocationRepository crewLocationRepository;
+    private final CrewScheduleRepository crewScheduleRepository;
+    private final CrewScheduleApplyRepository crewScheduleApplyRepository;
+
 
     @Override
     public void signup(MemberRequest.SignUpRequest request, MultipartFile profileImage) {
@@ -73,8 +84,35 @@ public class MemberServiceImpl implements MemberService {
     public void withdraw(Member member, MemberRequest.WithdrawRequest request) {
         memberWithdrawRepository.save(memberMapper.toMemberWithdraw(member, request));
         tokenRepository.deleteById(member.getEmail()); //토큰 삭제
+
+        if(crewRepository.existsByLeader(member)){
+            crewRepository.findByLeader(member).ifPresent(crew -> {
+                softDeleteCrew(member, crew);
+            });
+        }
+
         member.delete();
         memberRepository.save(member);
+    }
+
+    private void softDeleteCrew(Member member, Crew crew) {
+        List<CrewMember> crewMembers = crewMemberRepository.findAllByCrew(crew);
+
+        crewMembers.forEach(CrewMember::delete);
+
+        crewActivityTimeRepository.findAllByCrew(crew).forEach(CrewActivityTime::delete);
+        crewCourseRepository.findAllByCrew(crew).forEach(CrewCourse::delete);
+        crewImageRepository.findAllByCrew(crew).forEach(CrewImage::delete);
+        crewLocationRepository.findAllByCrew(crew).forEach(CrewLocation::delete);
+        crewMemberRepository.findAllByCrew(crew).forEach(CrewMember::delete);
+
+        List<CrewSchedule> schedules = crewScheduleRepository.findAllByCrew(crew);
+        for (CrewSchedule schedule : schedules) {
+            crewScheduleApplyRepository.findAllByCrewSchedule(schedule).forEach(CrewScheduleApply::delete);
+            schedule.delete();
+        }
+        crew.delete();
+        crewRepository.save(crew);
     }
 
     @Override
