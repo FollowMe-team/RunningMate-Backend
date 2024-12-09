@@ -79,12 +79,12 @@ public class CrewController {
             @Parameter(description = "구역")
             @RequestParam(value = "district", required = false) String district,
 
-            @Parameter(description = "활동 시간", example = "MONDAY,SATURDAY",
+            @Parameter(description = "활동 시간", example = "MONDAY , TUESDAY ,WEDNESDAY,THURSDAY,FRIDAY,SATURDAY,SUNDAY",
                     schema = @Schema(implementation = String.class, allowableValues =
                             {"MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"}))
             @RequestParam(value = "activityTimes", required = false) List<ActivityTimeType> activityTimes,
 
-            @Parameter(description = "정렬 기준", example = "RECENT",
+            @Parameter(description = "정렬 기준", example = "RECENT , OLDEST",
                     schema = @Schema(implementation = String.class, allowableValues = {"RECENT", "OLDEST"}))
             @RequestParam(value = "orderBy", required = false, defaultValue = "RECENT") String orderBy
     ) {
