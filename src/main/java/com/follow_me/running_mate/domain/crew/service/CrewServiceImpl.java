@@ -483,16 +483,16 @@ public class CrewServiceImpl implements CrewService {
             validateCrewLeader(member, crew);
         }
 
-        crewActivityTimeRepository.findAllByCrew(crew).forEach(CrewActivityTime::delete);
-        crewCourseRepository.findAllByCrew(crew).forEach(CrewCourse::delete);
-        crewImageRepository.findAllByCrew(crew).forEach(CrewImage::delete);
-        crewLocationRepository.findAllByCrew(crew).forEach(CrewLocation::delete);
-        crewMemberRepository.findAllByCrew(crew).forEach(CrewMember::delete);
+        crewActivityTimeRepository.deleteAll(crewActivityTimeRepository.findAllByCrew(crew));
+        crewCourseRepository.deleteAll(crewCourseRepository.findAllByCrew(crew));
+        crewImageRepository.deleteAll(crewImageRepository.findAllByCrew(crew));
+        crewLocationRepository.deleteAll(crewLocationRepository.findAllByCrew(crew));
+        crewMemberRepository.deleteAll(crewMemberRepository.findAllByCrew(crew));
 
         List<CrewSchedule> schedules = crewScheduleRepository.findAllByCrew(crew);
         for (CrewSchedule schedule : schedules) {
-            crewScheduleApplyRepository.findAllByCrewSchedule(schedule).forEach(CrewScheduleApply::delete);
-            schedule.delete();
+            crewScheduleApplyRepository.deleteAll(crewScheduleApplyRepository.findAllByCrewSchedule(schedule));
+            crewScheduleRepository.delete(schedule);
         }
         crewRepository.delete(crew);
     }
