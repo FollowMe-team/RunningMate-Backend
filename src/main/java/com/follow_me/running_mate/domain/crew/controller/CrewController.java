@@ -499,4 +499,24 @@ public class CrewController {
     ) {
         return BaseResponse.success("크루명 중복 확인에 성공했습니다.", crewService.isNameDuplicate(name));
     }
+
+    @GetMapping("/update")
+    @Operation(summary = "수정할 크루 정보 조회 API", description = "수정할 크루 정보 데이터를 조회합니다..")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "크루 정보 조회에 성공했습니다.",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+        @ApiResponse(responseCode = "CREW009", description = "해당 크루를 찾을 수 없음",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+        @ApiResponse(responseCode = "CREW004", description = "해당 사용자에게 권한이 없습니다.",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+    })
+    public BaseResponse<CrewResponse.CrewUpdateResponse> getUpdateCrewInfo(
+            @AuthenticationPrincipal PrincipalDetails principalDetails,
+            @RequestParam(value = "crewId") Long crewId
+    ) {
+        return BaseResponse.success(
+                "크루 정보 조회에 성공했습니다.",
+                crewService.getUpdateCrewInfo(principalDetails.member(), crewId)
+        );
+    }
 }

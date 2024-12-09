@@ -178,4 +178,20 @@ public class CrewResponse {
     public static class CheckJoinCrewResponse {
         private Boolean isAvailable;
     }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class CrewUpdateResponse {
+        private Long id;
+        private String name;
+        private String shortDescription;
+        private String detailDescription;
+        private String profileImageUrl;
+        private Ranking ranking;
+        private List<CrewActivityTime> crewActivityTimeList;
+        private CrewLocationInfo crewLocationInfos;
+        private String openChatUrl;
+    }
 }

@@ -536,6 +536,18 @@ public class CrewServiceImpl implements CrewService {
         );
     }
 
+    @Override
+    public CrewResponse.CrewUpdateResponse getUpdateCrewInfo(Member member, Long crewId) {
+        Crew crew = crewRepository.getCrew(crewId);
+        validateCrewLeader(member, crew);
+
+        return crewResponseMapper.toCrewUpdateResponse(
+            crew,
+            getCrewActivityTime(crew),
+            getCrewLocationInfo(crew)
+        );
+    }
+
     private boolean isUserLeaderOfCrew(Member member, Crew crew) {
         return crew.getLeader().getId().equals(member.getId());
     }

@@ -46,6 +46,25 @@ public class CrewResponseMapper {
                 .ranking(crew.getRanking())
                 .build();
     }
+
+    public CrewResponse.CrewUpdateResponse toCrewUpdateResponse(
+            Crew crew,
+            List<CrewActivityTime> crewActivityTimes,
+            CrewLocation crewLocations
+    ) {
+        return CrewResponse.CrewUpdateResponse.builder()
+                .id(crew.getId())
+                .name(crew.getName())
+                .shortDescription(crew.getShortDescription())
+                .detailDescription(crew.getDetailDescription())
+                .profileImageUrl(crew.getProfileImageUrl())
+                .ranking(crew.getRanking())
+                .crewActivityTimeList(toCrewActivityTimes(crewActivityTimes))
+                .crewLocationInfos(toCrewLocation(crewLocations))
+                .openChatUrl(crew.getOpenChatUrl())
+                .build();
+    }
+
     public List<CrewResponse.CrewActivityTime> toCrewActivityTimes(List<CrewActivityTime> crewActivityTimes) {
         return crewActivityTimes.stream()
                 .map(crewActivityTime -> CrewResponse.CrewActivityTime.builder()
