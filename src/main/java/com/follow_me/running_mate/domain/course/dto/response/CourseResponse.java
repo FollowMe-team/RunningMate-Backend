@@ -1,7 +1,6 @@
 package com.follow_me.running_mate.domain.course.dto.response;
 
 import com.follow_me.running_mate.domain.enums.CourseImageType;
-import com.follow_me.running_mate.domain.enums.CourseOptionType;
 import com.follow_me.running_mate.domain.enums.CoursePointVoice;
 import com.follow_me.running_mate.domain.enums.Difficulty;
 import com.follow_me.running_mate.domain.enums.Ranking;
@@ -72,7 +71,7 @@ public class CourseResponse {
         private Double rating;
         private Integer runningCount;
         private boolean isBookmarked;
-        private List<CourseOptionType> courseOptionTypes;
+        private List<String> courseOptionTypes;
         private List<CoursePointInfo> coursePointInfos;
     }
 
@@ -92,7 +91,7 @@ public class CourseResponse {
         private Double rating;
         private Integer runningCount;
         private boolean isBookmarked;
-        private List<CourseOptionType> courseOptionTypes;
+        private List<String> courseOptionTypes;
         private List<CoursePointInfo> coursePointInfos;
     }
 
@@ -111,7 +110,7 @@ public class CourseResponse {
         private Double rating;
         private Integer runningCount;
         private boolean isBookmarked;
-        private List<CourseOptionType> courseOptionTypes;
+        private List<String> courseOptionTypes;
         private List<CoursePointInfo> coursePointInfos;
         private List<CourseImageInfo> images;
         private List<CrewInfo> crews;
