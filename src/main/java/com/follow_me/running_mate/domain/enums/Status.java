@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 public enum Status {
     READY("신청 중"),
     ANALYZING("분석 중"),
-    WAIT("승인 대기 중"),
+    WAIT("대기 중"),
     COMPLETE("승인 완료"),
     REJECT("승인 거절"),
     ;

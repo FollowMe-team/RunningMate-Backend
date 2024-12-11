@@ -67,7 +67,7 @@ public class CourseResponse {
         private String location;
         private Double distance;
         private String duration;
-        private Difficulty difficulty;
+        private String difficulty;
         private Double rating;
         private Integer runningCount;
         private boolean isBookmarked;
@@ -86,8 +86,8 @@ public class CourseResponse {
         private String location;
         private Double distance;
         private String duration;
-        private Difficulty difficulty;
-        private Status status;
+        private String difficulty;
+        private String status;
         private Double rating;
         private Integer runningCount;
         private boolean isBookmarked;
@@ -106,7 +106,7 @@ public class CourseResponse {
         private String location;
         private Double distance;
         private String duration;
-        private Difficulty difficulty;
+        private String difficulty;
         private Double rating;
         private Integer runningCount;
         private boolean isBookmarked;
