@@ -9,7 +9,6 @@ import com.follow_me.running_mate.domain.course.entity.CourseRecord;
 import com.follow_me.running_mate.domain.course.entity.CourseReview;
 import com.follow_me.running_mate.domain.course.entity.CourseReviewImage;
 import com.follow_me.running_mate.domain.crew.entity.Crew;
-import com.follow_me.running_mate.domain.enums.CourseOptionType;
 import com.follow_me.running_mate.domain.member.entity.Member;
 import com.follow_me.running_mate.global.common.util.FormatterUtil;
 import java.util.List;
@@ -167,9 +166,9 @@ public class CourseResponseMapper {
             .build();
     }
 
-    private List<CourseOptionType> toCourseOptionTypes(List<CourseOption> options) {
+    private List<String> toCourseOptionTypes(List<CourseOption> options) {
         return options.stream()
-            .map(CourseOption::getType)
+            .map(option -> option.getType().getToKorean())
             .toList();
     }
 
