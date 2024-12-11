@@ -3,6 +3,8 @@ package com.follow_me.running_mate.global.common.util;
 import com.follow_me.running_mate.domain.course.dto.request.CourseRequest;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import org.locationtech.jts.geom.Coordinate;
@@ -79,7 +81,7 @@ public class FormatterUtil {
 
     // 시간 포맷팅
     public static String formatTime(LocalDateTime createdAt) {
-        LocalDateTime now = LocalDateTime.now();
+        ZonedDateTime now = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
         Duration duration = Duration.between(createdAt, now);
 
         if (duration.getSeconds() < 60) {
