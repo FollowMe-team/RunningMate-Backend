@@ -151,7 +151,9 @@ public class CourseServiceImpl implements CourseService {
     @Transactional(readOnly = true)
     public CourseResponse.CourseListResponse getRecentCourses(Member member) {
 
-        List<Course> recentCourses = courseRecordService.getRecentCourses(member);
+        List<Course> recentCourses = courseRecordService.getRecentCourses(member).stream()
+            .distinct()
+            .toList();
 
         List<CourseResponse.SummaryInfo> courses = recentCourses.stream().map(course ->
             courseResponseMapper.toSummaryInfo(
@@ -318,7 +320,7 @@ public class CourseServiceImpl implements CourseService {
     @Transactional(readOnly = true)
     public CourseResponse.CheckCourseNameResponse checkCourseName(String name) {
         return new CourseResponse.CheckCourseNameResponse(
-            courseRepository.existsByName(name)
+            !courseRepository.existsByName(name)
         );
     }
 
