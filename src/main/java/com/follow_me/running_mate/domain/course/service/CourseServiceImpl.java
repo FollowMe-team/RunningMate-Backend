@@ -281,7 +281,8 @@ public class CourseServiceImpl implements CourseService {
             courseOptionService.getCourseOptions(course),
             coursePointService.getCoursePoints(course),
             courseResponseMapper.toCrewInfos(crewService.getCrewByCourse(course)),
-            courseResponseMapper.toReviewInfos(courseReviewService.getRecentReviews(course), member)
+            courseResponseMapper.toReviewInfos(courseReviewService.getRecentReviews(course), member),
+            courseReviewService.getReviewCount(course)
         );
     }
 

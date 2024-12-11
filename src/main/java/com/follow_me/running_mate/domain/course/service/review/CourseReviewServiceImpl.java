@@ -107,5 +107,10 @@ public class CourseReviewServiceImpl implements CourseReviewService {
         return ratingCounts;
     }
 
+    @Override
+    public int getReviewCount(Course course) {
+        return courseReviewRepository.countAllByCourse(course);
+    }
+
 
 }

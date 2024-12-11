@@ -67,7 +67,7 @@ public class CourseResponseMapper {
     public CourseResponse.CourseDetailResponse toCourseDetailResponse(
         Course course, Double rating, Boolean isBookmarked, List<CourseImage> images,
         List<CourseOption> courseOptions, List<CoursePoint> coursePoints,
-        List<CourseResponse.CrewInfo> crews, List<CourseResponse.ReviewInfo> reviews
+        List<CourseResponse.CrewInfo> crews, List<CourseResponse.ReviewInfo> reviews, int reviewCount
     ) {
         return CourseResponse.CourseDetailResponse.builder()
             .id(course.getId())
@@ -86,7 +86,7 @@ public class CourseResponseMapper {
             .crews(crews)
             .crewCount(crews.size())
             .reviews(reviews)
-            .reviewCount(reviews.size())
+            .reviewCount(reviewCount)
             .build();
     }
 

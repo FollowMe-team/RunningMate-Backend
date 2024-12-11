@@ -20,4 +20,5 @@ public interface CourseReviewService {
     List<CourseReview> getRecentReviews(Course course);
     List<CourseReview> getReviews(Course course, ReviewSortType sortType);
     List<Integer> getReviewCounts(List<CourseResponse.ReviewInfo> reviews);
+    int getReviewCount(Course course);
 }
