@@ -313,7 +313,8 @@ public class CrewServiceImpl implements CrewService {
 
     @Override
     @Transactional
-    public void updateCrewMemberStatus(Member currentUser, Long crewId, Long memberId, CrewMemberStatus status) {
+    public CrewResponse.CrewMemberResponse updateCrewMemberStatus(Member currentUser, Long crewId,
+                                                                  Long memberId, CrewMemberStatus status) {
 
         Member applyMember = memberService.getMember(memberId);
         Crew crew = crewRepository.getCrew(crewId);
@@ -339,6 +340,7 @@ public class CrewServiceImpl implements CrewService {
                 throw new CustomException(CrewErrorCode.INVALID_INPUT_VALUE);
         }
         crewMember.updateStatus(status);
+        return new CrewResponse.CrewMemberResponse(memberId, status.name());
     }
 
     private void validateCrewLeader(Member currentUser, CrewMember crewMember) {

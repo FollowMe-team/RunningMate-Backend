@@ -27,7 +27,7 @@ public interface CrewService {
 
     CrewResponse.CrewScheduleIdResponse registerSchedule(Member member, Long crewId, CrewRequest.CreateSchedule request);
     CrewResponse.CrewScheduleApplyIdResponse applyToSchedule(Member member, Long scheduleId);
-    void updateCrewMemberStatus(Member currentUser, Long crewId, Long memberId, CrewMemberStatus status);
+    CrewResponse.CrewMemberResponse updateCrewMemberStatus(Member currentUser, Long crewId, Long memberId, CrewMemberStatus status);
     CrewResponse.CrewIdResponse updateCrew(
         Member member, Long crewId, CrewRequest.UpdateCrewRequest request, MultipartFile representativeImage);
     CrewResponse.CrewCourseListResponse getFavoriteCourses(Member member,Long crewId);
