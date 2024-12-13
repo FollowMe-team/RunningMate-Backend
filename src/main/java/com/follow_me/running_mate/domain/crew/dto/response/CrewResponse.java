@@ -2,7 +2,6 @@ package com.follow_me.running_mate.domain.crew.dto.response;
 
 import com.follow_me.running_mate.domain.course.dto.response.CourseResponse;
 import com.follow_me.running_mate.domain.enums.ActivityTimeType;
-import com.follow_me.running_mate.domain.enums.CourseImageType;
 import com.follow_me.running_mate.domain.enums.Ranking;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -34,6 +33,13 @@ public class CrewResponse {
     @AllArgsConstructor
     public static class CrewScheduleApplyIdResponse {
         private Long ScheduleApplyId;
+    }
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class CrewMemberResponse {
+        private Long memberId;
+        private String status;
     }
 
     @Getter

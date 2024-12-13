@@ -225,14 +225,14 @@ public class CrewController {
     @Operation(summary = "크루 멤버 상태 업데이트 API", description = "크루 멤버 상태를 수락, 거절, 탈퇴로 변경합니다.")
     @ApiResponse(responseCode = "200", description = "상태 업데이트 성공",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
-    public BaseResponse<Void> updateCrewMemberStatus(
+    public BaseResponse<CrewResponse.CrewMemberResponse> updateCrewMemberStatus(
             @AuthenticationPrincipal PrincipalDetails principalDetails,
             @PathVariable(value = "crewId") Long crewId,
             @PathVariable(value = "memberId") Long memberId,
             @RequestParam(value = "status") CrewMemberStatus status
     ) {
-        crewService.updateCrewMemberStatus(principalDetails.member(), crewId, memberId, status);
-        return BaseResponse.success("크루 멤버 상태가 성공적으로 업데이트되었습니다.", null);
+        return BaseResponse.success("크루 멤버 상태가 성공적으로 업데이트되었습니다.",
+                crewService.updateCrewMemberStatus(principalDetails.member(), crewId, memberId, status));
     }
 
     @PatchMapping(value = "/{crewId}/modify", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
