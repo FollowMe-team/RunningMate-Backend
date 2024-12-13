@@ -5,10 +5,11 @@ import com.follow_me.running_mate.domain.crew.exception.CrewErrorCode;
 import com.follow_me.running_mate.domain.member.entity.Member;
 import com.follow_me.running_mate.global.error.exception.CustomException;
 import io.lettuce.core.dynamic.annotation.Param;
-import java.util.List;
-import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+
+import java.util.List;
+import java.util.Optional;
 
 public interface CrewRepository extends JpaRepository<Crew,Long> {
     @Query("SELECT c FROM Crew c WHERE c NOT IN :myCrews ORDER BY c.createdAt DESC")
@@ -18,7 +19,8 @@ public interface CrewRepository extends JpaRepository<Crew,Long> {
         return findById(crewId)
                 .orElseThrow(() -> new CustomException(CrewErrorCode.NOT_FOUND));  // 크루가 없을 경우 예외 처리
     }
-    boolean existsByName(String name);
+    @Query(value = "SELECT EXISTS(SELECT 1 FROM crew WHERE name = :name)", nativeQuery = true)
+    boolean existsByName(@Param("name") String name);
     Optional<Crew> findByLeader(Member leader);
     @Query(value = "SELECT DISTINCT c.* FROM crew c " +
             "LEFT JOIN crew_location l ON c.id = l.crew_id " +
