@@ -182,12 +182,13 @@ public class CrewController {
             @ApiResponse(responseCode = "CREW016", description = "해당 크루에 신청 할 수 없습니다.",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
     })
-    public BaseResponse<Void> applyToCrew(
+    public BaseResponse<CrewResponse.CrewApplyResponse> applyToCrew(
             @AuthenticationPrincipal PrincipalDetails principalDetails,
             @PathVariable(value = "crewId") Long crewId
     ) {
-        crewService.applyToCrew(principalDetails.member(), crewId);
-        return BaseResponse.success("크루 신청이 완료되었습니다.", null);
+
+        return BaseResponse.success("크루 신청이 완료되었습니다.",
+                crewService.applyToCrew(principalDetails.member(), crewId));
     }
 
     @PostMapping("/{crewId}/schedule")
@@ -384,12 +385,12 @@ public class CrewController {
             @ApiResponse(responseCode = "CREW013", description = "해당 크루의 크루장입니다. 크루장을 변경해주세요",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
     })
-    public BaseResponse<Void> cancelCrewApplication(
+    public BaseResponse<CrewResponse.CrewApplyResponse> cancelCrewApplication(
             @AuthenticationPrincipal PrincipalDetails principalDetails,
             @PathVariable(value = "crewId") Long crewId
     ) {
-        crewService.cancelCrewApplication(principalDetails.member(), crewId);
-        return BaseResponse.success("신청이 성공적으로 취소되었습니다.", null);
+        return BaseResponse.success("신청이 성공적으로 취소되었습니다.",
+                crewService.cancelCrewApplication(principalDetails.member(), crewId));
     }
 
     @DeleteMapping("/{crewId}")

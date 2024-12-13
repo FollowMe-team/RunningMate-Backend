@@ -23,7 +23,7 @@ public interface CrewService {
 
     CrewResponse.CrewIdResponse createCrew(Member member, CrewRequest.createCrew request, MultipartFile representativeImage);
 
-    void applyToCrew(Member member, Long crewId);
+    CrewResponse.CrewApplyResponse applyToCrew(Member member, Long crewId);
 
     CrewResponse.CrewScheduleIdResponse registerSchedule(Member member, Long crewId, CrewRequest.CreateSchedule request);
     CrewResponse.CrewScheduleApplyIdResponse applyToSchedule(Member member, Long scheduleId);
@@ -37,7 +37,7 @@ public interface CrewService {
     void cancelScheduleApply(Member member, Long scheduleId);
     void attendSchedule(Member member, Long scheduleId, List<Long> memberIds);
     void changeLeader(Member currentMember, Long crewId, Long newLeaderId);
-    void cancelCrewApplication(Member member, Long crewId);
+    CrewResponse.CrewApplyResponse cancelCrewApplication(Member member, Long crewId);
     void deleteCrew(Member member, Long crewId);
     void deleteCrewSchedule(Member member, Long scheduleId);
     void deleteFavoriteCourse(Member member, Long courseId,Long crewId);

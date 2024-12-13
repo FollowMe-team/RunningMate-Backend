@@ -243,20 +243,22 @@ public class CrewServiceImpl implements CrewService {
 
     @Override
     @Transactional
-    public void applyToCrew(Member member, Long crewId) {
-        // 크루 존재 여부 확인
+    public CrewResponse.CrewApplyResponse applyToCrew(Member member, Long crewId) {
         Crew crew = crewRepository.getCrew(crewId);
-        // 이미 신청했는지 확인
         Optional<CrewMember> crewMember = crewMemberRepository.findByCrewAndMember(crew, member);
-        if (crewMember.isEmpty()) {
-            crewMemberRepository.save(crewEntityMapper.toCrewMember(crew, member));
-            return;
-        } else if (crewMember.get().getStatus() == CrewMemberStatus.REJECT) {
-            crewMember.get().updateStatus(CrewMemberStatus.READY);
-            return;
-        }
-        throw new CustomException(CrewErrorCode.CREW_APPLY_REJECT);
+
+        return crewMember.map(existingCrewMember -> {
+            if (existingCrewMember.getStatus() == CrewMemberStatus.REJECT) {
+                existingCrewMember.updateStatus(CrewMemberStatus.READY);
+                return new CrewResponse.CrewApplyResponse(member.getId(), existingCrewMember.getStatus().getToKorean());
+            }
+            throw new CustomException(CrewErrorCode.CREW_APPLY_REJECT);
+        }).orElseGet(() -> {
+            CrewMember newCrewMember = crewMemberRepository.save(crewEntityMapper.toCrewMember(crew, member));
+            return new CrewResponse.CrewApplyResponse(member.getId(), newCrewMember.getStatus().getToKorean());
+        });
     }
+
 
     @Override
     @Transactional
@@ -464,13 +466,14 @@ public class CrewServiceImpl implements CrewService {
 
     @Override
     @Transactional
-    public void cancelCrewApplication(Member member, Long crewId) {
+    public CrewResponse.CrewApplyResponse cancelCrewApplication(Member member, Long crewId) {
         Crew crew = crewRepository.getCrew(crewId);
 
         CrewMember crewMember = crewMemberRepository.findByCrewAndMemberAndStatus(crew, member, CrewMemberStatus.READY)
                 .orElseThrow(() -> new CustomException(CrewErrorCode.NO_APPLY_CREW));
 
         crewMember.delete();
+        return new CrewResponse.CrewApplyResponse(member.getId(), CrewMemberStatus.REJECT.getToKorean());
     }
 
     @Override
