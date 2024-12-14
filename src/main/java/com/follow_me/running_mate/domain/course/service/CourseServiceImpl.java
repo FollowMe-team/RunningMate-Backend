@@ -50,6 +50,7 @@ public class CourseServiceImpl implements CourseService {
     private final CoursePointService coursePointService;
     private final CrewService crewService;
     private final LambdaService lambdaService;
+    private final S3CourseService s3CourseService;
 
 
     @Override
@@ -67,7 +68,7 @@ public class CourseServiceImpl implements CourseService {
         courseImageService.saveCourseImages(course, representativeImage, startImage, endImage);
         List<CourseOption> courseOptions = courseOptionService.saveAll(course, request.getOptions());
         course.addOptions(courseOptions);
-        List<CoursePoint> coursePoints = coursePointService.saveCoursePoints(course, request.getCoursePoints());
+        coursePointService.saveCoursePoints(course, request.getCoursePoints());
         log.info("코스 상세 정보 저장 완료: courseId={}", course.getId());
 
         final Long courseId = course.getId();
@@ -323,6 +324,15 @@ public class CourseServiceImpl implements CourseService {
         return new CourseResponse.CheckCourseNameResponse(
             !courseRepository.existsByName(name)
         );
+    }
+
+    @Override
+    @Transactional
+    public void approveCourse(Long courseId) {
+        Course course =courseRepository.getCourseNotApproved(courseId);
+        course.updateStatus(Status.COMPLETE);
+
+        s3CourseService.saveCourseToS3(course);
     }
 
     @Transactional

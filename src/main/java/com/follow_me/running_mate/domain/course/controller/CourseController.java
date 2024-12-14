@@ -314,4 +314,23 @@ public class CourseController {
             "코스명 중복 체크에 성공했습니다.", courseService.checkCourseName(name)
         );
     }
+
+    @PostMapping("/{courseId}/approve")
+    @Operation(summary = "코스 승인 API", description = "코스를 승인합니다.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "코스 승인에 성공했습니다.",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+        @ApiResponse(responseCode = "COURSE009", description = "이미 승인된 코스입니다.",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+        @ApiResponse(responseCode = "COURSE010", description = "코스를 JSON으로 변환하는 중 오류가 발생했습니다.",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+        @ApiResponse(responseCode = "COURSE011", description = "코스를 S3에 업로드하는 중 오류가 발생했습니다.",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
+    })
+    public BaseResponse<Void> approveCourse(
+        @PathVariable(value = "courseId") Long courseId
+    ) {
+        courseService.approveCourse(courseId);
+        return BaseResponse.success("코스 승인에 성공했습니다.", null);
+    }
 }
