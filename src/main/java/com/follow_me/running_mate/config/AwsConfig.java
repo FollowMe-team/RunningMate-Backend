@@ -7,9 +7,11 @@ import com.amazonaws.services.lambda.AWSLambda;
 import com.amazonaws.services.lambda.AWSLambdaClientBuilder;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 
 @Configuration
 public class AwsConfig {
@@ -19,20 +21,36 @@ public class AwsConfig {
     @Value("${cloud.aws.credentials.secret-key}")
     private String secretKey;
 
-    @Value("${cloud.aws.region.static}")
-    private String region;
+    @Value("${cloud.aws.region.first}")
+    private String firstRegion;
 
-    @Value("${cloud.aws.s3.bucket}")
-    private String bucket;
+    @Value("${cloud.aws.region.second}")
+    private String secondRegion;
+
+    @Value("${cloud.aws.s3.bucket.image}")
+    private String imageBucket;
+
+    @Value("${cloud.aws.s3.bucket.course}")
+    private String courseBucket;
 
     private AWSCredentials credentials() {
         return new BasicAWSCredentials(accessKey, secretKey);
     }
 
     @Bean
-    public AmazonS3 amazonS3() {
+    @Primary
+    public AmazonS3 amazonS3Image() {
         return AmazonS3ClientBuilder.standard()
-            .withRegion(region)
+            .withRegion(firstRegion)
+            .withCredentials(new AWSStaticCredentialsProvider(credentials()))
+            .build();
+    }
+
+    @Bean
+    @Qualifier("amazonS3Course")
+    public AmazonS3 amazonS3Course() {
+        return AmazonS3ClientBuilder.standard()
+            .withRegion(secondRegion)
             .withCredentials(new AWSStaticCredentialsProvider(credentials()))
             .build();
     }
@@ -41,13 +59,19 @@ public class AwsConfig {
     public AWSLambda awsLambda() {
         return AWSLambdaClientBuilder.standard()
             .withCredentials(new AWSStaticCredentialsProvider(credentials()))
-            .withRegion(region)
+            .withRegion(firstRegion)
             .build();
     }
 
     @Bean
-    public String bucket() {
-        return bucket;
+    public String imageBucket() {
+        return imageBucket;
+    }
+
+    @Bean
+    @Qualifier("courseBucket")
+    public String courseBucket() {
+        return courseBucket;
     }
 }
 
