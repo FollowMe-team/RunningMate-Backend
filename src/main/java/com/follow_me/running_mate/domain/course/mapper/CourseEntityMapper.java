@@ -92,7 +92,7 @@ public class CourseEntityMapper {
             .runner(member)
             .startTime(request.getStartTime())
             .endTime(request.getEndTime())
-            .duration(Duration.between(request.getStartTime(), request.getEndTime()))
+            .duration(Duration.ofSeconds(request.getDuration()))
             .distance(request.getDistance())
             .averagePace(request.getAveragePace())
             .caloriesBurned(request.getCaloriesBurned())
