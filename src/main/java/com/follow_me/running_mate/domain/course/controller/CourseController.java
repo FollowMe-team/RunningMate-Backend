@@ -202,6 +202,8 @@ public class CourseController {
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "코스 추천에 성공했습니다.",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+        @ApiResponse(responseCode = "COURSE012", description = "Bedrock용 Lambda 함수 오류: {errorMessage}",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
     })
     public BaseResponse<CourseResponse.CourseListResponse> recommendedCourses(
         @AuthenticationPrincipal PrincipalDetails principalDetails,

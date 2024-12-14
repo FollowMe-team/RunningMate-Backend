@@ -1,6 +1,7 @@
 package com.follow_me.running_mate.domain.course.service;
 
 import com.follow_me.running_mate.domain.course.dto.request.CourseRequest;
+import com.follow_me.running_mate.domain.course.dto.response.CourseRecommendResponse;
 import com.follow_me.running_mate.domain.course.dto.response.CourseResponse;
 import com.follow_me.running_mate.domain.course.entity.Course;
 import com.follow_me.running_mate.domain.course.entity.CourseOption;
@@ -49,8 +50,10 @@ public class CourseServiceImpl implements CourseService {
     private final CourseImageService courseImageService;
     private final CoursePointService coursePointService;
     private final CrewService crewService;
-    private final LambdaService lambdaService;
-    private final S3CourseService s3CourseService;
+    private final CourseAnalysisService courseAnalysisService;
+    private final CourseVectorService courseVectorService;
+    private final CourseRecommendService courseRecommendService;
+
 
 
     @Override
@@ -78,7 +81,7 @@ public class CourseServiceImpl implements CourseService {
                 updateCourseStatus(courseId, Status.ANALYZING);
                 log.info("상태 업데이트 - ANALYZING: courseId={}", courseId);
 
-                lambdaService.invokeCourseDifficultyLambda(
+                courseAnalysisService.invokeCourseDifficultyLambda(
                     courseRepository.getCourseNotApproved(courseId),
                     coursePointService.getCoursePointsByCourseId(courseId)
                 );
@@ -209,19 +212,10 @@ public class CourseServiceImpl implements CourseService {
     public CourseResponse.CourseListResponse recommendedCourses(
         Member member, Double latitude, Double longitude, Difficulty difficulty, RunningGoal runningGoal) {
 
-        // 위치 반경 기본값 (단위: 미터)
-        double radius = 50000.0;
+        CourseRecommendResponse courseRecommendResponse =
+            courseRecommendService.invokeLambda(member, latitude, longitude, difficulty, runningGoal);
 
-        // 사용자 ranking을 기준으로 기본 난이도 설정
-        Difficulty effectiveDifficulty =
-            (difficulty != null) ? difficulty : getDefaultDifficultyByRanking(member.getRanking());
-
-        // 러닝 목표에 맞는 옵션 필터링
-        List<String> goalOptions = (runningGoal != null) ?
-            courseOptionService.getOptionByRunningGoal(runningGoal) : List.of();
-
-        List<Course> recommendedCourses = courseRepository.recommendCourses(
-            latitude, longitude, radius, effectiveDifficulty.name(), goalOptions);
+        List<Course> recommendedCourses = courseRepository.findAllById(courseRecommendResponse.getCourseIds());
 
         List<CourseResponse.SummaryInfo> courses = recommendedCourses.stream().map(course ->
             courseResponseMapper.toSummaryInfo(
@@ -332,7 +326,7 @@ public class CourseServiceImpl implements CourseService {
         Course course =courseRepository.getCourseNotApproved(courseId);
         course.updateStatus(Status.COMPLETE);
 
-        s3CourseService.saveCourseToS3(course);
+        courseVectorService.saveCourseToS3(course);
     }
 
     @Transactional
