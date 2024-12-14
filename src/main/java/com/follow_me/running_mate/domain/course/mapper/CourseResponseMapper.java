@@ -1,18 +1,13 @@
 package com.follow_me.running_mate.domain.course.mapper;
 
 import com.follow_me.running_mate.domain.course.dto.response.CourseResponse;
-import com.follow_me.running_mate.domain.course.entity.Course;
-import com.follow_me.running_mate.domain.course.entity.CourseImage;
-import com.follow_me.running_mate.domain.course.entity.CourseOption;
-import com.follow_me.running_mate.domain.course.entity.CoursePoint;
-import com.follow_me.running_mate.domain.course.entity.CourseRecord;
-import com.follow_me.running_mate.domain.course.entity.CourseReview;
-import com.follow_me.running_mate.domain.course.entity.CourseReviewImage;
+import com.follow_me.running_mate.domain.course.entity.*;
 import com.follow_me.running_mate.domain.crew.entity.Crew;
 import com.follow_me.running_mate.domain.member.entity.Member;
 import com.follow_me.running_mate.global.common.util.FormatterUtil;
-import java.util.List;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 public class CourseResponseMapper {

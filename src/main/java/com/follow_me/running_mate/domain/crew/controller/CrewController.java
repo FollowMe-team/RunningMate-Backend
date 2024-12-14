@@ -16,22 +16,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import java.time.YearMonth;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.time.YearMonth;
+import java.util.List;
 
 @RestController
 @RequestMapping("/crew")
@@ -156,9 +148,9 @@ public class CrewController {
             @ApiResponse(responseCode = "500", description = "서버 오류",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class)))
     })
-    public BaseResponse<CrewResponse.CrewScheduleMemberListResponse> getMembersBySchedule(@PathVariable(value = "scheduleId") Long scheduleId) {
+    public BaseResponse<CrewResponse.CrewMemberListResponse> getMembersBySchedule(@PathVariable(value = "scheduleId") Long scheduleId) {
         List<CrewResponse.CrewMemberInfo> responses = crewService.getMembersBySchedule(scheduleId);
-        return BaseResponse.success("스케줄 멤버 조회에 성공했습니다.", new CrewResponse.CrewScheduleMemberListResponse(responses));
+        return BaseResponse.success("스케줄 멤버 조회에 성공했습니다.", new CrewResponse.CrewMemberListResponse(responses));
     }
 
     //TODO: 아직 프로필 리스트 화면이 나오지 않아 임시로 팔로워랑 똑같이 작성해둠
@@ -518,6 +510,43 @@ public class CrewController {
         return BaseResponse.success(
                 "크루 정보 조회에 성공했습니다.",
                 crewService.getUpdateCrewInfo(principalDetails.member(), crewId)
+        );
+    }
+    @GetMapping("/{crewId}/ready")
+    @Operation(summary = "READY 상태인 크루 신청자 조회 API", description = "현재 READY 상태인 크루 신청자들을 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "READY 상태인 크루 신청자 조회에 성공했습니다.",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+            @ApiResponse(responseCode = "CREW009", description = "해당 크루를 찾을 수 없음",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+            @ApiResponse(responseCode = "CREW004", description = "해당 사용자에게 권한이 없습니다.",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+    })
+    public BaseResponse<CrewResponse.CrewApplyMemberListResponse> getReadyApplicants(
+            @AuthenticationPrincipal PrincipalDetails principalDetails,
+            @PathVariable(value = "crewId") Long crewId) {
+        return BaseResponse.success(
+                "READY 상태인 크루 신청자 조회에 성공했습니다.",
+                crewService.getReadyApplicants(principalDetails.member(), crewId)
+        );
+    }
+    @GetMapping("/{crewId}/members/complete")
+    @Operation(summary = "크루 멤버 조회 API", description = "현재 참여중인 상태인 크루 멤버들을 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "COMPLETE 상태인 크루 멤버 조회에 성공했습니다.",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+            @ApiResponse(responseCode = "CREW009", description = "해당 크루를 찾을 수 없음",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+            @ApiResponse(responseCode = "CREW004", description = "해당 사용자에게 권한이 없습니다.",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
+    })
+    public BaseResponse<CrewResponse.CrewMemberListResponse> getCompleteMembers(
+            @AuthenticationPrincipal PrincipalDetails principalDetails,
+            @PathVariable Long crewId
+    ) {
+        return BaseResponse.success(
+                "COMPLETE 상태인 크루 멤버 조회에 성공했습니다.",
+                crewService.getCompleteMembers(principalDetails.member(), crewId)
         );
     }
 }

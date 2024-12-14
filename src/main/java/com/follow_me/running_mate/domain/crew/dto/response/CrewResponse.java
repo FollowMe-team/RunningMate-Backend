@@ -3,12 +3,13 @@ package com.follow_me.running_mate.domain.crew.dto.response;
 import com.follow_me.running_mate.domain.course.dto.response.CourseResponse;
 import com.follow_me.running_mate.domain.enums.ActivityTimeType;
 import com.follow_me.running_mate.domain.enums.Ranking;
-import java.time.LocalDateTime;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 public class CrewResponse {
     @Getter
@@ -46,6 +47,24 @@ public class CrewResponse {
     @NoArgsConstructor
     public static class CrewApplyResponse{
         private Long memberId;
+        private String status;
+    }
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class CrewApplyMemberListResponse{
+        private List<CrewApplyMemberInfo> crewApplyList;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    public static class CrewApplyMemberInfo {
+        private Long memberId;
+        private String profileImageUrl;
+        private String nickname;
+        private Ranking ranking;
+        private Long footPrint;
         private String status;
     }
 
@@ -166,14 +185,15 @@ public class CrewResponse {
         private LocalDateTime endTime;
         private Integer memberCount;
         private Integer memberMax;
+        private String meetingPlace;
         private CourseResponse.SummaryInfo crewCourse;
     }
 
     @Getter
     @Builder
     @AllArgsConstructor
-    public static class CrewScheduleMemberListResponse {
-        private List<CrewMemberInfo> CrewScheduleMembers;
+    public static class CrewMemberListResponse {
+        private List<CrewMemberInfo> CrewMembers;
     }
 
     @Getter

@@ -255,7 +255,7 @@ public class CrewServiceImpl implements CrewService {
 
         // 코스 존재 여부 확인
         Course course = courseRepository.getCourse(request.getCourseId());
-        if (crewCourseRepository.existsByCrewAndCourse(crew, course)) {
+        if (!crewCourseRepository.existsByCrewAndCourse(crew, course)) {
             throw new CustomException(CrewErrorCode.NOT_FOUND_CREW_COURSE);
         }
         if (!crew.getLeader().getId().equals(member.getId())) {
@@ -468,7 +468,7 @@ public class CrewServiceImpl implements CrewService {
     public void deleteCrew(Member member, Long crewId) {
         Crew crew = crewRepository.getCrew(crewId);
         List<CrewMember> crewMembers = crewMemberRepository.findAllByCrew(crew);
-        boolean isOnlyLeader = crewMembers.size() == 1 && isUserLeaderOfCrew(crewMembers.get(0).getMember(), crew);
+        boolean isOnlyLeader = crewMembers.size() == 1 && isUserLeaderOfCrew(crewMembers.get(0).getMember(),crew);
 
         // 크루에 다른 멤버가 있다면 리더 검증
         if (!isOnlyLeader) {
@@ -519,7 +519,6 @@ public class CrewServiceImpl implements CrewService {
                 .orElseThrow(() -> new IllegalArgumentException("해당 크루에 가입되어 있지 않습니다."));
         crewMemberRepository.delete(crewMember);
     }
-
     @Override
     @Transactional
     public CrewResponse.DuplicateCheckResponse isNameDuplicate(String name) {
@@ -613,6 +612,28 @@ public class CrewServiceImpl implements CrewService {
                 ? CrewScheduleApplyStatus.PARTICIPATE
                 : CrewScheduleApplyStatus.ABSENCE;
         apply.setStatus(status);
+    }
+    @Override
+    @Transactional
+    public CrewResponse.CrewApplyMemberListResponse getReadyApplicants(Member member, Long crewId) {
+        // 크루 존재 여부 및 권한 검증
+        Crew crew = crewRepository.getCrew(crewId);
+        validateCrewLeader(member, crew);
+        List<CrewMember> readyApplicants = crewMemberRepository.findAllByCrewAndStatus(crew, CrewMemberStatus.READY);
+        return new CrewResponse.CrewApplyMemberListResponse(crewResponseMapper.toCrewApplyMemberInfo(readyApplicants));
+    }
+
+    @Override
+    @Transactional
+    public CrewResponse.CrewMemberListResponse getCompleteMembers(Member member, Long crewId) {
+        Crew crew = crewRepository.getCrew(crewId);
+
+        // COMPLETE 상태의 멤버 조회
+        List<CrewMember> completeMembers = crewMemberRepository.findAllByCrewAndStatus(crew, CrewMemberStatus.COMPLETE);
+
+        return new CrewResponse.CrewMemberListResponse(completeMembers.stream()
+                .map(crewMember -> crewResponseMapper.toCrewMemberInfo(crewMember.getMember()))
+                .toList());
     }
     @Override
     @Transactional

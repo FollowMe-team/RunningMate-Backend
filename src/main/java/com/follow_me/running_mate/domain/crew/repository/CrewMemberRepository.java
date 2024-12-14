@@ -5,10 +5,11 @@ import com.follow_me.running_mate.domain.crew.entity.CrewMember;
 import com.follow_me.running_mate.domain.enums.CrewMemberStatus;
 import com.follow_me.running_mate.domain.member.entity.Member;
 import io.lettuce.core.dynamic.annotation.Param;
-import java.util.List;
-import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+
+import java.util.List;
+import java.util.Optional;
 
 public interface CrewMemberRepository extends JpaRepository<CrewMember, Long> {
     @Query("SELECT cm.crew FROM CrewMember cm WHERE cm.member = :member AND cm.status = :status")
@@ -26,4 +27,6 @@ public interface CrewMemberRepository extends JpaRepository<CrewMember, Long> {
     boolean existsByCrewAndMemberAndStatus(Crew crew, Member member , CrewMemberStatus status);
 
     List<CrewMember> findAllByCrew(Crew crew);
+
+    List<CrewMember> findAllByCrewAndStatus(Crew crew, CrewMemberStatus crewMemberStatus);
 }

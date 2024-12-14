@@ -50,6 +50,8 @@ public interface CrewService {
     void leaveCrew(Member member, Long crewId);
     CrewResponse.DuplicateCheckResponse isNameDuplicate(String nickname);
     CrewResponse.CrewUpdateResponse getUpdateCrewInfo(Member member, Long crewId);
+    CrewResponse.CrewApplyMemberListResponse getReadyApplicants(Member member, Long crewId);
+    CrewResponse.CrewMemberListResponse getCompleteMembers(Member member, Long crewId);
 
     void softDeleteCrew(Member member);
 }
