@@ -56,10 +56,20 @@ public class AwsConfig {
     }
 
     @Bean
+    @Primary
     public AWSLambda awsLambda() {
         return AWSLambdaClientBuilder.standard()
             .withCredentials(new AWSStaticCredentialsProvider(credentials()))
             .withRegion(firstRegion)
+            .build();
+    }
+
+    @Bean
+    @Qualifier("awsLambdaToBedrock")
+    public AWSLambda amsLambdaToBedrock() {
+        return AWSLambdaClientBuilder.standard()
+            .withCredentials(new AWSStaticCredentialsProvider(credentials()))
+            .withRegion(secondRegion)
             .build();
     }
 
