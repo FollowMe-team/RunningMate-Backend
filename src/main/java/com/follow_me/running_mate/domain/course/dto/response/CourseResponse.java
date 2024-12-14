@@ -69,6 +69,7 @@ public class CourseResponse {
         private String difficulty;
         private Double rating;
         private Integer runningCount;
+        private String thumbnailUrl;
         private boolean isBookmarked;
         private List<String> courseOptionTypes;
         private List<CoursePointInfo> coursePointInfos;
@@ -89,6 +90,7 @@ public class CourseResponse {
         private String status;
         private Double rating;
         private Integer runningCount;
+        private String thumbnailUrl;
         private boolean isBookmarked;
         private List<String> courseOptionTypes;
         private List<CoursePointInfo> coursePointInfos;
@@ -109,6 +111,7 @@ public class CourseResponse {
         private Double rating;
         private Integer runningCount;
         private boolean isBookmarked;
+        private String thumbnailUrl;
         private List<String> courseOptionTypes;
         private List<CoursePointInfo> coursePointInfos;
         private List<CourseImageInfo> images;
@@ -215,6 +218,7 @@ public class CourseResponse {
         private CourseInfo course;
         private Double distance;
         private String duration;
+        private String thumbnailUrl;
         private Integer caloriesBurned;
         private Double averagePace;
     }

@@ -30,6 +30,7 @@ public class CourseResponseMapper {
             .rating(FormatterUtil.formatRating(rating))
             .runningCount(course.getRunningCount())
             .isBookmarked(isBookmarked)
+            .thumbnailUrl(course.getThumbnailUrl())
             .courseOptionTypes(toCourseOptionTypes(courseOptions))
             .coursePointInfos(toCoursePointInfos(coursePointInfos))
             .build();
@@ -54,6 +55,7 @@ public class CourseResponseMapper {
             .rating(FormatterUtil.formatRating(rating))
             .runningCount(course.getRunningCount())
             .isBookmarked(isBookmarked)
+            .thumbnailUrl(course.getThumbnailUrl())
             .courseOptionTypes(toCourseOptionTypes(courseOptions))
             .coursePointInfos(toCoursePointInfos(coursePointInfos))
             .build();
@@ -78,6 +80,7 @@ public class CourseResponseMapper {
             .courseOptionTypes(toCourseOptionTypes(courseOptions))
             .coursePointInfos(toCoursePointInfos(coursePoints))
             .images(images.stream().map(this::toCourseImageInfo).toList())
+            .thumbnailUrl(course.getThumbnailUrl())
             .crews(crews)
             .crewCount(crews.size())
             .reviews(reviews)
@@ -193,6 +196,7 @@ public class CourseResponseMapper {
             .course(toCourseInfo(courseRecord.getCourse(), isMine))
             .distance(courseRecord.getDistance())
             .caloriesBurned(courseRecord.getCaloriesBurned())
+            .thumbnailUrl(courseRecord.getCourse().getThumbnailUrl())
             .duration(FormatterUtil.formatDuration(courseRecord.getStartTime(), courseRecord.getEndTime()))
             .averagePace(courseRecord.getAveragePace())
             .build();

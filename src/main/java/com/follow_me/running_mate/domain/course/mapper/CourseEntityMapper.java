@@ -26,6 +26,8 @@ public class CourseEntityMapper {
             .district(request.getDistrict())
             .city(request.getCity())
             .district(request.getDistrict())
+            // TODO: 코스 캡쳐 이미지 추후에는 사용자에게 받도록 해야 함.
+            .thumbnailUrl("https://running-mate-s3.s3.ap-northeast-2.amazonaws.com/default_map.png")
             .status(Status.READY)
             .writer(member)
             .build();
