@@ -6,7 +6,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class CourseLambdaRequest {
+public class CourseAnalysisRequest {
     private Double totalDistance;
     private List<PointInfo> points;
 

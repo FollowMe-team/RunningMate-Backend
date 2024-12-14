@@ -8,7 +8,7 @@ import lombok.ToString;
 @Getter
 @Builder
 @ToString
-public class CourseLambdaResponse {
+public class CourseAnalysisResponse {
     private String difficulty;
     private String gradient;
     private List<VoicePointInfo> voicePoints;

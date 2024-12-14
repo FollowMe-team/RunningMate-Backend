@@ -3,27 +3,28 @@ package com.follow_me.running_mate.domain.course.service;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.follow_me.running_mate.domain.course.dto.request.CourseS3Request;
+import com.follow_me.running_mate.domain.course.dto.request.CourseVectorRequest;
 import com.follow_me.running_mate.domain.course.entity.Course;
-import com.follow_me.running_mate.domain.course.entity.CourseOption;
 import com.follow_me.running_mate.domain.course.exception.CourseErrorCode;
 import com.follow_me.running_mate.global.error.exception.CustomException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
-@Component
-public class S3CourseService {
+@Service
+@Slf4j
+class CourseVectorService {
 
     private final AmazonS3 amazonS3;
-    private String bucketName;
+    private final String bucketName;
 
     @Autowired
-    public S3CourseService(
+    public CourseVectorService(
         @Qualifier("amazonS3Course") AmazonS3 amazonS3,
         @Value("${cloud.aws.s3.bucket.course}") String bucketName
     ) {
@@ -58,11 +59,11 @@ public class S3CourseService {
         }
     }
 
-    private CourseS3Request toCourseS3Request(Course course) {
+    private CourseVectorRequest toCourseS3Request(Course course) {
 
         long seconds = course.getDuration().getSeconds();
 
-        return CourseS3Request.builder()
+        return CourseVectorRequest.builder()
             .id(course.getId())
             .name(course.getName())
             .description(course.getDescription())
