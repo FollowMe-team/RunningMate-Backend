@@ -8,6 +8,7 @@ import com.follow_me.running_mate.domain.course.dto.request.CourseRecommendReque
 import com.follow_me.running_mate.domain.course.dto.response.CourseRecommendResponse;
 import com.follow_me.running_mate.domain.course.exception.CourseErrorCode;
 import com.follow_me.running_mate.domain.enums.Difficulty;
+import com.follow_me.running_mate.domain.enums.Ranking;
 import com.follow_me.running_mate.domain.enums.RunningGoal;
 import com.follow_me.running_mate.domain.member.entity.Member;
 import com.follow_me.running_mate.global.error.exception.CustomException;
@@ -92,12 +93,14 @@ public class CourseRecommendService {
         log.info("CourseRecommendRequest 생성 시작: Member={}, Latitude={}, Longitude={}, Difficulty={}, RunningGoal={}",
             member, latitude, longitude, difficulty, runningGoal);
 
+        Ranking ranking = member.getRanking();
+
         CourseRecommendRequest request = CourseRecommendRequest.builder()
             .latitude(latitude)
             .longitude(longitude)
             .difficulty(difficulty)
             .goal((runningGoal != null) ? runningGoal.getToKorean() : null)
-            .rank(member.getRanking())
+            .rank(ranking.getName() + "(" + ranking.getCriteria() + ")")
             .build();
 
         log.info("CourseRecommendRequest 생성 완료: {}", request);
