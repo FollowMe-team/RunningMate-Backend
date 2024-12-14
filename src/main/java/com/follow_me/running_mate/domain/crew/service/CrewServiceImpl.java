@@ -10,25 +10,11 @@ import com.follow_me.running_mate.domain.course.service.point.CoursePointService
 import com.follow_me.running_mate.domain.course.service.review.CourseReviewService;
 import com.follow_me.running_mate.domain.crew.dto.request.CrewRequest;
 import com.follow_me.running_mate.domain.crew.dto.response.CrewResponse;
-import com.follow_me.running_mate.domain.crew.entity.Crew;
-import com.follow_me.running_mate.domain.crew.entity.CrewActivityTime;
-import com.follow_me.running_mate.domain.crew.entity.CrewCourse;
-import com.follow_me.running_mate.domain.crew.entity.CrewImage;
-import com.follow_me.running_mate.domain.crew.entity.CrewLocation;
-import com.follow_me.running_mate.domain.crew.entity.CrewMember;
-import com.follow_me.running_mate.domain.crew.entity.CrewSchedule;
-import com.follow_me.running_mate.domain.crew.entity.CrewScheduleApply;
+import com.follow_me.running_mate.domain.crew.entity.*;
 import com.follow_me.running_mate.domain.crew.exception.CrewErrorCode;
 import com.follow_me.running_mate.domain.crew.mapper.CrewEntityMapper;
 import com.follow_me.running_mate.domain.crew.mapper.CrewResponseMapper;
-import com.follow_me.running_mate.domain.crew.repository.CrewActivityTimeRepository;
-import com.follow_me.running_mate.domain.crew.repository.CrewCourseRepository;
-import com.follow_me.running_mate.domain.crew.repository.CrewImageRepository;
-import com.follow_me.running_mate.domain.crew.repository.CrewLocationRepository;
-import com.follow_me.running_mate.domain.crew.repository.CrewMemberRepository;
-import com.follow_me.running_mate.domain.crew.repository.CrewRepository;
-import com.follow_me.running_mate.domain.crew.repository.CrewScheduleApplyRepository;
-import com.follow_me.running_mate.domain.crew.repository.CrewScheduleRepository;
+import com.follow_me.running_mate.domain.crew.repository.*;
 import com.follow_me.running_mate.domain.enums.ActivityTimeType;
 import com.follow_me.running_mate.domain.enums.CrewMemberStatus;
 import com.follow_me.running_mate.domain.enums.CrewScheduleApplyStatus;
@@ -37,6 +23,11 @@ import com.follow_me.running_mate.domain.member.entity.Member;
 import com.follow_me.running_mate.domain.member.service.MemberService;
 import com.follow_me.running_mate.global.common.service.S3ImageService;
 import com.follow_me.running_mate.global.error.exception.CustomException;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.YearMonth;
@@ -45,10 +36,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -109,7 +96,7 @@ public class CrewServiceImpl implements CrewService {
                     : activityTimes.stream()
                     .map(ActivityTimeType::name)
                     .toList();
-            searchCrews = crewRepository.searchCrews(keyword, city, district, activityTimeList,myCrewIds);
+            searchCrews = crewRepository.searchCrews(keyword, city, district, activityTimeList, myCrewIds);
             searchCrews = searchCrews.stream()
                     .filter(crew -> {
                         if (ranking == null) {
@@ -118,7 +105,7 @@ public class CrewServiceImpl implements CrewService {
                         return crew.getRankingValue(crew.getRanking()) >= crew.getRankingValue(ranking);
                     })
                     .collect(Collectors.toList());
-            if(searchCrews.isEmpty()){
+            if (searchCrews.isEmpty()) {
                 return new CrewResponse.recommendedCrewListResponse(List.of());
             }
         }
@@ -128,8 +115,8 @@ public class CrewServiceImpl implements CrewService {
             searchCrews.sort(Comparator.comparing(Crew::getCreatedAt)); // 오래된 순
         }
         List<Long> searchSumFootprint = searchCrews.stream()
-            .map(crews -> crewMemberRepository.sumFootprintByCrewAndStatus(crews, CrewMemberStatus.COMPLETE))
-            .toList();
+                .map(crews -> crewMemberRepository.sumFootprintByCrewAndStatus(crews, CrewMemberStatus.COMPLETE))
+                .toList();
 
         return new CrewResponse.recommendedCrewListResponse(crewResponseMapper.toCrewInfoResponse(searchCrews, searchSumFootprint));
     }
@@ -222,7 +209,7 @@ public class CrewServiceImpl implements CrewService {
     @Override
     @Transactional
     public CrewResponse.CrewIdResponse createCrew(
-        Member leader, CrewRequest.createCrew request, MultipartFile representativeImage
+            Member leader, CrewRequest.createCrew request, MultipartFile representativeImage
     ) {
         String imageUrl = (representativeImage != null) ? s3ImageService.upload(representativeImage) : null;
         Crew crew = crewEntityMapper.toCrew(leader, request, imageUrl);
@@ -268,7 +255,7 @@ public class CrewServiceImpl implements CrewService {
 
         // 코스 존재 여부 확인
         Course course = courseRepository.getCourse(request.getCourseId());
-        if (crewCourseRepository.existsByCrewAndCourse(crew, course)) {
+        if (!crewCourseRepository.existsByCrewAndCourse(crew, course)) {
             throw new CustomException(CrewErrorCode.NOT_FOUND_CREW_COURSE);
         }
         if (!crew.getLeader().getId().equals(member.getId())) {
@@ -481,7 +468,7 @@ public class CrewServiceImpl implements CrewService {
     public void deleteCrew(Member member, Long crewId) {
         Crew crew = crewRepository.getCrew(crewId);
         List<CrewMember> crewMembers = crewMemberRepository.findAllByCrew(crew);
-        boolean isOnlyLeader = crewMembers.size() == 1 && isUserLeaderOfCrew(crewMembers.get(0).getMember(),crew);
+        boolean isOnlyLeader = crewMembers.size() == 1 && isUserLeaderOfCrew(crewMembers.get(0).getMember(), crew);
 
         // 크루에 다른 멤버가 있다면 리더 검증
         if (!isOnlyLeader) {
@@ -546,9 +533,9 @@ public class CrewServiceImpl implements CrewService {
         validateCrewLeader(member, crew);
 
         return crewResponseMapper.toCrewUpdateResponse(
-            crew,
-            getCrewActivityTime(crew),
-            getCrewLocationInfo(crew)
+                crew,
+                getCrewActivityTime(crew),
+                getCrewLocationInfo(crew)
         );
     }
 
@@ -625,5 +612,27 @@ public class CrewServiceImpl implements CrewService {
                 ? CrewScheduleApplyStatus.PARTICIPATE
                 : CrewScheduleApplyStatus.ABSENCE;
         apply.setStatus(status);
+    }
+    @Override
+    @Transactional
+    public CrewResponse.CrewApplyMemberListResponse getReadyApplicants(Member member, Long crewId) {
+        // 크루 존재 여부 및 권한 검증
+        Crew crew = crewRepository.getCrew(crewId);
+        validateCrewLeader(member, crew);
+        List<CrewMember> readyApplicants = crewMemberRepository.findAllByCrewAndStatus(crew, CrewMemberStatus.READY);
+        return new CrewResponse.CrewApplyMemberListResponse(crewResponseMapper.toCrewApplyMemberInfo(readyApplicants));
+    }
+
+    @Override
+    @Transactional
+    public CrewResponse.CrewMemberListResponse getCompleteMembers(Member member, Long crewId) {
+        Crew crew = crewRepository.getCrew(crewId);
+
+        // COMPLETE 상태의 멤버 조회
+        List<CrewMember> completeMembers = crewMemberRepository.findAllByCrewAndStatus(crew, CrewMemberStatus.COMPLETE);
+
+        return new CrewResponse.CrewMemberListResponse(completeMembers.stream()
+                .map(crewMember -> crewResponseMapper.toCrewMemberInfo(crewMember.getMember()))
+                .toList());
     }
 }
