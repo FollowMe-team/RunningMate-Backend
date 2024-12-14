@@ -1,18 +1,15 @@
 package com.follow_me.running_mate.global.common.util;
 
 import com.follow_me.running_mate.domain.course.dto.request.CourseRequest;
+import org.locationtech.jts.geom.*;
+import org.springframework.stereotype.Component;
+
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.LineString;
-import org.locationtech.jts.geom.Point;
-import org.locationtech.jts.geom.PrecisionModel;
-import org.springframework.stereotype.Component;
 
 @Component
 public class FormatterUtil {

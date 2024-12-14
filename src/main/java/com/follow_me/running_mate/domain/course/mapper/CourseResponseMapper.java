@@ -1,18 +1,13 @@
 package com.follow_me.running_mate.domain.course.mapper;
 
 import com.follow_me.running_mate.domain.course.dto.response.CourseResponse;
-import com.follow_me.running_mate.domain.course.entity.Course;
-import com.follow_me.running_mate.domain.course.entity.CourseImage;
-import com.follow_me.running_mate.domain.course.entity.CourseOption;
-import com.follow_me.running_mate.domain.course.entity.CoursePoint;
-import com.follow_me.running_mate.domain.course.entity.CourseRecord;
-import com.follow_me.running_mate.domain.course.entity.CourseReview;
-import com.follow_me.running_mate.domain.course.entity.CourseReviewImage;
+import com.follow_me.running_mate.domain.course.entity.*;
 import com.follow_me.running_mate.domain.crew.entity.Crew;
 import com.follow_me.running_mate.domain.member.entity.Member;
 import com.follow_me.running_mate.global.common.util.FormatterUtil;
-import java.util.List;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 public class CourseResponseMapper {
@@ -35,6 +30,7 @@ public class CourseResponseMapper {
             .rating(FormatterUtil.formatRating(rating))
             .runningCount(course.getRunningCount())
             .isBookmarked(isBookmarked)
+            .thumbnailUrl(course.getThumbnailUrl())
             .courseOptionTypes(toCourseOptionTypes(courseOptions))
             .coursePointInfos(toCoursePointInfos(coursePointInfos))
             .build();
@@ -59,6 +55,7 @@ public class CourseResponseMapper {
             .rating(FormatterUtil.formatRating(rating))
             .runningCount(course.getRunningCount())
             .isBookmarked(isBookmarked)
+            .thumbnailUrl(course.getThumbnailUrl())
             .courseOptionTypes(toCourseOptionTypes(courseOptions))
             .coursePointInfos(toCoursePointInfos(coursePointInfos))
             .build();
@@ -83,6 +80,7 @@ public class CourseResponseMapper {
             .courseOptionTypes(toCourseOptionTypes(courseOptions))
             .coursePointInfos(toCoursePointInfos(coursePoints))
             .images(images.stream().map(this::toCourseImageInfo).toList())
+            .thumbnailUrl(course.getThumbnailUrl())
             .crews(crews)
             .crewCount(crews.size())
             .reviews(reviews)
@@ -198,6 +196,7 @@ public class CourseResponseMapper {
             .course(toCourseInfo(courseRecord.getCourse(), isMine))
             .distance(courseRecord.getDistance())
             .caloriesBurned(courseRecord.getCaloriesBurned())
+            .thumbnailUrl(courseRecord.getCourse().getThumbnailUrl())
             .duration(FormatterUtil.formatDuration(courseRecord.getStartTime(), courseRecord.getEndTime()))
             .averagePace(courseRecord.getAveragePace())
             .build();

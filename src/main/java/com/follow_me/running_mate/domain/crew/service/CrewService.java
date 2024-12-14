@@ -8,9 +8,10 @@ import com.follow_me.running_mate.domain.enums.ActivityTimeType;
 import com.follow_me.running_mate.domain.enums.CrewMemberStatus;
 import com.follow_me.running_mate.domain.enums.Ranking;
 import com.follow_me.running_mate.domain.member.entity.Member;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.time.YearMonth;
 import java.util.List;
-import org.springframework.web.multipart.MultipartFile;
 
 public interface CrewService {
     List<Crew> getCrewByCourse(Course course);
@@ -49,4 +50,8 @@ public interface CrewService {
     void leaveCrew(Member member, Long crewId);
     CrewResponse.DuplicateCheckResponse isNameDuplicate(String nickname);
     CrewResponse.CrewUpdateResponse getUpdateCrewInfo(Member member, Long crewId);
+    CrewResponse.CrewApplyMemberListResponse getReadyApplicants(Member member, Long crewId);
+    CrewResponse.CrewMemberListResponse getCompleteMembers(Member member, Long crewId);
+
+    void softDeleteCrew(Member member);
 }

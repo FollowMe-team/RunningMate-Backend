@@ -4,14 +4,12 @@ import com.follow_me.running_mate.domain.course.dto.response.CourseResponse;
 import com.follow_me.running_mate.domain.member.dto.request.MemberRequest;
 import com.follow_me.running_mate.domain.member.dto.response.MemberResponse;
 import com.follow_me.running_mate.domain.member.entity.Member;
-import java.time.YearMonth;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.time.YearMonth;
 
 public interface MemberService {
 
-    void signup(MemberRequest.SignUpRequest request, MultipartFile profileImage);
-    void logout(String email);
-    void withdraw(Member member, MemberRequest.WithdrawRequest request);
     MemberResponse.MyProfileResponse getMyProfile(Member member);
     MemberResponse.MyProfileSummaryResponse getMyProfileSummary(Member member);
     MemberResponse.UpdateMyProfileResponse updateProfile(

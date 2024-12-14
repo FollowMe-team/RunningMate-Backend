@@ -72,6 +72,8 @@ public class Course extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Status status;
 
+    private String thumbnailUrl;
+
     @Setter
     @Enumerated(EnumType.STRING)
     private Difficulty difficulty;

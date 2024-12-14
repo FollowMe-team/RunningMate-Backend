@@ -1,8 +1,9 @@
 package com.follow_me.running_mate.config.security;
 
+import org.springframework.context.annotation.Configuration;
+
 import java.util.Arrays;
 import java.util.stream.Stream;
-import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class SecurityConstant {
@@ -13,7 +14,8 @@ public class SecurityConstant {
             "/api/auth/refresh",
             "/api/images",
             "/api/images/delete",
-            "/api/members/check/**"
+            "/api/members/check/**",
+            "/api/crew/check/**",
     };
 
     // Swagger UI 관련 공개 경로
