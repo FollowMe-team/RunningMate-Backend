@@ -2,15 +2,12 @@ package com.follow_me.running_mate.domain.course.dto.request;
 
 import com.follow_me.running_mate.domain.course.validation.annotation.UniqueCourseName;
 import com.follow_me.running_mate.domain.enums.CourseOptionType;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
-import java.time.LocalDateTime;
-import java.util.List;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @AllArgsConstructor
@@ -58,6 +55,8 @@ public class CourseRequest {
 
         @NotNull(message = "평균 페이스를 입력해주세요.")
         private Double averagePace;
+
+        private long duration;
 
         @NotNull(message = "소모 칼로리를 입력해주세요.")
         private Integer caloriesBurned;

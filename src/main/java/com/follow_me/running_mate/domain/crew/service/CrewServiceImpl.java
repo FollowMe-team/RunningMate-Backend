@@ -468,7 +468,7 @@ public class CrewServiceImpl implements CrewService {
     public void deleteCrew(Member member, Long crewId) {
         Crew crew = crewRepository.getCrew(crewId);
         List<CrewMember> crewMembers = crewMemberRepository.findAllByCrew(crew);
-        boolean isOnlyLeader = crewMembers.size() == 1 && isUserLeaderOfCrew(crewMembers.get(0).getMember(), crew);
+        boolean isOnlyLeader = crewMembers.size() == 1 && isUserLeaderOfCrew(crewMembers.get(0).getMember(),crew);
 
         // 크루에 다른 멤버가 있다면 리더 검증
         if (!isOnlyLeader) {
@@ -634,5 +634,32 @@ public class CrewServiceImpl implements CrewService {
         return new CrewResponse.CrewMemberListResponse(completeMembers.stream()
                 .map(crewMember -> crewResponseMapper.toCrewMemberInfo(crewMember.getMember()))
                 .toList());
+    }
+    @Override
+    @Transactional
+    public void softDeleteCrew(Member member) {
+        if (crewRepository.existsByLeader(member)) {
+            crewRepository.findByLeader(member).ifPresent(this::softDeleteCrew);
+        }
+    }
+
+    private void softDeleteCrew(Crew crew) {
+        List<CrewMember> crewMembers = crewMemberRepository.findAllByCrew(crew);
+
+        crewMembers.forEach(CrewMember::delete);
+
+        crewActivityTimeRepository.findAllByCrew(crew).forEach(CrewActivityTime::delete);
+        crewCourseRepository.findAllByCrew(crew).forEach(CrewCourse::delete);
+        crewImageRepository.findAllByCrew(crew).forEach(CrewImage::delete);
+        crewLocationRepository.findAllByCrew(crew).forEach(CrewLocation::delete);
+        crewMemberRepository.findAllByCrew(crew).forEach(CrewMember::delete);
+
+        List<CrewSchedule> schedules = crewScheduleRepository.findAllByCrew(crew);
+        for (CrewSchedule schedule : schedules) {
+            crewScheduleApplyRepository.findAllByCrewSchedule(schedule).forEach(CrewScheduleApply::delete);
+            schedule.delete();
+        }
+        crew.delete();
+        crewRepository.save(crew);
     }
 }

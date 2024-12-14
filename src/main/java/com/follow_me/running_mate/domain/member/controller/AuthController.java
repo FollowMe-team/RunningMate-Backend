@@ -1,10 +1,8 @@
 package com.follow_me.running_mate.domain.member.controller;
 
-import static com.follow_me.running_mate.config.security.jwt.JwtConstant.REFRESH_TOKEN_HEADER;
-
 import com.follow_me.running_mate.config.security.auth.PrincipalDetails;
 import com.follow_me.running_mate.domain.member.dto.request.MemberRequest;
-import com.follow_me.running_mate.domain.member.service.MemberService;
+import com.follow_me.running_mate.domain.member.service.auth.AuthService;
 import com.follow_me.running_mate.global.common.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -17,14 +15,10 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import static com.follow_me.running_mate.config.security.jwt.JwtConstant.REFRESH_TOKEN_HEADER;
 
 @RestController
 @RequestMapping("/auth")
@@ -32,7 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Tag(name = "Auth", description = "회원 인증 API")
 public class AuthController {
 
-    private final MemberService memberService;
+    private final AuthService authService;
 
     @PostMapping("/login")
     @Operation(summary = "로그인 API", description = "이메일과 비밀번호로 로그인합니다.")
@@ -77,7 +71,7 @@ public class AuthController {
         @RequestPart(name = "request") @Valid MemberRequest.SignUpRequest request,
         @RequestPart(name = "profileImage", required = false) MultipartFile profileImage
     ) {
-        memberService.signup(request, profileImage);
+        authService.signup(request, profileImage);
         return BaseResponse.success("회원 가입에 성공했습니다.", null);
     }
 
@@ -88,7 +82,7 @@ public class AuthController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = BaseResponse.class))),
     })
     public BaseResponse<Void> logout(@AuthenticationPrincipal PrincipalDetails principalDetails) {
-        memberService.logout(principalDetails.getUsername());
+        authService.logout(principalDetails.getUsername());
         return BaseResponse.success("로그아웃에 성공했습니다.", null);
     }
 
@@ -102,7 +96,7 @@ public class AuthController {
         @AuthenticationPrincipal PrincipalDetails principalDetails,
         @RequestBody MemberRequest.WithdrawRequest request
     ) {
-        memberService.withdraw(principalDetails.member(), request);
+        authService.withdraw(principalDetails.member(), request);
         return BaseResponse.success("회원 탈퇴에 성공했습니다.", null);
     }
 }

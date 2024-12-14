@@ -3,36 +3,25 @@ package com.follow_me.running_mate.domain.member.service;
 import com.follow_me.running_mate.domain.course.dto.response.CourseResponse;
 import com.follow_me.running_mate.domain.course.entity.CourseRecord;
 import com.follow_me.running_mate.domain.course.service.record.CourseRecordService;
-import com.follow_me.running_mate.domain.crew.entity.*;
-import com.follow_me.running_mate.domain.crew.repository.*;
 import com.follow_me.running_mate.domain.enums.FootprintType;
 import com.follow_me.running_mate.domain.member.dto.request.MemberRequest;
 import com.follow_me.running_mate.domain.member.dto.response.MemberResponse;
-import com.follow_me.running_mate.domain.member.entity.Member;
-import com.follow_me.running_mate.domain.member.entity.MemberBadge;
-import com.follow_me.running_mate.domain.member.entity.MemberFollow;
-import com.follow_me.running_mate.domain.member.entity.MemberFootprint;
-import com.follow_me.running_mate.domain.member.entity.MemberLocation;
+import com.follow_me.running_mate.domain.member.entity.*;
 import com.follow_me.running_mate.domain.member.exception.MemberErrorCode;
 import com.follow_me.running_mate.domain.member.mapper.MemberMapper;
-import com.follow_me.running_mate.domain.member.repository.MemberBadgeRepository;
-import com.follow_me.running_mate.domain.member.repository.MemberFollowRepository;
-import com.follow_me.running_mate.domain.member.repository.MemberFootprintRepository;
-import com.follow_me.running_mate.domain.member.repository.MemberLocationRepository;
-import com.follow_me.running_mate.domain.member.repository.MemberRepository;
-import com.follow_me.running_mate.domain.member.repository.MemberWithdrawRepository;
-import com.follow_me.running_mate.domain.token.repository.TokenRepository;
+import com.follow_me.running_mate.domain.member.repository.*;
 import com.follow_me.running_mate.global.common.service.S3ImageService;
 import com.follow_me.running_mate.global.common.util.FormatterUtil;
 import com.follow_me.running_mate.global.error.exception.CustomException;
-import java.time.YearMonth;
-import java.util.List;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.time.YearMonth;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -41,7 +30,7 @@ public class MemberServiceImpl implements MemberService {
     private final MemberMapper memberMapper;
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
-    private final TokenRepository tokenRepository;
+
     private final MemberBadgeRepository memberBadgeRepository;
     private final CourseRecordService courseRecordService;
     private final S3ImageService s3ImageService;
@@ -49,71 +38,6 @@ public class MemberServiceImpl implements MemberService {
     private final MemberFollowRepository memberFollowRepository;
     private final MemberLocationRepository memberLocationRepository;
     private final MemberFootprintRepository memberFootprintRepository;
-    private final MemberWithdrawRepository memberWithdrawRepository;
-    private final CrewRepository crewRepository;
-    private final CrewMemberRepository crewMemberRepository;
-    private final CrewActivityTimeRepository crewActivityTimeRepository;
-    private final CrewCourseRepository crewCourseRepository;
-    private final CrewImageRepository crewImageRepository;
-    private final CrewLocationRepository crewLocationRepository;
-    private final CrewScheduleRepository crewScheduleRepository;
-    private final CrewScheduleApplyRepository crewScheduleApplyRepository;
-
-
-    @Override
-    public void signup(MemberRequest.SignUpRequest request, MultipartFile profileImage) {
-
-        Member member = memberMapper.toEntity(request, passwordEncoder.encode(request.getPassword()));
-
-        if (profileImage != null) {
-            String profileImageUrl = s3ImageService.upload(profileImage);
-            member.updateProfileImage(profileImageUrl);
-        }
-
-        Member savedMember = memberRepository.save(member);
-        memberLocationRepository.save(memberMapper.toMemberLocation(request.getLocationInfo(), savedMember));
-    }
-
-    @Override
-    public void logout(String email) {
-        tokenRepository.deleteById(email);
-    }
-
-    @Override
-    @Transactional
-    public void withdraw(Member member, MemberRequest.WithdrawRequest request) {
-        memberWithdrawRepository.save(memberMapper.toMemberWithdraw(member, request));
-        tokenRepository.deleteById(member.getEmail()); //토큰 삭제
-
-        if(crewRepository.existsByLeader(member)){
-            crewRepository.findByLeader(member).ifPresent(crew -> {
-                softDeleteCrew(member, crew);
-            });
-        }
-
-        member.delete();
-        memberRepository.save(member);
-    }
-
-    private void softDeleteCrew(Member member, Crew crew) {
-        List<CrewMember> crewMembers = crewMemberRepository.findAllByCrew(crew);
-
-        crewMembers.forEach(CrewMember::delete);
-
-        crewActivityTimeRepository.findAllByCrew(crew).forEach(CrewActivityTime::delete);
-        crewCourseRepository.findAllByCrew(crew).forEach(CrewCourse::delete);
-        crewImageRepository.findAllByCrew(crew).forEach(CrewImage::delete);
-        crewLocationRepository.findAllByCrew(crew).forEach(CrewLocation::delete);
-        crewMemberRepository.findAllByCrew(crew).forEach(CrewMember::delete);
-
-        List<CrewSchedule> schedules = crewScheduleRepository.findAllByCrew(crew);
-        for (CrewSchedule schedule : schedules) {
-            crewScheduleApplyRepository.findAllByCrewSchedule(schedule).forEach(CrewScheduleApply::delete);
-            schedule.delete();
-        }
-        crew.delete();
-        crewRepository.save(crew);
-    }
 
     @Override
     @Transactional(readOnly = true)
@@ -173,11 +97,9 @@ public class MemberServiceImpl implements MemberService {
                     );
                 },
                 // 존재하지 않으면 새로 생성 후 저장
-                () -> {
-                    memberLocationRepository.save(
-                        memberMapper.toMemberLocation(request.getLocationInfo(), savedMember)
-                    );
-                }
+                () -> memberLocationRepository.save(
+                    memberMapper.toMemberLocation(request.getLocationInfo(), savedMember)
+                )
             );
 
 

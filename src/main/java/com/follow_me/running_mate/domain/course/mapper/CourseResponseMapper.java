@@ -1,19 +1,13 @@
 package com.follow_me.running_mate.domain.course.mapper;
 
 import com.follow_me.running_mate.domain.course.dto.response.CourseResponse;
-import com.follow_me.running_mate.domain.course.entity.Course;
-import com.follow_me.running_mate.domain.course.entity.CourseImage;
-import com.follow_me.running_mate.domain.course.entity.CourseOption;
-import com.follow_me.running_mate.domain.course.entity.CoursePoint;
-import com.follow_me.running_mate.domain.course.entity.CourseRecord;
-import com.follow_me.running_mate.domain.course.entity.CourseReview;
-import com.follow_me.running_mate.domain.course.entity.CourseReviewImage;
+import com.follow_me.running_mate.domain.course.entity.*;
 import com.follow_me.running_mate.domain.crew.entity.Crew;
-import com.follow_me.running_mate.domain.enums.CourseOptionType;
 import com.follow_me.running_mate.domain.member.entity.Member;
 import com.follow_me.running_mate.global.common.util.FormatterUtil;
-import java.util.List;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 public class CourseResponseMapper {
@@ -32,7 +26,7 @@ public class CourseResponseMapper {
             .location(FormatterUtil.formatLocation(course.getCity(), course.getDistrict()))
             .distance(course.getDistance())
             .duration(FormatterUtil.formatDuration(course.getDuration()))
-            .difficulty(course.getDifficulty())
+            .difficulty(course.getDifficulty().getToKorean())
             .rating(FormatterUtil.formatRating(rating))
             .runningCount(course.getRunningCount())
             .isBookmarked(isBookmarked)
@@ -55,8 +49,8 @@ public class CourseResponseMapper {
             .location(FormatterUtil.formatLocation(course.getCity(), course.getDistrict()))
             .distance(course.getDistance())
             .duration(FormatterUtil.formatDuration(course.getDuration()))
-            .difficulty(course.getDifficulty())
-            .status(course.getStatus())
+            .difficulty(course.getDifficulty().getToKorean())
+            .status(course.getStatus().getToKorean())
             .rating(FormatterUtil.formatRating(rating))
             .runningCount(course.getRunningCount())
             .isBookmarked(isBookmarked)
@@ -68,7 +62,7 @@ public class CourseResponseMapper {
     public CourseResponse.CourseDetailResponse toCourseDetailResponse(
         Course course, Double rating, Boolean isBookmarked, List<CourseImage> images,
         List<CourseOption> courseOptions, List<CoursePoint> coursePoints,
-        List<CourseResponse.CrewInfo> crews, List<CourseResponse.ReviewInfo> reviews
+        List<CourseResponse.CrewInfo> crews, List<CourseResponse.ReviewInfo> reviews, int reviewCount
     ) {
         return CourseResponse.CourseDetailResponse.builder()
             .id(course.getId())
@@ -77,7 +71,7 @@ public class CourseResponseMapper {
             .location(FormatterUtil.formatLocation(course.getCity(), course.getDistrict()))
             .distance(course.getDistance())
             .duration(FormatterUtil.formatDuration(course.getDuration()))
-            .difficulty(course.getDifficulty())
+            .difficulty(course.getDifficulty().getToKorean())
             .rating(FormatterUtil.formatRating(rating))
             .runningCount(course.getRunningCount())
             .isBookmarked(isBookmarked)
@@ -87,7 +81,7 @@ public class CourseResponseMapper {
             .crews(crews)
             .crewCount(crews.size())
             .reviews(reviews)
-            .reviewCount(reviews.size())
+            .reviewCount(reviewCount)
             .build();
     }
 
@@ -167,9 +161,9 @@ public class CourseResponseMapper {
             .build();
     }
 
-    private List<CourseOptionType> toCourseOptionTypes(List<CourseOption> options) {
+    private List<String> toCourseOptionTypes(List<CourseOption> options) {
         return options.stream()
-            .map(CourseOption::getType)
+            .map(option -> option.getType().getToKorean())
             .toList();
     }
 

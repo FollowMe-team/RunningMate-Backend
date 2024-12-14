@@ -7,8 +7,9 @@ import com.follow_me.running_mate.domain.course.entity.CourseReview;
 import com.follow_me.running_mate.domain.course.entity.CourseReviewImage;
 import com.follow_me.running_mate.domain.enums.ReviewSortType;
 import com.follow_me.running_mate.domain.member.entity.Member;
-import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 public interface CourseReviewService {
 
@@ -20,4 +21,5 @@ public interface CourseReviewService {
     List<CourseReview> getRecentReviews(Course course);
     List<CourseReview> getReviews(Course course, ReviewSortType sortType);
     List<Integer> getReviewCounts(List<CourseResponse.ReviewInfo> reviews);
+    int getReviewCount(Course course);
 }

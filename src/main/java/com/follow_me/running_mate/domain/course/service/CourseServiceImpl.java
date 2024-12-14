@@ -2,11 +2,7 @@ package com.follow_me.running_mate.domain.course.service;
 
 import com.follow_me.running_mate.domain.course.dto.request.CourseRequest;
 import com.follow_me.running_mate.domain.course.dto.response.CourseResponse;
-import com.follow_me.running_mate.domain.course.entity.Course;
-import com.follow_me.running_mate.domain.course.entity.CourseOption;
-import com.follow_me.running_mate.domain.course.entity.CoursePoint;
-import com.follow_me.running_mate.domain.course.entity.CourseReview;
-import com.follow_me.running_mate.domain.course.entity.CourseReviewImage;
+import com.follow_me.running_mate.domain.course.entity.*;
 import com.follow_me.running_mate.domain.course.mapper.CourseEntityMapper;
 import com.follow_me.running_mate.domain.course.mapper.CourseResponseMapper;
 import com.follow_me.running_mate.domain.course.repository.CourseRepository;
@@ -17,20 +13,16 @@ import com.follow_me.running_mate.domain.course.service.point.CoursePointService
 import com.follow_me.running_mate.domain.course.service.record.CourseRecordService;
 import com.follow_me.running_mate.domain.course.service.review.CourseReviewService;
 import com.follow_me.running_mate.domain.crew.service.CrewService;
-import com.follow_me.running_mate.domain.enums.CourseOptionType;
-import com.follow_me.running_mate.domain.enums.Difficulty;
-import com.follow_me.running_mate.domain.enums.Ranking;
-import com.follow_me.running_mate.domain.enums.ReviewSortType;
-import com.follow_me.running_mate.domain.enums.RunningGoal;
-import com.follow_me.running_mate.domain.enums.Status;
+import com.follow_me.running_mate.domain.enums.*;
 import com.follow_me.running_mate.domain.member.entity.Member;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @Service
@@ -151,7 +143,9 @@ public class CourseServiceImpl implements CourseService {
     @Transactional(readOnly = true)
     public CourseResponse.CourseListResponse getRecentCourses(Member member) {
 
-        List<Course> recentCourses = courseRecordService.getRecentCourses(member);
+        List<Course> recentCourses = courseRecordService.getRecentCourses(member).stream()
+            .distinct()
+            .toList();
 
         List<CourseResponse.SummaryInfo> courses = recentCourses.stream().map(course ->
             courseResponseMapper.toSummaryInfo(
@@ -279,7 +273,8 @@ public class CourseServiceImpl implements CourseService {
             courseOptionService.getCourseOptions(course),
             coursePointService.getCoursePoints(course),
             courseResponseMapper.toCrewInfos(crewService.getCrewByCourse(course)),
-            courseResponseMapper.toReviewInfos(courseReviewService.getRecentReviews(course), member)
+            courseResponseMapper.toReviewInfos(courseReviewService.getRecentReviews(course), member),
+            courseReviewService.getReviewCount(course)
         );
     }
 
@@ -318,7 +313,7 @@ public class CourseServiceImpl implements CourseService {
     @Transactional(readOnly = true)
     public CourseResponse.CheckCourseNameResponse checkCourseName(String name) {
         return new CourseResponse.CheckCourseNameResponse(
-            courseRepository.existsByName(name)
+            !courseRepository.existsByName(name)
         );
     }
 

@@ -52,4 +52,6 @@ public interface CrewService {
     CrewResponse.CrewUpdateResponse getUpdateCrewInfo(Member member, Long crewId);
     CrewResponse.CrewApplyMemberListResponse getReadyApplicants(Member member, Long crewId);
     CrewResponse.CrewMemberListResponse getCompleteMembers(Member member, Long crewId);
+
+    void softDeleteCrew(Member member);
 }
