@@ -204,10 +204,9 @@ public class CourseServiceImpl implements CourseService {
     public CourseResponse.CourseListResponse recommendedCourses(
         Member member, Double latitude, Double longitude, Difficulty difficulty, RunningGoal runningGoal) {
 
-        CourseRecommendResponse courseRecommendResponse =
-            courseRecommendService.invokeLambda(member, latitude, longitude, difficulty, runningGoal);
-
-        List<Course> recommendedCourses = courseRepository.findAllById(courseRecommendResponse.getCourseIds());
+        List<Course> recommendedCourses = courseRepository.findAllById(
+            courseRecommendService.invokeLambda(member, latitude, longitude, difficulty, runningGoal)
+        );
 
         List<CourseResponse.SummaryInfo> courses = recommendedCourses.stream().map(course ->
             courseResponseMapper.toSummaryInfo(

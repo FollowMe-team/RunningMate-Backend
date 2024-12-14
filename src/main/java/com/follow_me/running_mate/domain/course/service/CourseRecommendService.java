@@ -12,6 +12,7 @@ import com.follow_me.running_mate.domain.enums.RunningGoal;
 import com.follow_me.running_mate.domain.member.entity.Member;
 import com.follow_me.running_mate.global.error.exception.CustomException;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -36,25 +37,48 @@ public class CourseRecommendService {
         this.objectMapper = new ObjectMapper();
     }
 
-    public CourseRecommendResponse invokeLambda(
+    public List<Long> invokeLambda(
         Member member, Double latitude, Double longitude, Difficulty difficulty, RunningGoal runningGoal
     ) {
+        log.info("Lambda 호출 시작: Member={}, Latitude={}, Longitude={}, Difficulty={}, RunningGoal={}",
+            member, latitude, longitude, difficulty, runningGoal);
+
         try {
             // Lambda 요청 생성
+            CourseRecommendRequest request = toCourseRecommendRequest(member, latitude, longitude, difficulty, runningGoal);
+            String requestJson = objectMapper.writeValueAsString(request);
+            log.info("Lambda 요청 데이터(JSON): {}", requestJson);
+
             InvokeRequest invokeRequest = new InvokeRequest()
                 .withFunctionName(lambdaName)
-                .withPayload(objectMapper.writeValueAsString(
-                    toCourseRecommendRequest(member, latitude, longitude, difficulty, runningGoal)
-                ));
+                .withPayload(requestJson);
 
             // Lambda 호출
+            log.info("Lambda 호출: 함수 이름={}, 요청 데이터 길이={}", lambdaName, requestJson.length());
             InvokeResult result = awsLambda.invoke(invokeRequest);
 
             // 응답 처리
             String responseJson = new String(result.getPayload().array(), StandardCharsets.UTF_8);
-            return objectMapper.readValue(responseJson, CourseRecommendResponse.class);
+            log.info("Lambda 응답 데이터(JSON): {}", responseJson);
+
+            CourseRecommendResponse response = objectMapper.readValue(responseJson, CourseRecommendResponse.class);
+            log.info("Lambda 응답 객체: {}", response);
+
+            if (response.getStatusCode() != 200) {
+                throw new CustomException(
+                    CourseErrorCode.ERROR_LAMBDA_TO_BEDROCK,
+                    CourseErrorCode.ERROR_LAMBDA_TO_BEDROCK.getMessage() + response.getBody()
+                );
+            }
+
+            if (response.getBody() == null) {
+                return List.of();
+            }
+
+            return response.getBody().getCourseIds();
 
         } catch (Exception e) {
+            log.error("Lambda 호출 중 오류 발생: {}", e.getMessage(), e);
             throw new CustomException(
                 CourseErrorCode.ERROR_LAMBDA_TO_BEDROCK,
                 CourseErrorCode.ERROR_LAMBDA_TO_BEDROCK.getMessage() + e.getMessage()
@@ -65,13 +89,18 @@ public class CourseRecommendService {
     private CourseRecommendRequest toCourseRecommendRequest(
         Member member, Double latitude, Double longitude, Difficulty difficulty, RunningGoal runningGoal
     ) {
+        log.info("CourseRecommendRequest 생성 시작: Member={}, Latitude={}, Longitude={}, Difficulty={}, RunningGoal={}",
+            member, latitude, longitude, difficulty, runningGoal);
 
-        return CourseRecommendRequest.builder()
+        CourseRecommendRequest request = CourseRecommendRequest.builder()
             .latitude(latitude)
             .longitude(longitude)
             .difficulty(difficulty)
             .goal((runningGoal != null) ? runningGoal.getToKorean() : null)
             .rank(member.getRanking())
             .build();
+
+        log.info("CourseRecommendRequest 생성 완료: {}", request);
+        return request;
     }
 }
