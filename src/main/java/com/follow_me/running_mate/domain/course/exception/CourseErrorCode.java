@@ -18,6 +18,7 @@ public enum CourseErrorCode implements ResultCode {
     ALREADY_APPROVED("COURSE009", "이미 승인된 코스입니다."),
     ERROR_COURSE_TO_JSON("COURSE010", "코스를 JSON으로 변환하는 중 오류가 발생했습니다."),
     ERROR_COURSE_S3_UPLOAD("COURSE011", "코스를 S3에 업로드하는 중 오류가 발생했습니다."),
+    ERROR_LAMBDA_TO_BEDROCK("COURSE012", "Bedrock용 Lambda 함수 오류: "),
     ;
 
     private final String code;
