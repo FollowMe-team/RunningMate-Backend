@@ -55,7 +55,7 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
         "     c.description ILIKE CONCAT('%', :keyword, '%') OR \n" +
         "     c.city ILIKE CONCAT('%', :keyword, '%') OR \n" +
         "     c.district ILIKE CONCAT('%', :keyword, '%')) \n" +
-        "    AND (:latitude IS NOT NULL AND :longitude IS NOT NULL AND \n" +
+        "    AND (:latitude IS NULL OR :longitude IS NULL OR \n" +
         "         ST_DWithin(c.start_point, ST_MakePoint(:longitude, :latitude)::geography, :radius)) \n" +
         "    AND (:distance IS NULL OR \n" +
         "         (:distance = 'UNDER_3KM' AND c.distance < 3 OR \n" +
