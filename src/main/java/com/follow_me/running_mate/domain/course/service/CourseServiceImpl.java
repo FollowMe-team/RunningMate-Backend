@@ -229,11 +229,11 @@ public class CourseServiceImpl implements CourseService {
     @Override
     @Transactional(readOnly = true)
     public CourseResponse.CourseListResponse searchCourses(
-        Member member, String keyword, Double latitude,
-        Double longitude, List<Difficulty> difficulties, List<CourseOptionType> options
+        Member member, String keyword, Double latitude, Double longitude,
+        CourseDistanceType distance, List<Difficulty> difficulties, List<CourseOptionType> options
     ) {
-        // 위치 반경 기본값 (단위: 미터)
-        double radius = 50000.0;
+        // 위치 반경 기본값(10km)
+        double radius = 10000.0;
 
         List<String> difficultyList = (difficulties != null) ? difficulties.stream()
             .map(Difficulty::name)
@@ -243,8 +243,10 @@ public class CourseServiceImpl implements CourseService {
             .map(CourseOptionType::name)
             .toList() : List.of();
 
+        String distanceType = (distance != null) ? distance.name() : null;
+
         List<Course> searchCourses = courseRepository.searchCourses(
-            keyword, latitude, longitude, radius, difficultyList, optionsList
+            keyword, latitude, longitude, radius, distanceType, difficultyList, optionsList
         );
 
         List<CourseResponse.SummaryInfo> courses = searchCourses.stream().map(course ->

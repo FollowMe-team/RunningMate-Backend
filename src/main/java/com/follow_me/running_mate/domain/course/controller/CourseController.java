@@ -4,6 +4,7 @@ import com.follow_me.running_mate.config.security.auth.PrincipalDetails;
 import com.follow_me.running_mate.domain.course.dto.request.CourseRequest;
 import com.follow_me.running_mate.domain.course.dto.response.CourseResponse;
 import com.follow_me.running_mate.domain.course.service.CourseService;
+import com.follow_me.running_mate.domain.enums.CourseDistanceType;
 import com.follow_me.running_mate.domain.enums.CourseOptionType;
 import com.follow_me.running_mate.domain.enums.Difficulty;
 import com.follow_me.running_mate.domain.enums.ReviewSortType;
@@ -234,23 +235,24 @@ public class CourseController {
         @Parameter(description = "경도")
         @RequestParam(value = "longitude", required = false) Double longitude,
 
-        @Parameter(description = "난이도", example = "EASY,NORMAL",
+        @Parameter(description = "코스 거리")
+        @RequestParam(value = "distance", required = false) CourseDistanceType distance,
+
+        @Parameter(description = "난이도(EASY,NORMAL,HARD)", example = "EASY",
             schema = @Schema(implementation = String.class, allowableValues = {"EASY", "NORMAL", "HARD"}))
         @RequestParam(value = "difficulties", required = false) List<Difficulty> difficulties,
 
-        @Parameter(description = "코스 옵션", example = "FOREST,RIVERSIDE",
-            schema = @Schema(implementation = String.class, allowableValues = {
-                "FOREST", "RIVERSIDE", "LAKESIDE", "MOUNTAIN", "SEASIDE",
-                "CITYSCAPE", "PARK", "TRAIL", "CAMPUS", "TRACK",
-                "GRADIENT_HIGH", "GRADIENT_MIDDLE", "GRADIENT_LOW",
-                "GRADIENT_NONE", "DOG_WALKABLE", "BICYCLE_WALKABLE", "BABY_WALKABLE"
-            }))
+        @Parameter(
+            description = "코스 옵션(FOREST,RIVERSIDE,LAKESIDE,MOUNTAIN,SEASIDE,CITYSCAPE,PARK,TRAIL,CAMPUS,TRACK" +
+                "GRADIENT_HIGH,GRADIENT_MIDDLE,GRADIENT_LOW,GRADIENT_NONE,DOG_WALKABLE,BICYCLE_WALKABLE,BABY_WALKABLE)",
+            example = "FOREST,RIVERSIDE",
+            schema = @Schema(implementation = String.class))
         @RequestParam(value = "options", required = false) List<CourseOptionType> options
     ) {
         return BaseResponse.success(
             "코스 검색에 성공했습니다.",
             courseService.searchCourses(
-                principalDetails.member(), keyword, latitude, longitude, difficulties, options
+                principalDetails.member(), keyword, latitude, longitude, distance, difficulties, options
             )
         );
     }

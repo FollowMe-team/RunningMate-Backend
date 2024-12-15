@@ -2,6 +2,7 @@ package com.follow_me.running_mate.domain.course.service;
 
 import com.follow_me.running_mate.domain.course.dto.request.CourseRequest;
 import com.follow_me.running_mate.domain.course.dto.response.CourseResponse;
+import com.follow_me.running_mate.domain.enums.CourseDistanceType;
 import com.follow_me.running_mate.domain.enums.CourseOptionType;
 import com.follow_me.running_mate.domain.enums.Difficulty;
 import com.follow_me.running_mate.domain.enums.ReviewSortType;
@@ -31,8 +32,8 @@ public interface CourseService {
         Member member, Double latitude, Double longitude, Difficulty difficulty, RunningGoal runningGoal
     );
     CourseResponse.CourseListResponse searchCourses(
-        Member member, String keyword, Double latitude,
-        Double longitude, List<Difficulty> difficulties, List<CourseOptionType> options
+        Member member, String keyword, Double latitude, Double longitude,
+        CourseDistanceType distance, List<Difficulty> difficulties, List<CourseOptionType> options
     );
     CourseResponse.CourseDetailResponse getCourseDetail(Member member, Long courseId);
     CourseResponse.CourseReviewListResponse getCourseReviews(Member member, Long courseId, ReviewSortType sortType);
