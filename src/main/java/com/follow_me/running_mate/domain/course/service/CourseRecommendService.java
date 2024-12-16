@@ -50,6 +50,7 @@ public class CourseRecommendService {
             String requestJson = objectMapper.writeValueAsString(request);
             log.info("Lambda 요청 데이터(JSON): {}", requestJson);
 
+
             InvokeRequest invokeRequest = new InvokeRequest()
                 .withFunctionName(lambdaName)
                 .withPayload(requestJson);
@@ -65,25 +66,14 @@ public class CourseRecommendService {
             CourseRecommendResponse response = objectMapper.readValue(responseJson, CourseRecommendResponse.class);
             log.info("Lambda 응답 객체: {}", response);
 
-            if (response.getStatusCode() != 200) {
-                throw new CustomException(
-                    CourseErrorCode.ERROR_LAMBDA_TO_BEDROCK,
-                    CourseErrorCode.ERROR_LAMBDA_TO_BEDROCK.getMessage() + response.getBody()
-                );
+            if (response.getStatusCode() == 200) {
+                return response.getBody().getCourseIds();
             }
-
-            if (response.getBody() == null) {
-                return List.of();
-            }
-
-            return response.getBody().getCourseIds();
-
+            throw new CustomException(CourseErrorCode.ERROR_LAMBDA_TO_BEDROCK, "Lambda 호출 실패");
         } catch (Exception e) {
             log.error("Lambda 호출 중 오류 발생: {}", e.getMessage(), e);
-            throw new CustomException(
-                CourseErrorCode.ERROR_LAMBDA_TO_BEDROCK,
-                CourseErrorCode.ERROR_LAMBDA_TO_BEDROCK.getMessage() + e.getMessage()
-            );
+            throw new CustomException(CourseErrorCode.ERROR_LAMBDA_TO_BEDROCK, "Lambda 호출 실패");
+
         }
     }
 

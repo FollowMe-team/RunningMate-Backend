@@ -16,6 +16,7 @@ import com.follow_me.running_mate.domain.course.service.review.CourseReviewServi
 import com.follow_me.running_mate.domain.crew.service.CrewService;
 import com.follow_me.running_mate.domain.enums.*;
 import com.follow_me.running_mate.domain.member.entity.Member;
+import com.follow_me.running_mate.global.error.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -205,9 +206,29 @@ public class CourseServiceImpl implements CourseService {
     public CourseResponse.CourseListResponse recommendedCourses(
         Member member, Double latitude, Double longitude, Difficulty difficulty, RunningGoal runningGoal) {
 
-        List<Course> recommendedCourses = courseRepository.findAllById(
-            courseRecommendService.invokeLambda(member, latitude, longitude, difficulty, runningGoal)
-        );
+        List<Course> recommendedCourses;
+
+        try {
+            // Lambda 호출 시도
+            List<Long> courseIds = courseRecommendService.invokeLambda(member, latitude, longitude, difficulty, runningGoal);
+            recommendedCourses = courseRepository.findAllById(courseIds);
+        } catch (CustomException e) {
+            log.warn("Lambda 호출 실패로 쿼리를 통한 코스 검색 수행: {}", e.getMessage());
+
+            // 위치 반경 기본값 (단위: 미터)
+            double radius = 30000.0;
+
+            // 사용자 ranking을 기준으로 기본 난이도 설정
+            Difficulty effectiveDifficulty =
+                (difficulty != null) ? difficulty : getDefaultDifficultyByRanking(member.getRanking());
+
+            // 러닝 목표에 맞는 옵션 필터링
+            List<String> goalOptions = (runningGoal != null) ?
+                courseOptionService.getOptionByRunningGoal(runningGoal) : List.of();
+
+            recommendedCourses =  courseRepository.recommendCourses(
+                latitude, longitude, radius, effectiveDifficulty.name(), goalOptions);
+        }
 
         List<CourseResponse.SummaryInfo> courses = recommendedCourses.stream().map(course ->
             courseResponseMapper.toSummaryInfo(
@@ -228,7 +249,7 @@ public class CourseServiceImpl implements CourseService {
         CourseDistanceType distance, List<Difficulty> difficulties, List<CourseOptionType> options
     ) {
         // 위치 반경 기본값(10km)
-        double radius = 10000.0;
+        double radius = 30000.0;
 
         List<String> difficultyList = (difficulties != null) ? difficulties.stream()
             .map(Difficulty::name)
@@ -335,5 +356,14 @@ public class CourseServiceImpl implements CourseService {
         Course course = courseRepository.getCourseNotApproved(courseId);
         course.updateDifficulty(Difficulty.WAITING);
         courseRepository.save(course);
+    }
+
+    // 사용자 ranking에 따른 기본 난이도 설정
+    private Difficulty getDefaultDifficultyByRanking(Ranking ranking) {
+        return switch (ranking) {
+            case JOGGER, RUNNER -> Difficulty.EASY;
+            case RACER, SPRINTER -> Difficulty.NORMAL;
+            case MARATHONER, ULTRA_RUNNER, IRON_LEGS, SPEED_DEMON -> Difficulty.HARD;
+        };
     }
 }
