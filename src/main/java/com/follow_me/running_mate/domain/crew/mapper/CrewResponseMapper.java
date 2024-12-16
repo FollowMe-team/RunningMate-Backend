@@ -102,6 +102,7 @@ public class CrewResponseMapper {
                 .endTime(crewSchedules.getEndTime())
                 .memberCount(crewSchedules.getMemberCount())
                 .memberMax(crewSchedules.getMemberMax())
+                .meetingPlace(crewSchedules.getMeetingPlace())
                 .crewCourse(courseInfo)
                 .build();
     }
