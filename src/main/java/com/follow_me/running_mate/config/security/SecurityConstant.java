@@ -25,6 +25,11 @@ public class SecurityConstant {
         "/swagger-ui.html"
     };
 
+    // Admin 관련 API 경로
+    public static final String[] ADMIN_URLS = {
+        "/api/courses/*/approve",
+    };
+
     // 모든 공개 URL들
     public static final String[] PUBLIC_URLS =
         Stream.of(PUBLIC_AUTH_URLS, SWAGGER_URLS)

@@ -5,8 +5,8 @@ import com.amazonaws.services.lambda.model.InvokeRequest;
 import com.amazonaws.services.lambda.model.InvokeResult;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.follow_me.running_mate.domain.course.dto.request.CourseLambdaRequest;
-import com.follow_me.running_mate.domain.course.dto.response.CourseLambdaResponse;
+import com.follow_me.running_mate.domain.course.dto.request.CourseAnalysisRequest;
+import com.follow_me.running_mate.domain.course.dto.response.CourseAnalysisResponse;
 import com.follow_me.running_mate.domain.course.entity.Course;
 import com.follow_me.running_mate.domain.course.entity.CoursePoint;
 import com.follow_me.running_mate.domain.course.repository.CourseRepository;
@@ -26,10 +26,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class LambdaService {
+public class CourseAnalysisService {
 
-
-    @Value("${cloud.aws.lambda.name}")
+    @Value("${cloud.aws.lambda.analysis}")
     private String lambdaName;
 
     private final AWSLambda awsLambda;
@@ -42,11 +41,11 @@ public class LambdaService {
     public void invokeCourseDifficultyLambda(Course course, List<CoursePoint> points) {
         try {
             log.info("Lambda 요청 생성 시작: courseId={}", course.getId());
-            CourseLambdaRequest request = createRequest(course, points);
+            CourseAnalysisRequest request = createRequest(course, points);
             log.info("Lambda 요청 데이터: {}", objectMapper.writeValueAsString(request));
 
             log.info("Lambda 함수 호출: courseId={}", course.getId());
-            CourseLambdaResponse response = invokeLambda(request);
+            CourseAnalysisResponse response = invokeLambda(request);
             log.info("Lambda 응답 데이터: {}", objectMapper.writeValueAsString(response));
 
             log.info("Lambda 응답 처리 시작: courseId={}", course.getId());
@@ -59,9 +58,9 @@ public class LambdaService {
         }
     }
 
-    private CourseLambdaRequest createRequest(Course course, List<CoursePoint> points) {
-        List<CourseLambdaRequest.PointInfo> pointInfos = points.stream()
-            .map(point -> CourseLambdaRequest.PointInfo.builder()
+    private CourseAnalysisRequest createRequest(Course course, List<CoursePoint> points) {
+        List<CourseAnalysisRequest.PointInfo> pointInfos = points.stream()
+            .map(point -> CourseAnalysisRequest.PointInfo.builder()
                 .x(point.getLocation().getX())
                 .y(point.getLocation().getY())
                 .elevation(point.getElevation())
@@ -69,13 +68,13 @@ public class LambdaService {
                 .build())
             .toList();
 
-        return CourseLambdaRequest.builder()
+        return CourseAnalysisRequest.builder()
             .totalDistance(course.getDistance())
             .points(pointInfos)
             .build();
     }
 
-    private CourseLambdaResponse invokeLambda(CourseLambdaRequest request) throws JsonProcessingException {
+    private CourseAnalysisResponse invokeLambda(CourseAnalysisRequest request) throws JsonProcessingException {
         InvokeRequest invokeRequest = new InvokeRequest()
             .withFunctionName(lambdaName)
             .withPayload(objectMapper.writeValueAsString(request));
@@ -84,11 +83,11 @@ public class LambdaService {
         String responseStr = new String(result.getPayload().array());
         log.info("Lambda 원본 응답: {}", responseStr);  // 응답 로그 추가
 
-        return objectMapper.readValue(responseStr, CourseLambdaResponse.class);
+        return objectMapper.readValue(responseStr, CourseAnalysisResponse.class);
     }
 
 
-    private void applyResponse(Course course, List<CoursePoint> points, CourseLambdaResponse response) {
+    private void applyResponse(Course course, List<CoursePoint> points, CourseAnalysisResponse response) {
         try {
             if (response == null) {
                 log.error("Lambda 응답이 null입니다.");
@@ -117,7 +116,7 @@ public class LambdaService {
             }
 
             if (response.getVoicePoints() != null) {
-                for (CourseLambdaResponse.VoicePointInfo voicePoint : response.getVoicePoints()) {
+                for (CourseAnalysisResponse.VoicePointInfo voicePoint : response.getVoicePoints()) {
                     if (voicePoint.getVoiceType() != null && voicePoint.getSequenceNumber() != null) {
                         points.stream()
                             .filter(p -> voicePoint.getSequenceNumber().equals(p.getSequenceNumber()))
@@ -135,8 +134,6 @@ public class LambdaService {
             }
         } catch (Exception e) {
             log.error("응답 처리 중 예외 발생", e);
-            course.setDifficulty(Difficulty.NORMAL);
-            courseRepository.save(course);
         }
     }
 }
