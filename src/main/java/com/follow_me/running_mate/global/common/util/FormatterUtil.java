@@ -121,4 +121,12 @@ public class FormatterUtil {
 
         return Duration.ofHours(hours).plusMinutes(minutes).plusSeconds(seconds);
     }
+
+    // String 포맷팅
+    public static String formatString(String str) {
+        if (str == null) {
+            return null;
+        }
+        return str.length() > 50 ? str.substring(0, 50) + "..." : str;
+    }
 }

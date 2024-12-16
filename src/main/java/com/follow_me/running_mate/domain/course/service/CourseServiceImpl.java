@@ -1,6 +1,7 @@
 package com.follow_me.running_mate.domain.course.service;
 
 import com.follow_me.running_mate.domain.course.dto.request.CourseRequest;
+import com.follow_me.running_mate.domain.course.dto.response.CourseRecommendResponse;
 import com.follow_me.running_mate.domain.course.dto.response.CourseResponse;
 import com.follow_me.running_mate.domain.course.entity.*;
 import com.follow_me.running_mate.domain.course.mapper.CourseEntityMapper;
@@ -15,6 +16,7 @@ import com.follow_me.running_mate.domain.course.service.review.CourseReviewServi
 import com.follow_me.running_mate.domain.crew.service.CrewService;
 import com.follow_me.running_mate.domain.enums.*;
 import com.follow_me.running_mate.domain.member.entity.Member;
+import com.follow_me.running_mate.global.error.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -41,7 +43,10 @@ public class CourseServiceImpl implements CourseService {
     private final CourseImageService courseImageService;
     private final CoursePointService coursePointService;
     private final CrewService crewService;
-    private final LambdaService lambdaService;
+    private final CourseAnalysisService courseAnalysisService;
+    private final CourseVectorService courseVectorService;
+    private final CourseRecommendService courseRecommendService;
+
 
 
     @Override
@@ -59,7 +64,7 @@ public class CourseServiceImpl implements CourseService {
         courseImageService.saveCourseImages(course, representativeImage, startImage, endImage);
         List<CourseOption> courseOptions = courseOptionService.saveAll(course, request.getOptions());
         course.addOptions(courseOptions);
-        List<CoursePoint> coursePoints = coursePointService.saveCoursePoints(course, request.getCoursePoints());
+        coursePointService.saveCoursePoints(course, request.getCoursePoints());
         log.info("코스 상세 정보 저장 완료: courseId={}", course.getId());
 
         final Long courseId = course.getId();
@@ -69,7 +74,7 @@ public class CourseServiceImpl implements CourseService {
                 updateCourseStatus(courseId, Status.ANALYZING);
                 log.info("상태 업데이트 - ANALYZING: courseId={}", courseId);
 
-                lambdaService.invokeCourseDifficultyLambda(
+                courseAnalysisService.invokeCourseDifficultyLambda(
                     courseRepository.getCourseNotApproved(courseId),
                     coursePointService.getCoursePointsByCourseId(courseId)
                 );
@@ -79,6 +84,7 @@ public class CourseServiceImpl implements CourseService {
                 log.info("상태 업데이트 - WAIT: courseId={}", courseId);
             } catch (Exception e) {
                 log.error("Lambda 분석 실패: courseId={}", courseId, e);
+                errorDifficulty(courseId);
                 updateCourseStatus(courseId, Status.READY);
             }
         });
@@ -200,19 +206,29 @@ public class CourseServiceImpl implements CourseService {
     public CourseResponse.CourseListResponse recommendedCourses(
         Member member, Double latitude, Double longitude, Difficulty difficulty, RunningGoal runningGoal) {
 
-        // 위치 반경 기본값 (단위: 미터)
-        double radius = 50000.0;
+        List<Course> recommendedCourses;
 
-        // 사용자 ranking을 기준으로 기본 난이도 설정
-        Difficulty effectiveDifficulty =
-            (difficulty != null) ? difficulty : getDefaultDifficultyByRanking(member.getRanking());
+        try {
+            // Lambda 호출 시도
+            List<Long> courseIds = courseRecommendService.invokeLambda(member, latitude, longitude, difficulty, runningGoal);
+            recommendedCourses = courseRepository.findAllById(courseIds);
+        } catch (CustomException e) {
+            log.warn("Lambda 호출 실패로 쿼리를 통한 코스 검색 수행: {}", e.getMessage());
 
-        // 러닝 목표에 맞는 옵션 필터링
-        List<String> goalOptions = (runningGoal != null) ?
-            courseOptionService.getOptionByRunningGoal(runningGoal) : List.of();
+            // 위치 반경 기본값 (단위: 미터)
+            double radius = 30000.0;
 
-        List<Course> recommendedCourses = courseRepository.recommendCourses(
-            latitude, longitude, radius, effectiveDifficulty.name(), goalOptions);
+            // 사용자 ranking을 기준으로 기본 난이도 설정
+            Difficulty effectiveDifficulty =
+                (difficulty != null) ? difficulty : getDefaultDifficultyByRanking(member.getRanking());
+
+            // 러닝 목표에 맞는 옵션 필터링
+            List<String> goalOptions = (runningGoal != null) ?
+                courseOptionService.getOptionByRunningGoal(runningGoal) : List.of();
+
+            recommendedCourses =  courseRepository.recommendCourses(
+                latitude, longitude, radius, effectiveDifficulty.name(), goalOptions);
+        }
 
         List<CourseResponse.SummaryInfo> courses = recommendedCourses.stream().map(course ->
             courseResponseMapper.toSummaryInfo(
@@ -233,7 +249,7 @@ public class CourseServiceImpl implements CourseService {
         CourseDistanceType distance, List<Difficulty> difficulties, List<CourseOptionType> options
     ) {
         // 위치 반경 기본값(10km)
-        double radius = 10000.0;
+        double radius = 30000.0;
 
         List<String> difficultyList = (difficulties != null) ? difficulties.stream()
             .map(Difficulty::name)
@@ -319,10 +335,26 @@ public class CourseServiceImpl implements CourseService {
         );
     }
 
+    @Override
+    @Transactional
+    public void approveCourse(Long courseId) {
+        Course course =courseRepository.getCourseNotApproved(courseId);
+        course.updateStatus(Status.COMPLETE);
+
+        courseVectorService.saveCourseToS3(course);
+    }
+
     @Transactional
     protected void updateCourseStatus(Long courseId, Status status) {
         Course course = courseRepository.getCourseNotApproved(courseId);
         course.updateStatus(status);
+        courseRepository.save(course);
+    }
+
+    @Transactional
+    protected void errorDifficulty(Long courseId) {
+        Course course = courseRepository.getCourseNotApproved(courseId);
+        course.updateDifficulty(Difficulty.WAITING);
         courseRepository.save(course);
     }
 

@@ -40,9 +40,11 @@ public class SecurityConfig {
             .sessionManagement(
                 session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
-            .authorizeHttpRequests(authorize -> authorize
-                .requestMatchers(SecurityConstant.PUBLIC_URLS).permitAll()
-                .anyRequest().authenticated()
+            .authorizeHttpRequests(authorize ->
+                authorize
+                    .requestMatchers(SecurityConstant.PUBLIC_URLS).permitAll()
+                    .requestMatchers(SecurityConstant.ADMIN_URLS).hasRole("ADMIN")
+                    .anyRequest().authenticated()
             )
             .addFilter(new JwtAuthenticationFilter(authenticationManager(authenticationConfiguration), jwtTokenProvider))
             .addFilterBefore(new JwtAuthorizationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)

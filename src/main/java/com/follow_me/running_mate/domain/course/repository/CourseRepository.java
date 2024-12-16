@@ -37,7 +37,8 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
         "WHERE (:latitude IS NULL OR ST_DWithin(c.start_point, ST_MakePoint(:longitude, :latitude)::geography, :radius)) " +
         "AND c.difficulty = :difficulty " +
         "AND c.status = 'COMPLETE' " +
-        "AND (COALESCE(:optionsList) IS NULL OR o.type IN (:optionsList))",
+        "AND (COALESCE(:optionsList) IS NULL OR o.type IN (:optionsList))" +
+        "AND c.deleted_at IS NULL;",
         nativeQuery = true)
     List<Course> recommendCourses(
         @Param("latitude") Double latitude,

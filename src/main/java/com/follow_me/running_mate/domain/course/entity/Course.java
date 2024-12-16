@@ -89,12 +89,12 @@ public class Course extends BaseEntity {
         this.runningCount++;
     }
 
-    public void updateStatus(Status status) {
-        this.status = status;
+    public void updateDifficulty(Difficulty difficulty) {
+        this.difficulty = difficulty;
     }
 
-    public void addOption(CourseOption option) {
-        this.options.add(option);
+    public void updateStatus(Status status) {
+        this.status = status;
     }
 
     public void addOptions(List<CourseOption> option) {
