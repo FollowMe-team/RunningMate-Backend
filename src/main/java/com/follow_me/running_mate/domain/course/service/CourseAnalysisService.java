@@ -134,8 +134,6 @@ public class CourseAnalysisService {
             }
         } catch (Exception e) {
             log.error("응답 처리 중 예외 발생", e);
-            course.setDifficulty(Difficulty.NORMAL);
-            courseRepository.save(course);
         }
     }
 }

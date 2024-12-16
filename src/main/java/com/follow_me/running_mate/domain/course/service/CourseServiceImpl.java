@@ -83,6 +83,7 @@ public class CourseServiceImpl implements CourseService {
                 log.info("상태 업데이트 - WAIT: courseId={}", courseId);
             } catch (Exception e) {
                 log.error("Lambda 분석 실패: courseId={}", courseId, e);
+                errorDifficulty(courseId);
                 updateCourseStatus(courseId, Status.READY);
             }
         });
@@ -324,6 +325,13 @@ public class CourseServiceImpl implements CourseService {
     protected void updateCourseStatus(Long courseId, Status status) {
         Course course = courseRepository.getCourseNotApproved(courseId);
         course.updateStatus(status);
+        courseRepository.save(course);
+    }
+
+    @Transactional
+    protected void errorDifficulty(Long courseId) {
+        Course course = courseRepository.getCourseNotApproved(courseId);
+        course.updateDifficulty(Difficulty.WAITING);
         courseRepository.save(course);
     }
 }

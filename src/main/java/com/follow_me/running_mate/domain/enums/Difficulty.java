@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum Difficulty {
+    WAITING("검토 중"),
     EASY("쉬움"),
     NORMAL("보통"),
     HARD("어려움"),
